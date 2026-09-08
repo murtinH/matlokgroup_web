@@ -160,6 +160,13 @@ export const siteSettings = defineType({
       ],
     }),
     defineField({
+      name: 'turnstileSiteKey',
+      title: 'Turnstile — veřejný klíč',
+      type: 'string',
+      description:
+        'Ochrana poptávkového formuláře proti robotům. Tenhle klíč je veřejný a patří do stránky. Tajný protějšek je v Cloudflare jako TURNSTILE_SECRET. Prázdné pole = ochrana vypnutá.',
+    }),
+    defineField({
       name: 'analytikaToken',
       title: 'Token Cloudflare Web Analytics',
       type: 'string',

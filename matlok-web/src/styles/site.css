@@ -1439,3 +1439,84 @@ details.faq p { font-size: var(--text-sm); color: var(--text-secondary); margin:
   .js .tip::after { animation: none; }
   .fcard:hover, .kpitile:hover { transform: none; }
 }
+
+/* ============================================================
+   PÁS ZAKLADATELŮ
+
+   Dvě karty vedle sebe dělaly ze sekce třetí mřížku v řadě — po kartách
+   divizí a před kartami "Proč Matlok" už to bylo jednotvárné. Prokládané
+   řádky dají stránce rytmus a zakladatelům víc místa, než karta unese.
+   ============================================================ */
+.zakladatele { display: grid; gap: clamp(2.5rem, 6vw, var(--space-10)); margin-top: var(--space-8); }
+
+.zakladatel {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: clamp(1.5rem, 4vw, var(--space-8));
+  align-items: center;
+}
+/* Druhý zakladatel má portrét na opačné straně — odtud "prokládaný". */
+.zakladatel:nth-child(even) { grid-template-columns: 1.2fr 0.8fr; }
+.zakladatel:nth-child(even) .zakladatel__portret { order: 2; }
+
+@media (max-width: 860px) {
+  .zakladatel,
+  .zakladatel:nth-child(even) { grid-template-columns: 1fr; }
+  .zakladatel:nth-child(even) .zakladatel__portret { order: 0; }
+}
+
+.zakladatel__portret {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius-xl);
+  background: var(--ink-800);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.zakladatel__portret img { width: 100%; height: 100%; object-fit: cover; }
+.zakladatel__monogram {
+  font-family: var(--font-display);
+  font-weight: var(--fw-black);
+  font-size: clamp(3.5rem, 9vw, 5.5rem);
+  letter-spacing: var(--tracking-tight);
+  color: #fff;
+}
+/* Azurový čtverec v rohu — značkový motiv. */
+.zakladatel__portret::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 44px;
+  height: 44px;
+  background: var(--accent);
+}
+
+.zakladatel__jmeno {
+  font-size: clamp(1.6rem, 3.4vw, var(--text-2xl));
+  margin-bottom: var(--space-3);
+}
+.zakladatel__claim {
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-md);
+  color: var(--ink-800);
+  margin-bottom: var(--space-4);
+  line-height: 1.4;
+}
+.zakladatel__bio { font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.75; max-width: 62ch; }
+.zakladatel__detail {
+  border-left: 2px solid var(--accent);
+  padding: 0.2em 0 0.2em var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: var(--space-5) 0;
+  line-height: 1.6;
+  max-width: 58ch;
+}
+
+/* Ochrana formuláře proti robotům. Widget si kreslí Cloudflare sám,
+   my mu jen dáme místo v mřížce formuláře. */
+.cf-turnstile { min-height: 65px; }

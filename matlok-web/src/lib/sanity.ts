@@ -6,10 +6,16 @@ export const sanity: SanityClient = createClient({
   projectId: SANITY_PROJECT_ID,
   dataset: SANITY_DATASET,
   apiVersion: SANITY_API_VERZE,
-  // Při buildu čteme přes CDN — je to rychlejší a levnější, a build stejně
-  // běží jednorázově. Ve vývoji CDN obcházíme: cachuje řádově minuty a člověk
-  // by po úpravě v Studiu koukal na starý obsah a myslel si, že je něco rozbité.
-  useCdn: !import.meta.env.DEV,
+  // CDN se neobchází jen ve vývoji, ale i při buildu.
+  //
+  // Sanity po uložení textu spustí přestavbu webu okamžitě, jenže CDN drží
+  // starou verzi ještě řádově minuty. Build by tak zapekl obsah, který
+  // redaktor právě přepsal, a na webu by se změna neobjevila až do dalšího
+  // buildu — bez zjevné příčiny. Přesně na to jsem naletěl při odstraňování
+  // zmínky o dodavateli.
+  //
+  // Build běží jednou za změnu obsahu, takže pár dotazů navíc nic nestojí.
+  useCdn: false,
 })
 
 /** Obrázek ze Sanity: buď reference na asset, nebo přímo asset. */

@@ -1,0 +1,57 @@
+---
+import {obrazek, srcset} from '../lib/sanity'
+import type {Founder} from '../lib/queries'
+
+interface Props {
+  zakladatel: Founder
+}
+
+const {zakladatel} = Astro.props
+
+// Dokud fotka není v Sanity, drží místo monogram.
+const monogram = zakladatel.jmeno
+  .split(' ')
+  .filter((c) => /^[A-ZÁ-Ž]/.test(c))
+  .slice(0, 2)
+  .map((c) => c[0])
+  .join('')
+---
+
+<article class="zakladatel reveal">
+  <div class="zakladatel__portret">
+    {
+      zakladatel.foto ? (
+        <img
+          src={obrazek(zakladatel.foto).width(720).height(900).fit('crop').url()}
+          srcset={srcset(zakladatel.foto, [360, 720, 1080])}
+          sizes="(max-width: 900px) 100vw, 34vw"
+          alt={zakladatel.jmeno}
+          width="720"
+          height="900"
+        />
+      ) : (
+        <span class="zakladatel__monogram" aria-hidden="true">
+          {monogram}
+        </span>
+      )
+    }
+  </div>
+
+  <div class="zakladatel__text">
+    <p class="eyebrow">{zakladatel.role}</p>
+    <h3 class="zakladatel__jmeno">{zakladatel.jmeno}</h3>
+    <p class="zakladatel__claim">{zakladatel.claim}</p>
+    <p class="zakladatel__bio">{zakladatel.bio}</p>
+    {zakladatel.lidskyDetail && <p class="zakladatel__detail">{zakladatel.lidskyDetail}</p>}
+
+    {
+      zakladatel.stitky && zakladatel.stitky.length > 0 && (
+        <div class="tags">
+          {zakladatel.stitky.map((stitek) => (
+            <span class="tag">{stitek}</span>
+          ))}
+        </div>
+      )
+    }
+  </div>
+</article>
