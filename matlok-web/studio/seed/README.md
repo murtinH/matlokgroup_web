@@ -4,6 +4,10 @@
 Slouží k naplnění prázdného datasetu, ne k průběžné správě — jakmile se obsah edituje
 ve Studiu, tenhle soubor přestává být zdrojem pravdy.
 
+**Import proběhl 8. 9. 2026** do datasetu `production`, 46 dokumentů. Od té chvíle je
+zdrojem pravdy Studio. Opakovaný import s `--replace` přepíše redakční změny — pouštět
+jen vědomě.
+
 ## Import
 
 ```bash
