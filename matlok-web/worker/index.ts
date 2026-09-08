@@ -14,8 +14,6 @@ export interface Env {
   /** Statické soubory z buildu Astra. Nastavuje wrangler.jsonc. */
   ASSETS: Fetcher
 
-  PUBLIC_SANITY_PROJECT_ID: string
-  PUBLIC_SANITY_DATASET: string
   SANITY_WRITE_TOKEN: string
   RESEND_API_KEY?: string
 

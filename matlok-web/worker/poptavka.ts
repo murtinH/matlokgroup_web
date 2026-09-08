@@ -11,6 +11,7 @@
  */
 
 import type {Env} from './index'
+import {SANITY_API_VERZE, SANITY_DATASET, SANITY_PROJECT_ID} from '../src/lib/konfigurace'
 
 const ZAMERY = ['services', 'automat', 'jine'] as const
 type Zamer = (typeof ZAMERY)[number]
@@ -25,7 +26,6 @@ const POLE_PODLE_ZAMERU: Record<Zamer, string[]> = {
 const LIMIT_ODESLANI = 5
 const LIMIT_OKNO_SEKUND = 60 * 60
 
-const API_VERZE = '2025-08-15'
 const MAX_DELKA = 2000
 
 function odpoved(telo: unknown, status = 200): Response {
@@ -93,7 +93,7 @@ export async function zpracujPoptavku(request: Request, env: Env): Promise<Respo
   // --- Omezení počtu odeslání ------------------------------------------
   const ip = request.headers.get('cf-connecting-ip') ?? 'neznama'
   if (env.RATE_LIMIT) {
-    const klic = `poptavka:${await otiskIp(ip, env.PUBLIC_SANITY_PROJECT_ID)}`
+    const klic = `poptavka:${await otiskIp(ip, SANITY_PROJECT_ID)}`
     const dosud = Number((await env.RATE_LIMIT.get(klic)) ?? '0')
 
     if (dosud >= LIMIT_ODESLANI) {
@@ -133,7 +133,7 @@ export async function zpracujPoptavku(request: Request, env: Env): Promise<Respo
 
   // --- Zápis do Sanity --------------------------------------------------
   const zapis = await fetch(
-    `https://${env.PUBLIC_SANITY_PROJECT_ID}.api.sanity.io/v${API_VERZE}/data/mutate/${env.PUBLIC_SANITY_DATASET}`,
+    `https://${SANITY_PROJECT_ID}.api.sanity.io/v${SANITY_API_VERZE}/data/mutate/${SANITY_DATASET}`,
     {
       method: 'POST',
       headers: {
@@ -175,7 +175,7 @@ async function posliNotifikaci(
   // Adresa příjemce je v Sanity, ne v kódu — jde změnit bez nasazení.
   const dotaz = encodeURIComponent('*[_id == "siteSettings"][0]{notifikacniEmail, email}')
   const nastaveni = await fetch(
-    `https://${env.PUBLIC_SANITY_PROJECT_ID}.apicdn.sanity.io/v${API_VERZE}/data/query/${env.PUBLIC_SANITY_DATASET}?query=${dotaz}`,
+    `https://${SANITY_PROJECT_ID}.apicdn.sanity.io/v${SANITY_API_VERZE}/data/query/${SANITY_DATASET}?query=${dotaz}`,
   ).then((r) => r.json() as Promise<{result?: {notifikacniEmail?: string; email?: string}}>)
 
   const prijemce = nastaveni.result?.notifikacniEmail ?? nastaveni.result?.email
