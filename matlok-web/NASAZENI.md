@@ -208,7 +208,35 @@ poddomény na starý server.
 4. Teprve teď v panelu Websupport přepni nameservery na ty, které dá Cloudflare.
 5. Změna se propisuje řádově hodiny. Do té doby běží stará zóna.
 6. Po propsání přidej doménu v projektu → Settings → Domains & Routes →
-   `matlok.cz` i `www.matlok.cz`. Přesměrování z www na holou doménu řeší skript sám.
+   `matlok.cz` i `www.matlok.cz`.
+
+### Přesměrování z www
+
+Do skriptu ho psát nejde. Cloudflare servíruje statické stránky dřív, než
+skript vůbec spustí — ten se dostane ke slovu jen u adres, pro které žádný
+soubor neexistuje, tedy `/api/*`. U běžné stránky by se přesměrování nikdy
+nevykonalo.
+
+Řeší to pravidlo, které běží ještě před skriptem:
+
+**Cloudflare → doména `matlok.cz` → Rules → Redirect Rules → Create rule**
+
+| Pole | Hodnota |
+|---|---|
+| Rule name | `www na holou doménu` |
+| If incoming requests match | **Wildcard pattern** |
+| Request URL | `https://www.matlok.cz/*` |
+| Target URL | `https://matlok.cz/${1}` |
+| Status code | **301** |
+| Preserve query string | zapnuto |
+
+Hvězdička v Request URL zachytí cestu a `${1}` ji na druhé straně vloží zpátky,
+takže `www.matlok.cz/kontakt` skončí na `matlok.cz/kontakt`, ne na domovské
+stránce. U samotné `www.matlok.cz/` je hvězdička prázdná a chování je správné.
+
+Upozornění o POST požadavcích se nás netýká — formulář odesílá data rovnou
+na `matlok.cz/api/poptavka`, tedy na holou doménu, a přes tohle pravidlo
+neprochází.
 
 ### Kontrola po přepnutí
 
