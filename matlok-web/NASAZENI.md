@@ -1,6 +1,8 @@
-# Nasazení na Cloudflare Pages
+# Nasazení na Cloudflare Workers
 
-Postup pro Session 4. Kroky, které vyžadují tvůj účet, jsou označené **[ty]**.
+Postup pro Session 4. Web běží jako **Worker se statickými soubory**, ne jako
+Pages — Cloudflare do Pages už rok nepřidává nic nového a v dashboardu nabízí
+rovnou tenhle model. Kroky, které vyžadují tvůj účet, jsou označené **[ty]**.
 Kroky, které udělám já, jsou označené **[Claude]**.
 
 ---
@@ -19,21 +21,34 @@ přímo do Cloudflare jako šifrované proměnné.
 
 ---
 
-## 1 · [ty] Založení projektu v Cloudflare Pages
+## 1 · [ty] Založení projektu
 
-Cloudflare → Workers & Pages → Create → Pages → Connect to Git → repozitář
+Cloudflare → Workers & Pages → Create → Connect to Git → repozitář
 `murtinH/matlokgroup_web`.
-
-Nastavení buildu — **root directory je zásadní**, projekt není v kořeni repozitáře:
 
 | Pole | Hodnota |
 |---|---|
-| Production branch | `main` |
-| Root directory | `matlok-web` |
+| Project name | `matlokgroup-web` |
 | Build command | `npm run build` |
-| Build output directory | `dist` |
+| Deploy command | `npx wrangler deploy` |
 
-Serverové funkce ze složky `matlok-web/functions/` si Cloudflare najde sám.
+### Root directory — bez tohohle build spadne
+
+Projekt **není v kořeni repozitáře**, ale v podsložce `matlok-web/`. Když se
+to nenastaví, pustí Cloudflare `npm run build` tam, kde žádný `package.json`
+není, a build skončí hned.
+
+V průvodci se to pole neobjeví. Po založení projektu jdi do
+**Settings → Build → Root directory** a nastav `matlok-web`.
+
+Jestli první build spadne dřív, než to stihneš, nevadí — po opravě nastavení
+spustíš nový přes **Retry deployment**.
+
+### Co je v repozitáři
+
+`matlok-web/wrangler.jsonc` říká Cloudflaru, kde jsou statické soubory
+(`./dist`) a který skript obsluhuje zbytek (`worker/index.ts`). Konfigurace
+tedy žije v gitu, ne v dashboardu — když ji někdo změní, je to vidět v historii.
 
 ---
 
@@ -41,28 +56,45 @@ Serverové funkce ze složky `matlok-web/functions/` si Cloudflare najde sám.
 
 Settings → Environment variables → Production **i** Preview.
 
+Settings → Variables and Secrets.
+
 | Název | Hodnota | Typ |
 |---|---|---|
 | `NODE_VERSION` | `22.12.0` | text |
-| `PUBLIC_SANITY_PROJECT_ID` | `jew7wcoq` | text |
-| `PUBLIC_SANITY_DATASET` | `production` | text |
-| `SANITY_WRITE_TOKEN` | *(token ze Sanity)* | **šifrovaná** |
-| `RESEND_API_KEY` | *(klíč z Resendu)* | **šifrovaná** |
+| `SANITY_WRITE_TOKEN` | *(token ze Sanity, viz níž)* | **Secret** |
+| `RESEND_API_KEY` | *(klíč z Resendu)* | **Secret** |
+
+`PUBLIC_SANITY_PROJECT_ID` a `PUBLIC_SANITY_DATASET` sem nepatří — jsou to
+veřejné identifikátory a už jsou ve `wrangler.jsonc`.
 
 `NODE_VERSION` tam musí být — Astro 7 potřebuje Node 22.12 nebo novější
 a Cloudflare jinak nasadí starší verzi, na které build spadne.
 
+### Sanity token
+
+Token jsem už vytvořil přes příkazovou řádku, jmenuje se **`cloudflare-poptavky`**
+a má roli Editor. Jeho hodnotu ale neznám ani já, ani ty — Sanity ji ukáže jen
+jednou při vytvoření a já ji uložil rovnou do souboru `.dev.vars`, který je
+mimo repozitář.
+
+Pro Cloudflare si vytvoř vlastní: sanity.io/manage → projekt → API → Tokens →
+Add API token, role **Editor**. Hodnotu zkopíruj rovnou do Cloudflare a nikam
+jinam ji nevkládej.
+
 ### Úložiště pro omezení počtu odeslání
 
 Storage & Databases → KV → Create → název `matlok-rate-limit`.
-Pak v Pages → Settings → Bindings → Add → KV namespace:
+Zkopíruj **ID** vzniklého úložiště a pošli mi ho — doplním ho do
+`wrangler.jsonc`, aby konfigurace zůstala v gitu:
 
-| Variable name | KV namespace |
-|---|---|
-| `RATE_LIMIT` | `matlok-rate-limit` |
+```jsonc
+"kv_namespaces": [{ "binding": "RATE_LIMIT", "id": "<id z dashboardu>" }]
+```
+
+ID není tajné, je to jen identifikátor.
 
 Bez tohohle bindingu formulář funguje dál, jen se neomezuje počet odeslání.
-Funkce to pozná sama a nespadne.
+Skript to pozná sám a nespadne.
 
 ---
 
@@ -157,7 +189,8 @@ poddomény na starý server.
    Přes proxy pošta nefunguje.
 4. Teprve teď v panelu Websupport přepni nameservery na ty, které dá Cloudflare.
 5. Změna se propisuje řádově hodiny. Do té doby běží stará zóna.
-6. Po propsání přidej doménu v Pages → Custom domains → `matlok.cz` i `www.matlok.cz`.
+6. Po propsání přidej doménu v projektu → Settings → Domains & Routes →
+   `matlok.cz` i `www.matlok.cz`. Přesměrování z www na holou doménu řeší skript sám.
 
 ### Kontrola po přepnutí
 
@@ -176,8 +209,8 @@ Pošli si testovací e-mail z jiné schránky na `info@matlok.cz` a ověř, že 
 Web je statický — obsah se ze Sanity vytáhne při buildu a zapeče do HTML.
 Bez tohohle kroku by se změna textu ve Studiu na webu **nikdy neprojevila**.
 
-1. Cloudflare Pages → Settings → Builds & deployments → Deploy hooks →
-   Create → název `sanity`, branch `main`. Zkopíruj vzniklou adresu.
+1. Cloudflare → projekt → Settings → Builds → Deploy hooks → Create →
+   název `sanity`, branch `main`. Zkopíruj vzniklou adresu.
 2. sanity.io/manage → projekt → API → Webhooks → Create webhook:
 
 | Pole | Hodnota |
@@ -197,11 +230,17 @@ Po uložení textu ve Studiu je změna na webu do zhruba dvou minut.
 
 ## 6 · [Claude] Co je hotové v kódu
 
-- `functions/api/poptavka.ts` — validace, honeypot, omezení počtu odeslání,
+- `wrangler.jsonc` — kde jsou statické soubory a co obsluhuje zbytek
+- `worker/index.ts` — směrování, přesměrování z www
+- `worker/poptavka.ts` — validace, honeypot, omezení počtu odeslání,
   zápis do Sanity, notifikační e-mail
 - `src/components/CookieLista.astro` — souhlas, analytika až po něm
 - `public/_headers` — bezpečnostní hlavičky, trvalá cache pro soubory s otiskem
-- `public/_redirects` — `www.matlok.cz` → `matlok.cz`
+
+Vyzkoušené lokálně přes `npm run cf:dev` proti skutečnému Sanity:
+stránky se servírují, `/api/poptavka` odmítá GET, past na roboty vrací
+„odesláno" a nic neuloží, chybné vstupy vrací srozumitelné hlášky
+a platná poptávka se v Sanity objeví jen s poli, která k danému záměru patří.
 
 ---
 

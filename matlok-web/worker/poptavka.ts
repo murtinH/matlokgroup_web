@@ -1,5 +1,5 @@
 /**
- * Zpracování poptávkového formuláře. Cloudflare Pages Function.
+ * Zpracování poptávkového formuláře.
  *
  * Pořadí kroků je záměrné: poptávka se nejdřív uloží do Sanity a teprve
  * potom se posílá notifikace. Kdyby to bylo naopak a zápis selhal, přišli
@@ -10,14 +10,7 @@
  * které Cloudflare drží jako šifrované proměnné.
  */
 
-interface Env {
-  PUBLIC_SANITY_PROJECT_ID: string
-  PUBLIC_SANITY_DATASET: string
-  SANITY_WRITE_TOKEN: string
-  RESEND_API_KEY?: string
-  /** Volitelné úložiště pro počítadlo odeslání. Bez něj se limit přeskočí. */
-  RATE_LIMIT?: KVNamespace
-}
+import type {Env} from './index'
 
 const ZAMERY = ['services', 'automat', 'jine'] as const
 type Zamer = (typeof ZAMERY)[number]
@@ -66,7 +59,7 @@ async function otiskIp(ip: string, projectId: string): Promise<string> {
     .join('')
 }
 
-export const onRequestPost: PagesFunction<Env> = async ({request, env}) => {
+export async function zpracujPoptavku(request: Request, env: Env): Promise<Response> {
   let data: FormData
   try {
     data = await request.formData()
@@ -183,7 +176,7 @@ async function posliNotifikaci(
   const dotaz = encodeURIComponent('*[_id == "siteSettings"][0]{notifikacniEmail, email}')
   const nastaveni = await fetch(
     `https://${env.PUBLIC_SANITY_PROJECT_ID}.apicdn.sanity.io/v${API_VERZE}/data/query/${env.PUBLIC_SANITY_DATASET}?query=${dotaz}`,
-  ).then((r) => r.json<{result?: {notifikacniEmail?: string; email?: string}}>())
+  ).then((r) => r.json() as Promise<{result?: {notifikacniEmail?: string; email?: string}}>)
 
   const prijemce = nastaveni.result?.notifikacniEmail ?? nastaveni.result?.email
   if (!prijemce) {
