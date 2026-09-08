@@ -90,8 +90,41 @@ export async function zpracujPoptavku(request: Request, env: Env): Promise<Respo
     return odpoved({ok: false, chyba: 'Zkontrolujte prosím e-mail.'}, 400)
   }
 
-  // --- Omezení počtu odeslání ------------------------------------------
   const ip = request.headers.get('cf-connecting-ip') ?? 'neznama'
+
+  // --- Ochrana proti robotům -------------------------------------------
+  // Známka je jednorázová a platí pár minut. Ověřuje se až po validaci,
+  // aby se Cloudflare nevolal kvůli formuláři s překlepem v e-mailu.
+  if (env.TURNSTILE_SECRET) {
+    const znamka = text(data.get('cf-turnstile-response'))
+    if (!znamka) {
+      return odpoved(
+        {ok: false, chyba: 'Ověření se nepodařilo. Načtěte prosím stránku znovu a zkuste to znovu.'},
+        400,
+      )
+    }
+
+    const overeni = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      body: new URLSearchParams({
+        secret: env.TURNSTILE_SECRET,
+        response: znamka,
+        remoteip: ip,
+      }),
+    })
+      .then((r) => r.json() as Promise<{success?: boolean; 'error-codes'?: string[]}>)
+      .catch(() => null)
+
+    if (!overeni?.success) {
+      console.warn('Turnstile odmítl odeslání:', overeni?.['error-codes'] ?? 'bez odpovědi')
+      return odpoved(
+        {ok: false, chyba: 'Ověření se nepodařilo. Načtěte prosím stránku znovu a zkuste to znovu.'},
+        403,
+      )
+    }
+  }
+
+  // --- Omezení počtu odeslání ------------------------------------------
   if (env.RATE_LIMIT) {
     const klic = `poptavka:${await otiskIp(ip, SANITY_PROJECT_ID)}`
     const dosud = Number((await env.RATE_LIMIT.get(klic)) ?? '0')

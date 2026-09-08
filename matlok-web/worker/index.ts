@@ -24,6 +24,12 @@ export interface Env {
   MUJAUTOMAT_API_KEY?: string
 
   /**
+   * Tajný protějšek klíče Turnstile. Když chybí, ochrana formuláře
+   * proti robotům se přeskočí — zůstane past a omezení počtu odeslání.
+   */
+  TURNSTILE_SECRET?: string
+
+  /**
    * Počítadlo odeslání formuláře. Binding je nepovinný — dokud v Cloudflare
    * nevznikne úložiště, formulář funguje dál, jen bez omezení počtu.
    */

@@ -28,6 +28,7 @@ export interface SiteSettings {
     odmitnuti?: string
   }
   analytikaToken?: string
+  turnstileSiteKey?: string
 }
 
 export interface Division {

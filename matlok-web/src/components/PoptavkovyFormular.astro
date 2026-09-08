@@ -1,11 +1,13 @@
 ---
-import type {KontaktPage} from '../lib/queries'
+import type {KontaktPage, SiteSettings} from '../lib/queries'
 
 interface Props {
   obsah: KontaktPage
+  nastaveni: SiteSettings
 }
 
-const {obsah} = Astro.props
+const {obsah, nastaveni} = Astro.props
+const turnstileKlic = nastaveni.turnstileSiteKey
 const n = obsah.napovedy ?? {}
 const kroky = obsah.nadpisyKroku ?? {}
 
@@ -91,6 +93,17 @@ const shoda = souhlas.match(/^(.*?)\[([^\]]+)\](.*)$/s)
         <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" />
       </div>
 
+      {
+        turnstileKlic && (
+          <div
+            class="cf-turnstile"
+            data-sitekey={turnstileKlic}
+            data-theme="dark"
+            data-language="cs"
+          />
+        )
+      }
+
       <button class="btn btn--primary" type="submit">{obsah.odeslatText}</button>
       <small>
         {
@@ -115,6 +128,17 @@ const shoda = souhlas.match(/^(.*?)\[([^\]]+)\](.*)$/s)
     {obsah.potvrzeni}
   </p>
 </div>
+
+{
+  turnstileKlic && (
+    <script
+      is:inline
+      src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+      async
+      defer
+    />
+  )
+}
 
 <script>
   const formular = document.getElementById('poptavka') as HTMLFormElement | null
@@ -182,6 +206,10 @@ const shoda = souhlas.match(/^(.*?)\[([^\]]+)\](.*)$/s)
         }
         chyba.textContent =
           'Odeslání se nepovedlo. Zkuste to prosím znovu, nebo nám napište na info@matlok.cz.'
+
+        // Ověřovací známka je jednorázová. Bez tohohle by druhý pokus
+        // selhal znovu, i kdyby původní příčina pominula.
+        ;(window as {turnstile?: {reset: () => void}}).turnstile?.reset()
       }
     })
   }

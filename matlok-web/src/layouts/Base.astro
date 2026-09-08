@@ -97,13 +97,16 @@ const {titulek, popis, pozadi, nastaveni} = Astro.props
        * do zorného pole. Animuje se jen řetězec, který obsahuje právě
        * jedno číslo — "99 %" ano, "24/7" ne, protože obsahuje dvě.
        *
-       * Osm set milisekund je víc, než CLAUDE.md povoluje u animací.
+       * Tři sekundy jsou násobně víc, než CLAUDE.md povoluje u animací.
        * To pravidlo míří na přechody rozhraní, kde delší doba působí
-       * jako zadrhnutí. Tohle je odkrytí obsahu, ne přechod — kratší
-       * doba by čísla jen mihla a nikdo by je nestihl přečíst.
+       * jako zadrhnutí; tohle je odkrytí obsahu, ne přechod.
+       *
+       * Delší už ne. Po celou dobu běhu ukazuje karta číslo, které není
+       * pravda — kdo stránku přelétne za pár vteřin, odejde s tím, že
+       * v automatu je dvanáct produktů místo devětatřiceti.
        */
       const POCITADLA = '.stat__num, .kpi__v, .kpitile__v, .sfact b'
-      const TRVANI = 800
+      const TRVANI = 3000
 
       const tlumit = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
