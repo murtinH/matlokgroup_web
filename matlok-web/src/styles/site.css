@@ -295,8 +295,15 @@ img { max-width: 100%; display: block; }
   font-weight: var(--fw-bold);
   margin-bottom: var(--space-4);
 }
-.footer ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.7em; }
+.footer ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.2em; }
 .footer a { color: rgba(255, 255, 255, 0.72); font-size: var(--text-sm); }
+/* Odkazy v seznamech patičky měly výšku 17 px. Nejsou to odkazy uvnitř
+   věty, takže se na ně hranice 24 px vztahuje. */
+.footer ul a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+}
 .footer a:hover { color: #fff; }
 .footer__legal {
   margin-top: var(--space-9);
@@ -314,6 +321,7 @@ img { max-width: 100%; display: block; }
 .footer__legal a { font-size: var(--text-2xs); color: rgba(255, 255, 255, 0.72); }
 .footer__popis { font-size: var(--text-sm); max-width: 34ch; margin: 0; }
 .footcontact { font-size: var(--text-sm); line-height: 1.75; margin-top: var(--space-4); }
+.footcontact a { display: inline-flex; align-items: center; min-height: 28px; }
 
 /* ------------------------------------------------------------ hero */
 .hero {
@@ -509,6 +517,8 @@ img { max-width: 100%; display: block; }
 }
 .divcard--soon .divcard__claim { color: var(--neutral-400); }
 .divcard__link {
+  /* Bez minimální výšky měl odkaz 22 px — pod hranicí WCAG 2.5.8. */
+  min-height: 28px;
   margin-top: var(--space-5);
   font-family: var(--font-display);
   font-weight: var(--fw-bold);
@@ -977,7 +987,9 @@ img { max-width: 100%; display: block; }
   color: rgba(255, 255, 255, 0.45);
 }
 .dl__v { color: #fff; }
-.dl__v a { color: var(--azure-400); }
+/* Telefon a e-mail jsou na mobilu to první, na co člověk sáhne — ať mají
+   do čeho se trefit. Bez tohohle měly výšku 17 px. */
+.dl__v a { color: var(--azure-400); display: inline-flex; align-items: center; min-height: 28px; }
 
 /* ------------------------------------------------------------ formulář */
 .form {
@@ -1155,6 +1167,10 @@ details.faq[hidden] { display: none; }
 details.faq[open] { box-shadow: var(--shadow-sm); }
 details.faq summary {
   cursor: pointer;
+  /* Bez odsazení má řádek 22 px — pod hranicí WCAG 2.5.8, která žádá
+     nejmenší cíl 24 × 24. Odsazení navíc zvětšuje plochu, do které
+     se dá trefit prstem. */
+  padding-block: 0.4em;
   list-style: none;
   font-family: var(--font-display);
   font-weight: var(--fw-bold);
@@ -1521,3 +1537,19 @@ details.faq p { font-size: var(--text-sm); color: var(--text-secondary); margin:
 /* Ochrana formuláře proti robotům. Widget si kreslí Cloudflare sám,
    my mu jen dáme místo v mřížce formuláře. */
 .cf-turnstile { min-height: 65px; }
+
+/* Odkazy na sociální sítě v patičce. Vykreslí se jen ty, které jsou
+   vyplněné v Nastavení webu — prázdný seznam nezobrazí nic. */
+.socialni { display: flex; gap: var(--space-3); margin-top: var(--space-5); }
+.socialni a {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.72);
+  transition: all var(--dur-fast) var(--ease-out);
+}
+.socialni a:hover { color: #fff; border-color: var(--accent); background: rgba(32, 185, 232, 0.12); }
