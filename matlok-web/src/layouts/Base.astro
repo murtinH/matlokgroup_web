@@ -6,6 +6,7 @@
 import '../styles/global.css'
 import '../styles/site.css'
 import CookieLista from '../components/CookieLista.astro'
+import {obrazek} from '../lib/sanity'
 import type {SiteSettings} from '../lib/queries'
 
 interface Props {
@@ -19,6 +20,14 @@ interface Props {
 }
 
 const {titulek, popis, pozadi, nastaveni} = Astro.props
+
+/** Kanonická adresa — bez lomítka na konci, aby odpovídala odkazům na webu. */
+const kanonicka = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', Astro.site).href
+
+/** Obrázek, který se ukáže při sdílení odkazu. */
+const sdileni = nastaveni.ogObrazek
+  ? obrazek(nastaveni.ogObrazek).width(1200).height(630).fit('crop').url()
+  : null
 ---
 
 <!doctype html>
@@ -42,6 +51,28 @@ const {titulek, popis, pozadi, nastaveni} = Astro.props
 
     <title>{titulek}</title>
     {popis && <meta name="description" content={popis} />}
+    <link rel="canonical" href={kanonicka} />
+
+    <!-- Náhled, který se ukáže při sdílení odkazu na sociální síti
+         nebo v chatu. Bez těchhle značek si sítě vyberou samy —
+         obvykle první obrázek na stránce a kus textu odnikud. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={nastaveni.nazev} />
+    <meta property="og:locale" content="cs_CZ" />
+    <meta property="og:title" content={titulek} />
+    <meta property="og:url" content={kanonicka} />
+    {popis && <meta property="og:description" content={popis} />}
+    {
+      sdileni && (
+        <Fragment>
+          <meta property="og:image" content={sdileni} />
+          <meta property="og:image:width" content="1200" />
+          <meta property="og:image:height" content="630" />
+          <meta property="og:image:alt" content={nastaveni.nazev} />
+        </Fragment>
+      )
+    }
+    <meta name="twitter:card" content={sdileni ? 'summary_large_image' : 'summary'} />
 
     <!-- Bez JavaScriptu se nájezdy sekcí vůbec nezapnou a obsah je rovnou
          vidět. Třída se přidává tady, aby nedošlo k probliknutí. -->

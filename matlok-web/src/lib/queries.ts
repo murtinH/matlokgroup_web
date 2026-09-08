@@ -16,6 +16,7 @@ export interface SiteSettings {
   email: string
   neplatceDph: boolean
   popisPaticky?: string
+  socialniSite?: {sit: string; url: string}[]
   navigace?: Odkaz[]
   navigaceTlacitko?: Odkaz
   patickaSloupce?: {nadpis: string; odkazy: Odkaz[]}[]
@@ -29,6 +30,7 @@ export interface SiteSettings {
   }
   analytikaToken?: string
   turnstileSiteKey?: string
+  ogObrazek?: unknown
 }
 
 export interface Division {
