@@ -56,6 +56,43 @@ const {titulek, popis, pozadi, nastaveni} = Astro.props
 
     <script>
       /**
+       * Živé údaje z automatu. Prvky označené data-zdroj dostanou hodnotu
+       * z /api/automat — počet produktů v nabídce a dostupnost. Ručně
+       * zadaná hodnota v Sanity zůstává jako záloha; když volání selže
+       * nebo na stránce žádný takový prvek není, nic se nestane.
+       *
+       * Běží před počítadly, aby se odpočítávalo už k živému číslu.
+       */
+      const zive = document.querySelectorAll<HTMLElement>('[data-zdroj]')
+
+      if (zive.length > 0) {
+        fetch('/api/automat', {headers: {accept: 'application/json'}})
+          .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+          .then((data: {polozky?: {dostupnost: number; kapacita: number}[]}) => {
+            const polozky = data.polozky ?? []
+            if (polozky.length === 0) return
+
+            const zasoba = polozky.reduce((s, p) => s + p.dostupnost, 0)
+            const kapacita = polozky.reduce((s, p) => s + (p.kapacita || 12), 0)
+
+            const hodnoty: Record<string, string> = {
+              pocet: String(polozky.length),
+              dostupnost: `${Math.round((zasoba / Math.max(1, kapacita)) * 100)} %`,
+            }
+
+            zive.forEach((prvek) => {
+              const klic = prvek.dataset.zdroj
+              if (klic && hodnoty[klic]) prvek.textContent = hodnoty[klic]
+            })
+          })
+          .catch(() => {
+            // Zůstane hodnota ze Sanity. Návštěvník nic nepozná.
+          })
+      }
+    </script>
+
+    <script>
+      /**
        * Počítadla. Čísla na stránce naskočí od nuly, jakmile se dostanou
        * do zorného pole. Animuje se jen řetězec, který obsahuje právě
        * jedno číslo — "99 %" ano, "24/7" ne, protože obsahuje dvě.

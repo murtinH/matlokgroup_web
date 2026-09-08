@@ -54,6 +54,8 @@ export interface Statistika {
   hodnota: string
   popisek: string
   maleFormatovani?: boolean
+  /** Když je vyplněno, hodnotu přepíše živý údaj z automatu. */
+  zdroj?: 'pocet' | 'dostupnost'
 }
 
 export interface HomePage {
@@ -103,7 +105,7 @@ export interface MatlokPage {
   heroTlacitka?: Odkaz[]
   foto?: unknown
   fotoPopisek?: string
-  kpi?: {hodnota: string; popisek: string}[]
+  kpi?: {hodnota: string; popisek: string; zdroj?: 'pocet' | 'dostupnost'}[]
   nabidkaNadpis: string
   nabidkaStitek?: string
   kategorie?: {text: string; hodnota: string}[]
