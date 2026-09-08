@@ -19,6 +19,9 @@
 }
 body {
   line-height: 1.55;
+  /* Odlišení stránek odstínem podkladu, ne novou barvou (CLAUDE.md).
+     Nastavuje ho prop `pozadi` v Base.astro. */
+  background: var(--page-bg, var(--snow));
 }
 h1 {
   font-size: clamp(2.3rem, 5.5vw, var(--text-4xl));
@@ -647,4 +650,181 @@ img { max-width: 100%; display: block; }
 .js .reveal.in { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) {
   .js .reveal { opacity: 1; transform: none; }
+}
+
+/* ============================================================
+   STRÁNKA /matlok
+   ============================================================ */
+.phero { padding-block: clamp(2.5rem, 6vw, 4.5rem) 0; }
+.phero__grid {
+  display: grid;
+  grid-template-columns: 1fr 0.9fr;
+  gap: clamp(2rem, 5vw, 4rem);
+  align-items: center;
+}
+@media (max-width: 900px) { .phero__grid { grid-template-columns: 1fr; } }
+.phero img {
+  border-radius: var(--radius-lg);
+  width: 100%;
+  height: clamp(320px, 44vw, 520px);
+  object-fit: cover;
+  object-position: center 38%;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-subtle);
+}
+.photowrap { position: relative; }
+.photowrap__tag {
+  position: absolute;
+  left: var(--space-5);
+  bottom: var(--space-5);
+  background: rgba(11, 31, 41, 0.84);
+  backdrop-filter: blur(6px);
+  border-radius: var(--radius-sm);
+  padding: 0.55em 0.9em;
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+}
+
+/* Mezera je space-3, ne space-4 — prototyp ji na konci souboru přepisuje
+   samostatným pravidlem, které platí na všech šířkách. */
+.kpirow { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-3); margin-top: var(--space-7); }
+@media (max-width: 760px) { .kpirow { grid-template-columns: repeat(2, 1fr); } }
+.kpitile {
+  background: var(--neutral-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+}
+.kpitile__v { font-family: var(--font-display); font-weight: var(--fw-black); font-size: var(--text-lg); line-height: 1; }
+.kpitile__l {
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: 0.6em;
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+/* ------------------------------------------------------------ nabídka boxu */
+.offer {
+  background: var(--ink-800);
+  color: #fff;
+  border-radius: var(--radius-xl);
+  padding: clamp(1.75rem, 4vw, var(--space-9));
+  margin-top: var(--space-9);
+}
+.offer h2 { color: #fff; margin: 0; }
+.prodhead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+  flex-wrap: wrap;
+}
+.prodhead__stitek {
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+}
+.chips { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-5); }
+.chip {
+  /* Tailwind reset dává tlačítkům line-height: inherit, takže by chip
+     zdědil řádkování 1,55 z body a byl o 3 px vyšší než v prototypu. */
+  line-height: normal;
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.55em 1em;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.72);
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-out);
+}
+.chip:hover { border-color: rgba(255, 255, 255, 0.5); color: #fff; }
+/* Aktivní filtr je azurový čtverec — značkový motiv. */
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--ink-900); }
+
+.prodgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-3); }
+@media (max-width: 760px) { .prodgrid { grid-template-columns: repeat(2, 1fr); } }
+.prod {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  position: relative;
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+.prod:hover { background: rgba(255, 255, 255, 0.09); }
+/* Filtr kategorií skrývá položky atributem hidden. */
+.prod[hidden] { display: none; }
+.prod__badge {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.2em 0.5em;
+  border-radius: var(--radius-pill);
+  background: rgba(32, 185, 232, 0.18);
+  color: var(--azure-400);
+  margin-bottom: 0.45em;
+}
+.prod__badge--low { background: rgba(196, 69, 54, 0.2); color: #e29a90; }
+.prod__n { font-family: var(--font-display); font-weight: var(--fw-bold); font-size: var(--text-sm); color: #fff; line-height: 1.3; }
+.prod__p { font-size: var(--text-xs); color: var(--azure-400); margin-top: 0.4em; font-weight: 600; }
+.bar { height: 3px; background: rgba(255, 255, 255, 0.14); border-radius: 2px; margin-top: var(--space-4); overflow: hidden; }
+.bar span { display: block; height: 100%; background: var(--accent); }
+.bar--low span { background: var(--red-500); }
+.prod__s { font-size: var(--text-2xs); color: rgba(255, 255, 255, 0.45); margin-top: 0.55em; }
+.offer__pozn { font-size: var(--text-2xs); color: rgba(255, 255, 255, 0.42); margin: var(--space-5) 0 0; }
+
+/* ------------------------------------------------------------ výhody */
+.howto { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-5); margin-top: var(--space-9); }
+@media (max-width: 900px) { .howto { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .howto { grid-template-columns: 1fr; } }
+.howto > div {
+  background: var(--neutral-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-xs);
+}
+.howto h3 { font-size: var(--text-base); margin-bottom: 0.5em; }
+.howto p { font-size: var(--text-sm); color: var(--text-secondary); margin: 0; line-height: 1.65; }
+.ben__ic {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: var(--accent-soft);
+  color: var(--azure-700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-5);
+}
+.cta__pozn {
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-sm);
+  color: var(--azure-400);
 }

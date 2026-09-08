@@ -1,0 +1,113 @@
+---
+import type {MatlokPage, Product} from '../lib/queries'
+
+interface Props {
+  obsah: MatlokPage
+  produkty: Product[]
+}
+
+const {obsah, produkty} = Astro.props
+const hranice = obsah.hranicePoslednichKusu ?? 3
+
+/** Text o zásobě. Čeština má u jedničky jiný tvar než u dvojky. */
+function stavZasoby(kusu: number, dochazi: boolean): string {
+  if (kusu <= 0) return 'Vyprodáno'
+  if (!dochazi) return `Skladem · ${kusu} ks`
+  return kusu === 1 ? 'Zbývá 1 kus' : `Zbývají ${kusu} ks`
+}
+
+const polozky = produkty.map((p) => {
+  const dochazi = p.dostupnost <= hranice
+  const kapacita = p.kapacita && p.kapacita > 0 ? p.kapacita : 12
+  return {
+    ...p,
+    dochazi,
+    // Proužek dostupnosti. V prototypu byly šířky vymyšlené, tady se počítají
+    // ze skutečné zásoby — proto se o pár procent liší.
+    procento: Math.max(0, Math.min(100, Math.round((p.dostupnost / kapacita) * 100))),
+    stav: stavZasoby(p.dostupnost, dochazi),
+  }
+})
+---
+
+<div class="offer reveal">
+  <div class="prodhead">
+    <h2>{obsah.nabidkaNadpis}</h2>
+    {
+      obsah.nabidkaStitek && (
+        <span class="prodhead__stitek">
+          <span class="livedot" />
+          {obsah.nabidkaStitek}
+        </span>
+      )
+    }
+  </div>
+
+  {
+    obsah.kategorie && obsah.kategorie.length > 0 && (
+      <div class="chips" role="group" aria-label="Kategorie">
+        {obsah.kategorie.map((k, i) => (
+          <button class="chip" type="button" data-f={k.hodnota} aria-pressed={i === 0 ? 'true' : 'false'}>
+            {k.text}
+          </button>
+        ))}
+      </div>
+    )
+  }
+
+  <div class="prodgrid" id="prodgrid">
+    {
+      polozky.map((p) => (
+        <div
+          class="prod"
+          data-cat={p.kategorie}
+          data-top={p.nejprodavanejsi ? '1' : undefined}
+          data-low={p.dochazi ? '1' : undefined}
+        >
+          {p.nejprodavanejsi && !p.dochazi && <span class="prod__badge">Nejprodávanější</span>}
+          {p.dochazi && <span class="prod__badge prod__badge--low">Poslední kusy</span>}
+          <div class="prod__n">{p.nazev}</div>
+          <div class="prod__p">{p.cena} Kč</div>
+          <div class={`bar ${p.dochazi ? 'bar--low' : ''}`}>
+            <span style={`width:${p.procento}%`} />
+          </div>
+          <div class="prod__s">{p.stav}</div>
+        </div>
+      ))
+    }
+  </div>
+
+  <p class="offer__pozn">
+    <span id="fcount">Zobrazeno {polozky.length} z {polozky.length} položek</span>
+    {obsah.nabidkaPoznamka && ` · ${obsah.nabidkaPoznamka}`}
+  </p>
+</div>
+
+<script>
+  const chipy = document.querySelectorAll<HTMLButtonElement>('.chip')
+  const zbozi = document.querySelectorAll<HTMLElement>('#prodgrid .prod')
+  const pocitadlo = document.getElementById('fcount')
+
+  chipy.forEach((chip) => {
+    chip.addEventListener('click', () => {
+      chipy.forEach((x) => x.setAttribute('aria-pressed', String(x === chip)))
+
+      const filtr = chip.dataset.f
+      let videno = 0
+
+      zbozi.forEach((polozka) => {
+        const sedi =
+          filtr === 'all' ||
+          (filtr === 'top' && polozka.dataset.top) ||
+          (filtr === 'low' && polozka.dataset.low) ||
+          polozka.dataset.cat === filtr
+        polozka.hidden = !sedi
+        if (sedi) videno++
+      })
+
+      if (pocitadlo) {
+        pocitadlo.textContent = `Zobrazeno ${videno} z ${zbozi.length} položek`
+      }
+    })
+  })
+</script>

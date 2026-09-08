@@ -1,6 +1,7 @@
 // Obsahový model podle kapitoly 5 v ZADANI.md.
 import {siteSettings} from './siteSettings'
 import {homePage} from './homePage'
+import {matlokPage} from './matlokPage'
 import {division} from './division'
 import {machine} from './machine'
 import {product} from './product'
@@ -14,6 +15,7 @@ import {lead} from './lead'
 export const schemaTypes = [
   siteSettings,
   homePage,
+  matlokPage,
   division,
   machine,
   product,

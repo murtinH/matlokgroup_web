@@ -41,6 +41,15 @@ export const product = defineType({
       validation: (rule) => rule.required().min(0).integer(),
     }),
     defineField({
+      name: 'kapacita',
+      title: 'Kapacita spirály',
+      type: 'number',
+      description:
+        'Kolik kusů se do spirály vejde plných. Podle poměru dostupnost/kapacita se kreslí proužek dostupnosti. V Session 5 tuhle hodnotu dodá Partner API.',
+      initialValue: 12,
+      validation: (rule) => rule.required().min(1).integer(),
+    }),
+    defineField({
       name: 'nejprodavanejsi',
       title: 'Nejprodávanější',
       type: 'boolean',

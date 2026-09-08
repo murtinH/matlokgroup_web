@@ -9,9 +9,12 @@ import '../styles/site.css'
 interface Props {
   titulek: string
   popis?: string
+  /** Název tokenu podkladu bez uvozovek, například "azure-50".
+      Každá stránka má podle zadání vlastní odstín. */
+  pozadi?: string
 }
 
-const {titulek, popis} = Astro.props
+const {titulek, popis, pozadi} = Astro.props
 ---
 
 <!doctype html>
@@ -39,7 +42,7 @@ const {titulek, popis} = Astro.props
       document.documentElement.classList.add('js')
     </script>
   </head>
-  <body>
+  <body style={pozadi ? `--page-bg: var(--${pozadi})` : undefined}>
     <slot />
 
     <script>

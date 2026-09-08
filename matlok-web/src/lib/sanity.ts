@@ -16,9 +16,10 @@ export const sanity: SanityClient = createClient({
   projectId,
   dataset,
   apiVersion: '2025-08-15',
-  // Web je statický — data se čtou při buildu, ne v prohlížeči.
-  // CDN je proto v pořádku a šetří dotazy.
-  useCdn: true,
+  // Při buildu čteme přes CDN — je to rychlejší a levnější, a build stejně
+  // běží jednorázově. Ve vývoji CDN obcházíme: cachuje řádově minuty a člověk
+  // by po úpravě v Studiu koukal na starý obsah a myslel si, že je něco rozbité.
+  useCdn: !import.meta.env.DEV,
 })
 
 const builder = createImageUrlBuilder(sanity)

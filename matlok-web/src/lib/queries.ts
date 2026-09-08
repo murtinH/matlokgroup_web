@@ -77,6 +77,37 @@ export interface HomePage {
   duvody?: {nadpis: string; text: string}[]
 }
 
+export interface Product {
+  nazev: string
+  cena: number
+  kategorie: 'drink' | 'snack'
+  dostupnost: number
+  kapacita?: number
+  nejprodavanejsi?: boolean
+}
+
+export interface MatlokPage {
+  heroEyebrow: string
+  heroNadpis: string
+  heroNadpisTip: string
+  heroLead: string
+  heroTlacitka?: Odkaz[]
+  foto?: unknown
+  fotoPopisek?: string
+  kpi?: {hodnota: string; popisek: string}[]
+  nabidkaNadpis: string
+  nabidkaStitek?: string
+  kategorie?: {text: string; hodnota: string}[]
+  nabidkaPoznamka?: string
+  hranicePoslednichKusu?: number
+  vyhody?: {nadpis: string; text: string; ikona?: string}[]
+  ctaEyebrow?: string
+  ctaNadpis?: string
+  ctaLead?: string
+  ctaTlacitko?: Odkaz
+  ctaPoznamka?: string
+}
+
 export function nastaveni(): Promise<SiteSettings> {
   return sanity.fetch('*[_id == "siteSettings"][0]')
 }
@@ -92,4 +123,18 @@ export function divize(): Promise<Division[]> {
 export function zakladatele(): Promise<Founder[]> {
   // Pořadí podle prototypu: Lukáš, pak Martin.
   return sanity.fetch('*[_type == "founder"] | order(jmeno asc)')
+}
+
+export function strankaMatlok(): Promise<MatlokPage> {
+  return sanity.fetch('*[_id == "matlokPage"][0]')
+}
+
+/**
+ * Záložní nabídka ze Sanity. V Session 5 ji nahradí živá data z Partner API
+ * a tenhle dotaz zůstane jako záchrana pro případ, že API neodpoví.
+ */
+export function produkty(): Promise<Product[]> {
+  // Řazení podle _id drží pořadí z prototypu (product-1 až product-6).
+  // Je to dočasné — v Session 5 určí pořadí API podle spirál v automatu.
+  return sanity.fetch('*[_type == "product" && zobrazit == true] | order(_id asc)')
 }
