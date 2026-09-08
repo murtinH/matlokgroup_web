@@ -14,7 +14,16 @@
     // Výchozí chování Cloudflare je opačné a každý proklik by dělal
     // přesměrování navíc.
     "html_handling": "drop-trailing-slash"
-  }
+  },
+
+  // Počítadlo odeslání formuláře. Drží otisk IP a po hodině se sám smaže.
+  // ID není tajné, je to jen identifikátor úložiště.
+  "kv_namespaces": [
+    {
+      "binding": "RATE_LIMIT",
+      "id": "061f52eff4684c98bbcb030d7fb87013"
+    }
+  ]
 
   // Veřejné identifikátory Sanity nejsou ani tady, ani v dashboardu —
   // jsou v src/lib/konfigurace.ts, odkud je čte build webu i tenhle skript.
@@ -22,7 +31,4 @@
   //
   // SANITY_WRITE_TOKEN a RESEND_API_KEY sem NEPATŘÍ. Vkládají se
   // v Cloudflare jako šifrované proměnné (Settings → Variables and Secrets).
-  //
-  // Až v Cloudflare vznikne KV úložiště pro počítadlo odeslání, přibude sem:
-  // "kv_namespaces": [{ "binding": "RATE_LIMIT", "id": "<id z dashboardu>" }]
 }
