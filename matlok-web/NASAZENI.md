@@ -54,21 +54,18 @@ tedy žije v gitu, ne v dashboardu — když ji někdo změní, je to vidět v h
 
 ## 2 · [ty] Proměnné prostředí
 
-Settings → Environment variables → Production **i** Preview.
-
 Settings → Variables and Secrets.
 
 | Název | Hodnota | Typ |
 |---|---|---|
-| `NODE_VERSION` | `22.12.0` | text |
 | `SANITY_WRITE_TOKEN` | *(token ze Sanity, viz níž)* | **Secret** |
 | `RESEND_API_KEY` | *(klíč z Resendu)* | **Secret** |
 
-`PUBLIC_SANITY_PROJECT_ID` a `PUBLIC_SANITY_DATASET` sem nepatří — jsou to
-veřejné identifikátory a už jsou ve `wrangler.jsonc`.
+**Nic dalšího tam nepatří.** Veřejné identifikátory Sanity jsou
+v `src/lib/konfigurace.ts` — build i serverový skript je čtou odtud,
+takže se nemůžou rozejít a nemusí se nikde klikat.
 
-`NODE_VERSION` tam musí být — Astro 7 potřebuje Node 22.12 nebo novější
-a Cloudflare jinak nasadí starší verzi, na které build spadne.
+`NODE_VERSION` nastavovat nemusíš, Cloudflare sám používá Node 24.
 
 ### Sanity token
 

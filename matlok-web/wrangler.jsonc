@@ -14,14 +14,12 @@
     // Výchozí chování Cloudflare je opačné a každý proklik by dělal
     // přesměrování navíc.
     "html_handling": "drop-trailing-slash"
-  },
-
-  "vars": {
-    // Veřejné identifikátory, klidně smí do repozitáře.
-    "PUBLIC_SANITY_PROJECT_ID": "jew7wcoq",
-    "PUBLIC_SANITY_DATASET": "production"
   }
 
+  // Veřejné identifikátory Sanity nejsou ani tady, ani v dashboardu —
+  // jsou v src/lib/konfigurace.ts, odkud je čte build webu i tenhle skript.
+  // Proměnné z "vars" totiž platí jen za běhu, ne při buildu.
+  //
   // SANITY_WRITE_TOKEN a RESEND_API_KEY sem NEPATŘÍ. Vkládají se
   // v Cloudflare jako šifrované proměnné (Settings → Variables and Secrets).
   //

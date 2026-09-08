@@ -1,20 +1,11 @@
 import {createClient, type SanityClient} from '@sanity/client'
 import {createImageUrlBuilder} from '@sanity/image-url'
-
-const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID
-const dataset = import.meta.env.PUBLIC_SANITY_DATASET
-
-if (!projectId || !dataset) {
-  throw new Error(
-    'Chybí PUBLIC_SANITY_PROJECT_ID nebo PUBLIC_SANITY_DATASET. ' +
-      'Lokálně je zkopíruj z .env.example do .env.local, na Cloudflare je nastav v Environment variables.',
-  )
-}
+import {SANITY_API_VERZE, SANITY_DATASET, SANITY_PROJECT_ID} from './konfigurace'
 
 export const sanity: SanityClient = createClient({
-  projectId,
-  dataset,
-  apiVersion: '2025-08-15',
+  projectId: SANITY_PROJECT_ID,
+  dataset: SANITY_DATASET,
+  apiVersion: SANITY_API_VERZE,
   // Při buildu čteme přes CDN — je to rychlejší a levnější, a build stejně
   // běží jednorázově. Ve vývoji CDN obcházíme: cachuje řádově minuty a člověk
   // by po úpravě v Studiu koukal na starý obsah a myslel si, že je něco rozbité.

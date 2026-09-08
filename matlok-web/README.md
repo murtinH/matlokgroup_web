@@ -11,7 +11,8 @@ Web skupiny **Matlok Group s.r.o.** — Astro 7 + Sanity + Cloudflare Pages.
 | `prototyp/` | Statický HTML prototyp všech stránek. Vizuální předloha. Nepatří do produkce. |
 | `src/styles/tokens/` | Design tokeny ze styleguidu. Kopie — needitovat ručně. |
 | `studio/` | Sanity Studio (redakční systém). Vlastní npm workspace. |
-| `.env.example` | Šablona proměnných prostředí. Skutečné klíče do repozitáře nikdy. |
+| `src/lib/konfigurace.ts` | Veřejné identifikátory Sanity. Jediné místo, kde jsou. |
+| `.env.example` | Šablona pro tajné klíče. Skutečné hodnoty do repozitáře nikdy. |
 
 ## Stav
 
@@ -24,7 +25,13 @@ npm install        # nainstaluje Astro i Studio najednou (npm workspaces)
 npm run dev        # web na http://localhost:4321
 npm run dev:studio # Sanity Studio na http://localhost:3333
 npm run build      # statický build do dist/
+npm run cf:dev     # web i serverové funkce tak, jak poběží na Cloudflare
 ```
+
+Na `npm run dev` a `npm run build` nepotřebuješ žádné klíče ani nastavení —
+project ID a dataset jsou v `src/lib/konfigurace.ts`. Klíč potřebuje až
+`npm run cf:dev`, pokud chceš zkoušet odesílání formuláře; postup je
+v `.env.example`.
 
 Do Studia se přihlašuješ svým Sanity účtem. Projekt: `jew7wcoq`, dataset `production`.
 
