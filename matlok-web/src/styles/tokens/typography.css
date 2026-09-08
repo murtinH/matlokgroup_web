@@ -1,0 +1,67 @@
+/* ============================================================
+   MATLOK GROUP — TYPOGRAPHY TOKENS
+   Montserrat = display / brand voice. Inter = long-form & UI text.
+   Montserrat is geometric and wide — it carries headlines with
+   tight tracking and heavy weight. Inter keeps dense text legible.
+   ============================================================ */
+:root {
+  /* Families */
+  --font-display: 'Montserrat', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-body:    'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-sans:    var(--font-body);
+  --font-mono:    ui-monospace, monospace;
+
+  /* Weights */
+  --fw-light:     300; /* @kind other */
+  --fw-regular:   400; /* @kind other */
+  --fw-medium:    500; /* @kind other */
+  --fw-semibold:  600; /* @kind other */
+  --fw-bold:      700; /* @kind other */
+  --fw-extrabold: 800; /* @kind other */
+  --fw-black:     900; /* @kind other */
+
+  /* Type scale (1.250 major-third, rem-based @16px root) */
+  --text-2xs:  0.6875rem; /* 11px — legal / micro labels */
+  --text-xs:   0.75rem;   /* 12px */
+  --text-sm:   0.875rem;  /* 14px */
+  --text-base: 1rem;      /* 16px — body default */
+  --text-md:   1.125rem;  /* 18px — lead body */
+  --text-lg:   1.375rem;  /* 22px */
+  --text-xl:   1.75rem;   /* 28px */
+  --text-2xl:  2.25rem;   /* 36px — section heads */
+  --text-3xl:  3rem;      /* 48px */
+  --text-4xl:  4rem;      /* 64px — hero */
+  --text-5xl:  5.5rem;    /* 88px — display / kiosk */
+
+  /* Line heights */
+  --leading-tight:   1.05;
+  --leading-snug:    1.2;
+  --leading-normal:  1.5;
+  --leading-relaxed: 1.65;
+
+  /* Letter spacing — Montserrat headlines run tight; labels run wide */
+  --tracking-tighter: -0.03em;
+  --tracking-tight:   -0.015em;
+  --tracking-normal:  0em;
+  --tracking-wide:    0.04em;
+  --tracking-wider:   0.12em;  /* eyebrow / overline caps */
+  --tracking-widest:  0.22em;  /* logo-style spaced caps */
+
+  /* Semantic roles */
+  --role-display-font: var(--font-display);
+  --role-display-weight: var(--fw-black);
+  --role-display-tracking: var(--tracking-tight);
+
+  --role-heading-font: var(--font-display);
+  --role-heading-weight: var(--fw-extrabold);
+
+  --role-eyebrow-font: var(--font-display);
+  --role-eyebrow-weight: var(--fw-bold);
+  --role-eyebrow-tracking: var(--tracking-wider);
+
+  --role-body-font: var(--font-body);
+  --role-body-weight: var(--fw-regular);
+
+  --role-label-font: var(--font-display);
+  --role-label-weight: var(--fw-semibold);
+}

@@ -1,0 +1,15 @@
+/* ============================================================
+   MATLOK GROUP — FONTS
+   Značková písma ze styleguidu ("FONTY"):
+     1. Montserrat — hlavní hlas značky (display, nadpisy)
+     2. Inter      — běžný text, tabulky, drobné písmo
+
+   POZOR: písma se NENAČÍTAJÍ odsud.
+   Původní `@import url('https://fonts.googleapis.com/...')` musel pryč —
+   bundler ho při slučování CSS posunul za ostatní pravidla a prohlížeč
+   takový @import zahodí. Písma se proto načítají přes <link> v
+   src/layouts/Base.astro, což je i rychlejší.
+
+   Až budeme řešit rychlost (Session 6), zvážíme self-hosting:
+   woff2 do /public/fonts a @font-face místo Google Fonts.
+   ============================================================ */

@@ -1,0 +1,81 @@
+/* ============================================================
+   MATLOK GROUP — BASE / RESET
+   Minimal, opinionated defaults. Sets the brand background,
+   body type (Inter), and heading defaults (Montserrat).
+   Helper utility classes are provided for specimen cards and
+   quick layouts; components style themselves via tokens.
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--text-primary);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-extrabold);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-primary);
+  margin: 0 0 0.5em;
+  text-wrap: balance;
+}
+h1 { font-size: var(--text-3xl); font-weight: var(--fw-black); letter-spacing: var(--tracking-tighter); }
+h2 { font-size: var(--text-2xl); }
+h3 { font-size: var(--text-xl); }
+h4 { font-size: var(--text-lg); }
+
+p { margin: 0 0 1em; text-wrap: pretty; }
+
+a { color: var(--text-link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+strong { font-weight: var(--fw-bold); }
+
+small { font-size: var(--text-sm); }
+
+code, kbd, samp { font-family: var(--font-mono); font-size: 0.9em; }
+
+::selection { background: var(--azure-200); color: var(--ink-900); }
+
+:focus-visible { outline: none; box-shadow: var(--shadow-focus); border-radius: var(--radius-xs); }
+
+hr { border: 0; border-top: var(--border-width) solid var(--border-subtle); margin: var(--space-6) 0; }
+
+/* --- Brand voice helpers --- */
+.ml-eyebrow {
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--accent-active);
+}
+.ml-display {
+  font-family: var(--font-display);
+  font-weight: var(--fw-black);
+  letter-spacing: var(--tracking-tighter);
+  line-height: var(--leading-tight);
+}
+/* The signature azure tip — a hard square accent echoing the logo's L */
+.ml-tip { color: var(--accent); }
+.ml-underline-tip {
+  position: relative;
+  padding-bottom: 0.12em;
+}
+.ml-underline-tip::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: 0;
+  width: 0.5em; height: 0.16em;
+  background: var(--accent);
+}

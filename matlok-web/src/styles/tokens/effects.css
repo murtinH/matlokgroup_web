@@ -1,0 +1,47 @@
+/* ============================================================
+   MATLOK GROUP — RADIUS, SHADOW, BORDER & MOTION TOKENS
+   The logo is built from rounded-cap strokes with one hard
+   square azure tip. Radii echo that: soft rounded surfaces,
+   but the brand accent stays crisp and square.
+   ============================================================ */
+:root {
+  /* Radius */
+  --radius-none: 0;
+  --radius-xs:  4px;
+  --radius-sm:  8px;
+  --radius-md:  12px;
+  --radius-lg:  18px;
+  --radius-xl:  26px;
+  --radius-2xl: 36px;
+  --radius-pill: 999px;
+  --radius-card: var(--radius-lg);
+  --radius-control: var(--radius-md); /* buttons, inputs */
+
+  /* Borders */
+  --border-width: 1px; /* @kind other */
+  --border-width-strong: 1.5px; /* @kind other */
+  --border-width-bold: 2px; /* @kind other */
+
+  /* Shadows — cool-tinted (Mountain Ink), soft and low.
+     The brand is flat-leaning; elevation is restrained. */
+  --shadow-xs: 0 1px 2px rgba(16, 41, 54, 0.06);
+  --shadow-sm: 0 2px 6px rgba(16, 41, 54, 0.07);
+  --shadow-md: 0 8px 24px rgba(16, 41, 54, 0.09);
+  --shadow-lg: 0 18px 48px rgba(16, 41, 54, 0.12);
+  --shadow-xl: 0 32px 70px rgba(16, 41, 54, 0.16);
+  --shadow-focus: 0 0 0 3px rgba(32, 185, 232, 0.35); /* azure focus halo */
+  --shadow-accent: 0 10px 28px rgba(32, 185, 232, 0.30);
+  --shadow-warm: 0 10px 28px rgba(196, 69, 54, 0.26);
+
+  /* Motion — quick, confident, no bounce. Functional easing. */
+  --ease-out:   cubic-bezier(0.22, 1, 0.36, 1); /* @kind other */
+  --ease-in-out:cubic-bezier(0.65, 0, 0.35, 1); /* @kind other */
+  --dur-fast:   120ms; /* @kind other */
+  --dur-base:   200ms; /* @kind other */
+  --dur-slow:   360ms; /* @kind other */
+  --transition-control: color var(--dur-fast) var(--ease-out),
+                        background-color var(--dur-fast) var(--ease-out),
+                        border-color var(--dur-fast) var(--ease-out),
+                        box-shadow var(--dur-fast) var(--ease-out),
+                        transform var(--dur-fast) var(--ease-out);
+}
