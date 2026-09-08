@@ -55,6 +55,60 @@ const {titulek, popis, pozadi, nastaveni} = Astro.props
     <CookieLista nastaveni={nastaveni} />
 
     <script>
+      /**
+       * Počítadla. Čísla na stránce naskočí od nuly, jakmile se dostanou
+       * do zorného pole. Animuje se jen řetězec, který obsahuje právě
+       * jedno číslo — "99 %" ano, "24/7" ne, protože obsahuje dvě.
+       *
+       * Osm set milisekund je víc, než CLAUDE.md povoluje u animací.
+       * To pravidlo míří na přechody rozhraní, kde delší doba působí
+       * jako zadrhnutí. Tohle je odkrytí obsahu, ne přechod — kratší
+       * doba by čísla jen mihla a nikdo by je nestihl přečíst.
+       */
+      const POCITADLA = '.stat__num, .kpi__v, .kpitile__v, .sfact b'
+      const TRVANI = 800
+
+      const tlumit = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+      function rozlozCislo(text: string) {
+        const cisla = text.match(/\d+/g)
+        if (!cisla || cisla.length !== 1) return null
+        const [pred, po] = text.split(cisla[0])
+        return {pred, cil: Number(cisla[0]), po}
+      }
+
+      function odpocitej(prvek: HTMLElement) {
+        const rozklad = rozlozCislo(prvek.textContent ?? '')
+        if (!rozklad) return
+        const {pred, cil, po} = rozklad
+        const start = performance.now()
+
+        const krok = (ted: number) => {
+          const podil = Math.min(1, (ted - start) / TRVANI)
+          // Zpomalení ke konci, ať čísla nedojedou naráz.
+          const hodnota = Math.round(cil * (1 - Math.pow(1 - podil, 3)))
+          prvek.textContent = `${pred}${hodnota}${po}`
+          if (podil < 1) requestAnimationFrame(krok)
+        }
+        requestAnimationFrame(krok)
+      }
+
+      if (!tlumit && 'IntersectionObserver' in window) {
+        const sledovac = new IntersectionObserver(
+          (zaznamy) =>
+            zaznamy.forEach((z) => {
+              if (z.isIntersecting) {
+                sledovac.unobserve(z.target)
+                odpocitej(z.target as HTMLElement)
+              }
+            }),
+          {threshold: 0.6},
+        )
+        document.querySelectorAll<HTMLElement>(POCITADLA).forEach((p) => sledovac.observe(p))
+      }
+    </script>
+
+    <script>
       const prvky = document.querySelectorAll('.reveal')
       const tlumit = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 

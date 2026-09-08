@@ -1369,3 +1369,73 @@ details.faq p { font-size: var(--text-sm); color: var(--text-secondary); margin:
   text-align: center;
   margin: 0;
 }
+
+/* ============================================================
+   POHYB
+   Vše drží pravidla z CLAUDE.md: 120–360 ms, bez pružení,
+   a při zapnutém tlumení pohybu se nic nehýbe.
+   ============================================================ */
+
+/* Číslice stejné šířky, aby se počítadlo netřáslo. */
+.stat__num,
+.kpi__v,
+.kpitile__v,
+.sfact b { font-variant-numeric: tabular-nums; }
+
+/* ------------------------------------------------------------ nájezd hero
+   Úvod stránky se skládá po částech místo toho, aby naskočil naráz.
+   Každý díl o 70 ms později — dost na to, aby to oko zaznamenalo,
+   málo na to, aby se na obsah čekalo. */
+@keyframes ml-nabeh {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+.js .hero__uvod > *,
+.js .khero__uvod > *,
+.js .phero__uvod > * {
+  animation: ml-nabeh 320ms var(--ease-out) both;
+}
+.js .hero__uvod > *:nth-child(1), .js .khero__uvod > *:nth-child(1), .js .phero__uvod > *:nth-child(1) { animation-delay: 0ms; }
+.js .hero__uvod > *:nth-child(2), .js .khero__uvod > *:nth-child(2), .js .phero__uvod > *:nth-child(2) { animation-delay: 70ms; }
+.js .hero__uvod > *:nth-child(3), .js .khero__uvod > *:nth-child(3), .js .phero__uvod > *:nth-child(3) { animation-delay: 140ms; }
+.js .hero__uvod > *:nth-child(4), .js .khero__uvod > *:nth-child(4), .js .phero__uvod > *:nth-child(4) { animation-delay: 210ms; }
+.js .hero__uvod > *:nth-child(5), .js .khero__uvod > *:nth-child(5), .js .phero__uvod > *:nth-child(5) { animation-delay: 280ms; }
+
+/* Živá karta přijíždí z druhé strany než text — stránka tím dostane spád. */
+@keyframes ml-nabeh-zprava {
+  from { opacity: 0; transform: translateX(18px); }
+  to { opacity: 1; transform: none; }
+}
+.js .livecard { animation: ml-nabeh-zprava 360ms var(--ease-out) 210ms both; }
+
+/* Azurová patka pod nadpisem se dokreslí. Značkový motiv, který se
+   sám ukáže — místo aby tam jen staticky byl. */
+@keyframes ml-patka {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.js .tip::after {
+  transform-origin: left center;
+  animation: ml-patka 320ms var(--ease-out) 320ms both;
+}
+
+/* ------------------------------------------------------------ karty
+   Jemné nadzvednutí pod kurzorem. Karty divizí a služeb ho už mají,
+   tohle sjednocuje zbytek. */
+.fcard,
+.kpitile,
+.sfact {
+  transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+}
+.fcard:hover,
+.kpitile:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+
+/* Tlumení pohybu vypne všechno výše. */
+@media (prefers-reduced-motion: reduce) {
+  .js .hero__uvod > *,
+  .js .khero__uvod > *,
+  .js .phero__uvod > *,
+  .js .livecard,
+  .js .tip::after { animation: none; }
+  .fcard:hover, .kpitile:hover { transform: none; }
+}
