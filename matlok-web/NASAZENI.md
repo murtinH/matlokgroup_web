@@ -97,11 +97,14 @@ Skript to pozná sám a nespadne.
 
 ## 3 · [ty] Resend a odesílací doména
 
-Resend → Domains → Add Domain → `matlok.cz`. Resend vypíše několik DNS
-záznamů (DKIM a jeden pro sledování doručení).
+**Hotovo 8. 9. 2026** — doména `matlok.cz` je v Resendu ověřená a záznamy
+jsou v DNS u Websupportu. Jejich znění je v kapitole 4; při přepnutí
+nameserverů musí přejít s ostatními.
 
-**Tyhle záznamy přidávej až po přenosu DNS na Cloudflare** (kapitola 4),
-jinak je budeš zadávat dvakrát.
+API klíč: Create API key → oprávnění **Sending access**, omezení na doménu
+`matlok.cz`, pokud to nabídne. Klíč zkopíruj rovnou do Cloudflare do
+`RESEND_API_KEY`. Automaticky vytvořený klíč `Onboarding` smaž — jeho hodnotu
+Resend ukázal jen jednou a klíč, o kterém nikdo neví, k čemu je, je jen riziko.
 
 Funkce odesílá z adresy `web@matlok.cz`. Schránka pro ni existovat nemusí —
 odpovědi chodí na adresu z formuláře, protože se nastavuje `reply_to`.
@@ -152,9 +155,31 @@ TXT  matlok.cz          v=spf1 include:spf.seznam.cz ~all
 TXT  _dmarc.matlok.cz   v=DMARC1; p=quarantine; adkim=r; aspf=r;
 ```
 
-**DKIM zvenčí nevidím** — selektor se nedá uhodnout. V panelu Websupport hledej
-záznam typu TXT s názvem končícím na `._domainkey`. Pokud tam je, musí přejít taky,
-jinak začne pošta padat do spamu.
+**DKIM pro Seznam zvenčí nevidím** — selektor se nedá uhodnout. V panelu Websupport
+hledej záznam typu TXT s názvem končícím na `._domainkey`, který nepatří Resendu
+(viz níž). Pokud tam je, musí přejít taky, jinak začne odchozí pošta padat do spamu.
+
+#### Záznamy Resendu — přidané 8. 9. 2026
+
+Tyhle vznikly při ověření domény v Resendu. Bez nich se notifikace o poptávkách
+buď neodešlou, nebo skončí ve spamu.
+
+```
+TXT  resend._domainkey.matlok.cz   p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCzbimh8AV66Nl5QSUT8Fc1RNCRvBVQsVoeRvrpB9XxKvtCKW0mIOpVAtfVfnZNhThR3mPzRMuxENUIDSD+6aD2OL+19qgIZUa1j7/wZbHwKWDedXJv+aO1fd8KEtfaRHCq+IklHId+m+SOhcqAl4dlxEPb0hkkcCcOAwS7oOdTlQIDAQAB
+```
+
+```
+MX   send.matlok.cz   10   feedback-smtp.eu-west-1.amazonses.com.
+TXT  send.matlok.cz        v=spf1 include:amazonses.com ~all
+```
+
+Poddoména `send` slouží Resendu jako zpáteční adresa. Odesílá se pořád
+z `web@matlok.cz` — podepisuje to klíč z prvního záznamu.
+
+**MX na `send.matlok.cz` nemá nic společného s MX na `matlok.cz`.** Jsou to dva
+nezávislé záznamy na dvou různých jménech; ten na apexu drží tvoji poštu
+u Seznamu, ten na `send` řeší doručenky Resendu. Nezaměň je a jeden druhým
+nepřepiš.
 
 #### Poštovní servery
 
