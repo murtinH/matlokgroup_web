@@ -10,7 +10,7 @@ import {nastaveni, strankaMatlok, produkty} from '../lib/queries'
 const [site, obsah, nabidka] = await Promise.all([nastaveni(), strankaMatlok(), produkty()])
 ---
 
-<Base
+<Base nastaveni={site}
   titulek={`Matlok — ${obsah.heroNadpis} ${obsah.heroNadpisTip}`}
   popis={obsah.heroLead}
   pozadi="azure-50"

@@ -1,0 +1,3 @@
+# Přesměrování pro Cloudflare Pages.
+# Web žije na matlok.cz; www je jen zvyk návštěvníků.
+https://www.matlok.cz/* https://matlok.cz/:splat 301

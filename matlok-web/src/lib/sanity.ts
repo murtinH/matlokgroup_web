@@ -1,6 +1,5 @@
 import {createClient, type SanityClient} from '@sanity/client'
 import {createImageUrlBuilder} from '@sanity/image-url'
-import type {SanityImageSource} from '@sanity/image-url/lib/types/types'
 
 const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID
 const dataset = import.meta.env.PUBLIC_SANITY_DATASET
@@ -22,10 +21,13 @@ export const sanity: SanityClient = createClient({
   useCdn: !import.meta.env.DEV,
 })
 
+/** Obrázek ze Sanity: buď reference na asset, nebo přímo asset. */
+export type Obrazek = Parameters<ReturnType<typeof createImageUrlBuilder>['image']>[0]
+
 const builder = createImageUrlBuilder(sanity)
 
 /** Základ URL obrázku ze Sanity CDN. Rozměry a formát dolaď řetězením. */
-export function obrazek(zdroj: SanityImageSource) {
+export function obrazek(zdroj: Obrazek) {
   return builder.image(zdroj).auto('format')
 }
 
@@ -33,6 +35,6 @@ export function obrazek(zdroj: SanityImageSource) {
  * Responzivní srcset. Prohlížeč si podle `sizes` vybere,
  * kterou šířku doopravdy stáhne — na mobilu tedy nestahuje verzi pro 4K.
  */
-export function srcset(zdroj: SanityImageSource, sirky: number[]): string {
+export function srcset(zdroj: Obrazek, sirky: number[]): string {
   return sirky.map((w) => `${obrazek(zdroj).width(w).url()} ${w}w`).join(', ')
 }

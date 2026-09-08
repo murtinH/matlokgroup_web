@@ -16,7 +16,7 @@ const [site, obsah, seznamSluzeb, seznamPrincipu] = await Promise.all([
 const cislo = (i: number) => String(i + 1).padStart(2, '0')
 ---
 
-<Base
+<Base nastaveni={site}
   titulek={`Digital Services — ${obsah.heroNadpis} ${obsah.heroNadpisTip}`}
   popis={obsah.heroLead}
   pozadi="neutral-100"

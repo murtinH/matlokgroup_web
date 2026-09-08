@@ -1,0 +1,88 @@
+---
+import type {SiteSettings} from '../lib/queries'
+
+interface Props {
+  nastaveni: SiteSettings
+}
+
+const {nastaveni} = Astro.props
+const lista = nastaveni.cookieLista
+const token = nastaveni.analytikaToken
+---
+
+{
+  lista?.text && (
+    <div class="cookielista" id="cookielista" hidden role="region" aria-label="Souhlas s cookies">
+      <div class="cookielista__obsah">
+        <p class="cookielista__text">
+          {lista.text}
+          {lista.odkaz && lista.odkazText && (
+            <Fragment>
+              {' '}
+              <a href={lista.odkaz}>{lista.odkazText}</a>
+            </Fragment>
+          )}
+        </p>
+        <div class="cookielista__tlacitka">
+          <button class="btn btn--ghost-ink btn--sm" type="button" data-souhlas="ne">
+            {lista.odmitnuti}
+          </button>
+          <button class="btn btn--primary btn--sm" type="button" data-souhlas="ano">
+            {lista.souhlas}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+<script define:vars={{token}}>
+  // Lišta je v HTML skrytá a odkrývá ji až skript. Bez JavaScriptu se
+  // analytika stejně nespustí, takže by lišta neměla co řešit — a nemá
+  // smysl zabírat místo na stránce kvůli volbě, která nic neovlivní.
+  ;(() => {
+    const NAZEV = 'ml_consent'
+    const ROK = 60 * 60 * 24 * 365
+
+    const precti = () =>
+      document.cookie
+        .split('; ')
+        .find((c) => c.startsWith(`${NAZEV}=`))
+        ?.split('=')[1]
+
+    const uloz = (hodnota) => {
+      const zabezpeceni = location.protocol === 'https:' ? '; Secure' : ''
+      document.cookie = `${NAZEV}=${hodnota}; Max-Age=${ROK}; Path=/; SameSite=Lax${zabezpeceni}`
+    }
+
+    const spustAnalytiku = () => {
+      if (!token || document.getElementById('cf-analytics')) return
+      const skript = document.createElement('script')
+      skript.id = 'cf-analytics'
+      skript.defer = true
+      skript.src = 'https://static.cloudflareinsights.com/beacon.min.js'
+      skript.dataset.cfBeacon = JSON.stringify({token})
+      document.head.appendChild(skript)
+    }
+
+    const volba = precti()
+    if (volba === 'ano') {
+      spustAnalytiku()
+      return
+    }
+    if (volba === 'ne') return
+
+    const lista = document.getElementById('cookielista')
+    if (!lista) return
+    lista.hidden = false
+
+    lista.querySelectorAll('[data-souhlas]').forEach((tlacitko) => {
+      tlacitko.addEventListener('click', () => {
+        const hodnota = tlacitko.dataset.souhlas
+        uloz(hodnota)
+        lista.hidden = true
+        if (hodnota === 'ano') spustAnalytiku()
+      })
+    })
+  })()
+</script>

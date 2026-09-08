@@ -50,7 +50,7 @@ const meta =
     : null
 ---
 
-<Base titulek={`${titulek} — ${site.nazev}`}>
+<Base nastaveni={site} titulek={`${titulek} — ${site.nazev}`}>
   <Navigace nastaveni={site} aktivni={`/${Astro.params.slug}`} />
 
   <main>

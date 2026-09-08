@@ -12,7 +12,7 @@ const telefonOdkaz = site.telefon.replace(/\s+/g, '')
 const p = obsah.popiskyUdaju ?? {}
 ---
 
-<Base
+<Base nastaveni={site}
   titulek={`Kontakt — ${site.nazev}`}
   popis={obsah.heroLead}
 >

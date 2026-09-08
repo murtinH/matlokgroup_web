@@ -5,6 +5,8 @@
  */
 import '../styles/global.css'
 import '../styles/site.css'
+import CookieLista from '../components/CookieLista.astro'
+import type {SiteSettings} from '../lib/queries'
 
 interface Props {
   titulek: string
@@ -12,9 +14,11 @@ interface Props {
   /** Název tokenu podkladu bez uvozovek, například "azure-50".
       Každá stránka má podle zadání vlastní odstín. */
   pozadi?: string
+  /** Kvůli cookie liště, která patří na každou stránku. */
+  nastaveni: SiteSettings
 }
 
-const {titulek, popis, pozadi} = Astro.props
+const {titulek, popis, pozadi, nastaveni} = Astro.props
 ---
 
 <!doctype html>
@@ -44,6 +48,8 @@ const {titulek, popis, pozadi} = Astro.props
   </head>
   <body style={pozadi ? `--page-bg: var(--${pozadi})` : undefined}>
     <slot />
+
+    <CookieLista nastaveni={nastaveni} />
 
     <script>
       const prvky = document.querySelectorAll('.reveal')

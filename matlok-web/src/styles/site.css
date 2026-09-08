@@ -1249,3 +1249,41 @@ details.faq p { font-size: var(--text-sm); color: var(--text-secondary); margin:
 }
 .chystame p { margin: 0 0 1em; }
 .chystame p:last-child { margin: 0; }
+
+/* ============================================================
+   COOKIE LIŠTA
+   ============================================================ */
+.cookielista {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 60;
+  background: var(--ink-900);
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: var(--shadow-xl);
+  padding: var(--space-4) 0;
+}
+.cookielista__obsah {
+  max-width: var(--container-xl);
+  margin: 0 auto;
+  padding-inline: var(--gutter);
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+}
+.cookielista__text {
+  margin: 0;
+  flex: 1 1 32ch;
+  font-size: var(--text-xs);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.72);
+}
+.cookielista__text a { color: var(--azure-400); text-decoration: underline; }
+.cookielista__tlacitka { display: flex; gap: var(--space-3); flex: none; }
+/* Na mobilu roztáhneme tlačítka přes celou šířku — palcem se lépe trefí. */
+@media (max-width: 600px) {
+  .cookielista__tlacitka { width: 100%; }
+  .cookielista__tlacitka .btn { flex: 1; }
+}

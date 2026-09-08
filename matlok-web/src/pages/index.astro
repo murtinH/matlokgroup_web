@@ -16,7 +16,7 @@ const [site, obsah, seznamDivizi, seznamZakladatelu] = await Promise.all([
 ])
 ---
 
-<Base
+<Base nastaveni={site}
   titulek={`${site.nazev} — ${obsah.heroNadpis} ${obsah.heroNadpisTip}`}
   popis={obsah.heroLead}
 >

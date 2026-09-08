@@ -20,6 +20,14 @@ export interface SiteSettings {
   navigaceTlacitko?: Odkaz
   patickaSloupce?: {nadpis: string; odkazy: Odkaz[]}[]
   chystanaStranka?: {nadradek?: string; titulek?: string; text?: string}
+  cookieLista?: {
+    text?: string
+    odkazText?: string
+    odkaz?: string
+    souhlas?: string
+    odmitnuti?: string
+  }
+  analytikaToken?: string
 }
 
 export interface Division {

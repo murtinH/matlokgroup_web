@@ -148,6 +148,25 @@ export const siteSettings = defineType({
       ],
     }),
     defineField({
+      name: 'cookieLista',
+      title: 'Cookie lišta',
+      type: 'object',
+      fields: [
+        {name: 'text', title: 'Text', type: 'text', rows: 3},
+        {name: 'odkazText', title: 'Text odkazu na zásady', type: 'string'},
+        {name: 'odkaz', title: 'Cíl odkazu', type: 'string'},
+        {name: 'souhlas', title: 'Tlačítko souhlasu', type: 'string'},
+        {name: 'odmitnuti', title: 'Tlačítko odmítnutí', type: 'string'},
+      ],
+    }),
+    defineField({
+      name: 'analytikaToken',
+      title: 'Token Cloudflare Web Analytics',
+      type: 'string',
+      description:
+        'Veřejný identifikátor měření. Skript se načte až po souhlasu v cookie liště. Prázdné pole = žádné měření.',
+    }),
+    defineField({
       name: 'chystanaStranka',
       title: 'Text nenapsané stránky',
       type: 'object',
