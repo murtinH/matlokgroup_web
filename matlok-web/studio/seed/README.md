@@ -29,6 +29,7 @@ npx sanity dataset import seed/obsah.ndjson production --replace
 | `homePage` | 1 | `prototyp/index.html` — texty, které nemají vlastní dokument |
 | `matlokPage` | 1 | `prototyp/matlok.html` — texty, které nemají vlastní dokument |
 | `sluzbyPage` | 1 | `prototyp/sluzby.html` — texty, které nemají vlastní dokument |
+| `kontaktPage` | 1 | `prototyp/kontakt.html` — texty formuláře, nápovědy polí a volby |
 | `division` | 5 | `prototyp/index.html` |
 | `machine` | 1 | `prototyp/matlok.html` |
 | `product` | 6 | `prototyp/matlok.html` — **ukázková data**, ne skutečné zásoby |

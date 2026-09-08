@@ -934,3 +934,258 @@ img { max-width: 100%; display: block; }
 .sfact b { font-family: var(--font-display); font-weight: var(--fw-black); font-size: var(--text-lg); color: var(--azure-400); line-height: 1; }
 .sfact span { font-size: var(--text-sm); color: rgba(255, 255, 255, 0.75); line-height: 1.5; }
 .cta__pozn--svetla { color: var(--azure-700); }
+
+/* ============================================================
+   STRÁNKA /kontakt
+   ============================================================ */
+.khero { background: var(--ink-800); color: #fff; padding-block: clamp(2.5rem, 6vw, 5rem) clamp(3rem, 7vw, 5rem); }
+.khero h1 { color: #fff; }
+.promise {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(32, 185, 232, 0.12);
+  border: 1px solid rgba(32, 185, 232, 0.35);
+  border-radius: var(--radius-pill);
+  padding: 0.6em 1.1em;
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+  color: var(--azure-400);
+  margin-bottom: var(--space-5);
+}
+.kgrid { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: clamp(2rem, 5vw, 4rem); align-items: start; }
+@media (max-width: 960px) { .kgrid { grid-template-columns: 1fr; } }
+
+.dl { display: grid; gap: var(--space-4); margin-top: var(--space-7); }
+.dl__row {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: var(--space-4);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: var(--text-sm);
+}
+@media (max-width: 520px) { .dl__row { grid-template-columns: 1fr; gap: var(--space-2); } }
+.dl__k {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+.dl__v { color: #fff; }
+.dl__v a { color: var(--azure-400); }
+
+/* ------------------------------------------------------------ formulář */
+.form {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-lg);
+  padding: clamp(1.25rem, 3vw, var(--space-7));
+}
+.form__legend {
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0 0 var(--space-3);
+  display: block;
+}
+
+/* Výběr záměru. V prototypu to byly <button aria-pressed>, tady jsou to
+   radio inputy: je to volba jedné ze tří možností, takže je to správná
+   sémantika, funguje to klávesnicí i bez JavaScriptu a hodnota se odešle sama. */
+/* fieldset + legend je správná sémantika pro skupinu přepínačů, ale legenda
+   nesmí být položkou mřížky — v prototypu je nad ní jako samostatný řádek. */
+.segset { border: 0; padding: 0; margin: 0; min-inline-size: 0; }
+.segset > legend { padding: 0; }
+.seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-3); margin-bottom: var(--space-6); }
+@media (max-width: 700px) { .seg { grid-template-columns: 1fr; } }
+.seg__o {
+  display: block;
+  /* V prototypu je tahle volba <button>, který má od prohlížeče
+     line-height: normal. Náš <label> by jinak zdědil 1,55 z body
+     a dlaždice by byly o 10 px vyšší. */
+  line-height: normal;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1.5px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  cursor: pointer;
+  color: #fff;
+  transition: all var(--dur-fast) var(--ease-out);
+  position: relative;
+}
+.seg__o:hover { border-color: rgba(255, 255, 255, 0.45); }
+.seg__o:has(input:checked) { border-color: var(--accent); background: rgba(32, 185, 232, 0.12); }
+/* Azurový čtverec označuje zvolenou možnost — značkový motiv. */
+.seg__o:has(input:checked)::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: var(--space-4);
+  width: 20px;
+  height: 6px;
+  background: var(--accent);
+}
+.seg__o:has(input:focus-visible) { box-shadow: var(--shadow-focus); }
+/* Přepínač zůstává v dokumentu kvůli klávesnici a čtečkám, jen není vidět. */
+.seg__o input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.seg__t { font-family: var(--font-display); font-weight: var(--fw-bold); font-size: var(--text-sm); display: block; margin-bottom: 0.35em; }
+/* Blokový prvek záměrně: jako řádkový by výška řádku závisela na velikosti
+   písma rodiče, a ta se u <label> liší od <button>, který měl prototyp. */
+.seg__d { font-size: var(--text-2xs); color: rgba(255, 255, 255, 0.55); line-height: 1.5; display: block; }
+
+.fields { display: grid; gap: var(--space-3); }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+@media (max-width: 700px) { .row2 { grid-template-columns: 1fr; } }
+
+.form input,
+.form textarea,
+.form select,
+.form button {
+  /* Tailwind reset dává formulářovým prvkům line-height: inherit.
+     Prohlížeč jim jinak dává normal a prototyp na to spoléhá — bez
+     tohohle jsou pole o 5 px a tlačítko o 4 px vyšší. */
+  line-height: normal;
+}
+.form input,
+.form textarea,
+.form select {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  padding: 0.9em 1em;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+.form select {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, rgba(255, 255, 255, 0.5) 50%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.5) 50%, transparent 50%);
+  background-position: calc(100% - 20px) 55%, calc(100% - 14px) 55%;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+.form select option { background: var(--ink-800); color: #fff; }
+.form input::placeholder,
+.form textarea::placeholder { color: rgba(255, 255, 255, 0.42); }
+.form input:focus,
+.form textarea:focus,
+.form select:focus { outline: none; border-color: var(--accent); box-shadow: var(--shadow-focus); }
+.form textarea { min-height: 110px; resize: vertical; }
+.form small { font-size: var(--text-2xs); color: rgba(255, 255, 255, 0.45); line-height: 1.6; }
+.form small a { color: var(--azure-400); }
+.form .btn { width: 100%; }
+
+/* Panely se přepínají čistě v CSS podle zvoleného přepínače — bez
+   JavaScriptu. Skript pak jen odpojí pole ve skrytém panelu, aby se
+   neodesílala, jak žádá kapitola 3.2 v ZADANI.md. */
+.panel { padding-top: var(--space-2); display: none; }
+.form:has(#zamer-services:checked) #p-services { display: block; }
+.form:has(#zamer-automat:checked) #p-automat { display: block; }
+
+.checks { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-2); }
+@media (max-width: 700px) { .checks { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 400px) { .checks { grid-template-columns: 1fr; } }
+.check {
+  display: flex;
+  align-items: center;
+  gap: 0.55em;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius-sm);
+  padding: 0.65em 0.8em;
+  font-size: var(--text-xs);
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-out);
+}
+.check:hover { border-color: rgba(255, 255, 255, 0.4); }
+.check input { width: auto; padding: 0; margin: 0; accent-color: var(--azure-500); }
+.check:has(input:checked) { border-color: var(--accent); background: rgba(32, 185, 232, 0.12); }
+.check:has(input:focus-visible) { box-shadow: var(--shadow-focus); }
+
+.formfoot {
+  margin-top: var(--space-5);
+  padding-top: var(--space-5);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  display: grid;
+  gap: var(--space-4);
+}
+/* Past na roboty. Skutečný návštěvník ji nevidí ani na ni nedosáhne tabulátorem. */
+.honeypot { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+/* ------------------------------------------------------------ FAQ */
+.faqtabs { display: flex; gap: var(--space-2); margin-bottom: var(--space-6); flex-wrap: wrap; }
+.faqtab {
+  line-height: normal;
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.6em 1.1em;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-default);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-out);
+}
+.faqtab:hover { border-color: var(--ink-800); color: var(--ink-800); }
+.faqtab[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--ink-900); }
+
+.faqlist { display: grid; gap: var(--space-3); max-width: 940px; }
+details.faq {
+  background: var(--neutral-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) clamp(1rem, 2.5vw, var(--space-5));
+  transition: box-shadow var(--dur-fast) var(--ease-out);
+}
+details.faq[hidden] { display: none; }
+details.faq[open] { box-shadow: var(--shadow-sm); }
+details.faq summary {
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-sm);
+  color: var(--ink-800);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  line-height: 1.4;
+}
+details.faq summary::-webkit-details-marker { display: none; }
+details.faq summary::marker { content: ""; }
+details.faq summary::after {
+  content: "+";
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-lg);
+  line-height: 1;
+  color: var(--azure-700);
+  flex: none;
+  transition: transform var(--dur-base) var(--ease-out);
+}
+details.faq[open] summary::after { transform: rotate(45deg); }
+details.faq p { font-size: var(--text-sm); color: var(--text-secondary); margin: var(--space-4) 0 0; line-height: 1.7; max-width: 78ch; }
+.vatnote { margin-top: var(--space-5); font-size: var(--text-xs); color: var(--text-muted); }
+.form__chyba {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: #e29a90;
+  background: rgba(196, 69, 54, 0.15);
+  border: 1px solid rgba(196, 69, 54, 0.4);
+  border-radius: var(--radius-md);
+  padding: 0.8em 1em;
+}

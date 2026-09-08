@@ -140,6 +140,38 @@ export interface SluzbyPage {
   ctaPoznamka?: string
 }
 
+export interface Faq {
+  poradi: number
+  kategorie: 'skupina' | 'web' | 'automat'
+  otazka: string
+  odpoved: string
+}
+
+export interface KontaktPage {
+  slib?: string
+  heroNadpis: string
+  heroNadpisTip: string
+  heroLead: string
+  popiskyUdaju?: {spolecnost?: string; sidlo?: string; ico?: string; telefon?: string; email?: string}
+  nadpisyKroku?: {zamer?: string; sluzby?: string; lokalita?: string; kontakt?: string}
+  zamery?: {text: string; popis?: string; hodnota: string}[]
+  sluzbyVolby?: {text: string; hodnota: string}[]
+  stavVolby?: string[]
+  typVolby?: string[]
+  navstevnostVolby?: string[]
+  rezimVolby?: string[]
+  napovedy?: Record<string, string>
+  odeslatText?: string
+  souhlasText?: string
+  souhlasOdkaz?: string
+  potvrzeni?: string
+  faqEyebrow?: string
+  faqNadpis?: string
+  faqLead?: string
+  faqFiltry?: {text: string; hodnota: string}[]
+  poznamkaDph?: string
+}
+
 export function nastaveni(): Promise<SiteSettings> {
   return sanity.fetch('*[_id == "siteSettings"][0]')
 }
@@ -181,4 +213,12 @@ export function sluzby(): Promise<Service[]> {
 
 export function principy(): Promise<Principle[]> {
   return sanity.fetch('*[_type == "principle"] | order(poradi asc)')
+}
+
+export function strankaKontakt(): Promise<KontaktPage> {
+  return sanity.fetch('*[_id == "kontaktPage"][0]')
+}
+
+export function otazky(): Promise<Faq[]> {
+  return sanity.fetch('*[_type == "faq" && zobrazit == true] | order(poradi asc)')
 }

@@ -1,0 +1,72 @@
+---
+import Base from '../layouts/Base.astro'
+import Navigace from '../components/Navigace.astro'
+import Paticka from '../components/Paticka.astro'
+import PoptavkovyFormular from '../components/PoptavkovyFormular.astro'
+import CasteDotazy from '../components/CasteDotazy.astro'
+import {nastaveni, strankaKontakt, otazky} from '../lib/queries'
+
+const [site, obsah, dotazy] = await Promise.all([nastaveni(), strankaKontakt(), otazky()])
+
+const telefonOdkaz = site.telefon.replace(/\s+/g, '')
+const p = obsah.popiskyUdaju ?? {}
+---
+
+<Base
+  titulek={`Kontakt — ${site.nazev}`}
+  popis={obsah.heroLead}
+>
+  <Navigace nastaveni={site} aktivni="/kontakt" />
+
+  <main>
+    <section class="khero">
+      <div class="container">
+        <div class="kgrid">
+          <div>
+            {obsah.slib && <p class="promise">{obsah.slib}</p>}
+            <h1>{obsah.heroNadpis}<br /><span class="tip">{obsah.heroNadpisTip}</span></h1>
+            <p class="lead lead--onink">{obsah.heroLead}</p>
+
+            <div class="dl">
+              <div class="dl__row">
+                <div class="dl__k">{p.spolecnost}</div>
+                <div class="dl__v">{site.nazev}</div>
+              </div>
+              <div class="dl__row">
+                <div class="dl__k">{p.sidlo}</div>
+                <div class="dl__v" set:html={site.adresa.replace(/\n/g, '<br>')} />
+              </div>
+              <div class="dl__row">
+                <div class="dl__k">{p.ico}</div>
+                <div class="dl__v">{site.ico}</div>
+              </div>
+              <div class="dl__row">
+                <div class="dl__k">{p.telefon}</div>
+                <div class="dl__v"><a href={`tel:${telefonOdkaz}`}>{site.telefon}</a></div>
+              </div>
+              <div class="dl__row">
+                <div class="dl__k">{p.email}</div>
+                <div class="dl__v"><a href={`mailto:${site.email}`}>{site.email}</a></div>
+              </div>
+            </div>
+          </div>
+
+          <PoptavkovyFormular obsah={obsah} />
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="faq">
+      <div class="container">
+        <div class="sechead reveal">
+          <p class="eyebrow">{obsah.faqEyebrow}</p>
+          <h2>{obsah.faqNadpis}</h2>
+          <p class="lead">{obsah.faqLead}</p>
+        </div>
+        <CasteDotazy obsah={obsah} dotazy={dotazy} />
+      </div>
+    </section>
+  </main>
+
+  <Paticka nastaveni={site} />
+</Base>

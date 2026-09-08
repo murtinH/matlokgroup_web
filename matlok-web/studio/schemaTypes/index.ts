@@ -3,6 +3,7 @@ import {siteSettings} from './siteSettings'
 import {homePage} from './homePage'
 import {matlokPage} from './matlokPage'
 import {sluzbyPage} from './sluzbyPage'
+import {kontaktPage} from './kontaktPage'
 import {division} from './division'
 import {machine} from './machine'
 import {product} from './product'
@@ -18,6 +19,7 @@ export const schemaTypes = [
   homePage,
   matlokPage,
   sluzbyPage,
+  kontaktPage,
   division,
   machine,
   product,

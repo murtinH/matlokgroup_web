@@ -1,0 +1,188 @@
+---
+import type {KontaktPage} from '../lib/queries'
+
+interface Props {
+  obsah: KontaktPage
+}
+
+const {obsah} = Astro.props
+const n = obsah.napovedy ?? {}
+const kroky = obsah.nadpisyKroku ?? {}
+
+/** V textu souhlasu je slovo v hranatých závorkách odkazem na zásady. */
+const souhlas = obsah.souhlasText ?? ''
+const shoda = souhlas.match(/^(.*?)\[([^\]]+)\](.*)$/s)
+---
+
+<form class="form" id="poptavka" method="post" action="/api/poptavka" novalidate>
+  <fieldset class="segset">
+    <legend class="form__legend">{kroky.zamer}</legend>
+    <div class="seg">
+      {
+      obsah.zamery?.map((z, i) => (
+        <label class="seg__o" for={`zamer-${z.hodnota}`}>
+          <input type="radio" id={`zamer-${z.hodnota}`} name="zamer" value={z.hodnota} checked={i === 0} required />
+          <span class="seg__t">{z.text}</span>
+          {z.popis && <span class="seg__d">{z.popis}</span>}
+          </label>
+        ))
+      }
+    </div>
+  </fieldset>
+
+  <div class="panel" id="p-services">
+    <span class="form__legend">{kroky.sluzby}</span>
+    <div class="checks">
+      {
+        obsah.sluzbyVolby?.map((s) => (
+          <label class="check">
+            <input type="checkbox" name="sluzby" value={s.hodnota} />
+            {s.text}
+          </label>
+        ))
+      }
+    </div>
+    <div class="row2" style="margin-top: var(--space-3)">
+      <input type="text" name="obor" placeholder={n.obor} aria-label={n.obor} />
+      <select name="stav" aria-label={n.stav}>
+        <option value="">{n.stav}</option>
+        {obsah.stavVolby?.map((v) => <option>{v}</option>)}
+      </select>
+    </div>
+  </div>
+
+  <div class="panel" id="p-automat">
+    <span class="form__legend">{kroky.lokalita}</span>
+    <div class="row2">
+      <select name="typ" aria-label={n.typ}>
+        <option value="">{n.typ}</option>
+        {obsah.typVolby?.map((v) => <option>{v}</option>)}
+      </select>
+      <input type="text" name="misto" placeholder={n.misto} aria-label={n.misto} />
+    </div>
+    <div class="row2" style="margin-top: var(--space-3)">
+      <select name="navstevnost" aria-label={n.navstevnost}>
+        <option value="">{n.navstevnost}</option>
+        {obsah.navstevnostVolby?.map((v) => <option>{v}</option>)}
+      </select>
+      <select name="rezim" aria-label={n.rezim}>
+        <option value="">{n.rezim}</option>
+        {obsah.rezimVolby?.map((v) => <option>{v}</option>)}
+      </select>
+    </div>
+  </div>
+
+  <div class="formfoot">
+    <span class="form__legend" style="margin: 0">{kroky.kontakt}</span>
+    <div class="fields">
+      <div class="row2">
+        <input type="text" name="jmeno" placeholder={n.jmeno} aria-label={n.jmeno} required />
+        <input type="text" name="firma" placeholder={n.firma} aria-label={n.firma} />
+      </div>
+      <div class="row2">
+        <input type="email" name="email" placeholder={n.email} aria-label={n.email} required />
+        <input type="tel" name="telefon" placeholder={n.telefon} aria-label={n.telefon} />
+      </div>
+      <textarea name="zprava" placeholder={n.zprava} aria-label={n.zprava}></textarea>
+
+      {/* Past na roboty. Vyplněné pole = spam, server poptávku tiše zahodí. */}
+      <div class="honeypot" aria-hidden="true">
+        <label for="website">Nevyplňujte</label>
+        <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" />
+      </div>
+
+      <button class="btn btn--primary" type="submit">{obsah.odeslatText}</button>
+      <small>
+        {
+          shoda ? (
+            <Fragment>
+              {shoda[1]}
+              <a href={obsah.souhlasOdkaz ?? '/cookies'}>{shoda[2]}</a>
+              {shoda[3]}
+            </Fragment>
+          ) : (
+            souhlas
+          )
+        }
+      </small>
+    </div>
+  </div>
+</form>
+
+{/* Zobrazí se místo formuláře po úspěšném odeslání. */}
+<div class="form" id="potvrzeni" hidden role="status">
+  <p style="margin: 0; color: #fff; font-family: var(--font-display); font-weight: var(--fw-bold)">
+    {obsah.potvrzeni}
+  </p>
+</div>
+
+<script>
+  const formular = document.getElementById('poptavka') as HTMLFormElement | null
+  const potvrzeni = document.getElementById('potvrzeni')
+
+  if (formular) {
+    /**
+     * Pole ve skrytém panelu se nesmí odesílat (ZADANI.md, kapitola 3.2).
+     * Panely samotné přepíná CSS, tohle jen odpojí to, co není vidět.
+     */
+    const srovnejPanely = () => {
+      const zamer = new FormData(formular).get('zamer')
+      formular.querySelectorAll<HTMLElement>('.panel').forEach((panel) => {
+        const patri = panel.id === `p-${zamer}`
+        panel
+          .querySelectorAll<HTMLInputElement>('input, select, textarea')
+          .forEach((pole) => (pole.disabled = !patri))
+      })
+    }
+
+    formular.querySelectorAll('input[name="zamer"]').forEach((prepinac) => {
+      prepinac.addEventListener('change', srovnejPanely)
+    })
+    srovnejPanely()
+
+    formular.addEventListener('submit', async (e) => {
+      e.preventDefault()
+
+      if (!formular.checkValidity()) {
+        formular.reportValidity()
+        return
+      }
+
+      const tlacitko = formular.querySelector<HTMLButtonElement>('button[type="submit"]')
+      const puvodni = tlacitko?.textContent
+      if (tlacitko) {
+        tlacitko.disabled = true
+        tlacitko.textContent = 'Odesílám…'
+      }
+
+      try {
+        const odpoved = await fetch(formular.action, {
+          method: 'POST',
+          headers: {Accept: 'application/json'},
+          body: new FormData(formular),
+        })
+        if (!odpoved.ok) throw new Error(String(odpoved.status))
+
+        formular.hidden = true
+        if (potvrzeni) potvrzeni.hidden = false
+        potvrzeni?.scrollIntoView({block: 'nearest', behavior: 'smooth'})
+      } catch {
+        // Poptávka je pro firmu cenná — když odeslání selže, nesmí zmizet
+        // bez vysvětlení. Nabídneme telefon a e-mail jako náhradní cestu.
+        if (tlacitko) {
+          tlacitko.disabled = false
+          tlacitko.textContent = puvodni ?? 'Odeslat'
+        }
+        let chyba = formular.querySelector('.form__chyba')
+        if (!chyba) {
+          chyba = document.createElement('p')
+          chyba.className = 'form__chyba'
+          chyba.setAttribute('role', 'alert')
+          tlacitko?.insertAdjacentElement('afterend', chyba)
+        }
+        chyba.textContent =
+          'Odeslání se nepovedlo. Zkuste to prosím znovu, nebo nám napište na info@matlok.cz.'
+      }
+    })
+  }
+</script>
