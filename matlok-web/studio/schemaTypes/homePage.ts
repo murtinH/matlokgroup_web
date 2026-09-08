@@ -16,6 +16,19 @@ const dvojiceCislo = {
     {name: 'hodnota', title: 'Hodnota', type: 'string'},
     {name: 'popisek', title: 'Popisek', type: 'string'},
     {
+      name: 'zdroj',
+      title: 'Brát hodnotu z automatu',
+      type: 'string',
+      description:
+        'Když je vyplněno, hodnotu přepíše živý údaj z Partner API. Ručně zadaná hodnota slouží jako záloha, než se data načtou.',
+      options: {
+        list: [
+          {title: 'Počet produktů v nabídce', value: 'pocet'},
+          {title: 'Dostupnost v procentech', value: 'dostupnost'},
+        ],
+      },
+    },
+    {
       name: 'maleFormatovani',
       title: 'Menší písmo',
       type: 'boolean',

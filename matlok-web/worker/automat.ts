@@ -47,12 +47,23 @@ export interface Nabidka {
 }
 
 /**
- * Kategorie z automatu jsou volný text. Web pracuje jen se dvěma skupinami,
- * takže se sem mapují podle klíčových slov; co se nechytí, je občerstvení.
+ * Kategorie z automatu jsou volný text a web pracuje jen se dvěma skupinami.
+ *
+ * Rozhoduje jednotka v názvu, ne značka: co se prodává v mililitrech nebo
+ * litrech, je nápoj; co v gramech nebo kusech, je občerstvení. Je to
+ * spolehlivější než seznam značek, který by za půl roku neseděl — Monster,
+ * Red Bull ani Kubík v žádném seznamu klíčových slov nejsou, a přesto
+ * je každý pozná podle "0,5l" v názvu.
  */
-const NAPOJE = ['napoj', 'nápoj', 'drink', 'voda', 'water', 'juice', 'džus', 'kava', 'káva', 'coffee', 'caj', 'čaj', 'tea', 'energet', 'limonad', 'limonád', 'cola']
+const OBJEM = /\d+(?:[.,]\d+)?\s*(?:ml|l)\b/i
+const HMOTNOST = /\d+(?:[.,]\d+)?\s*(?:g|kg|ks)\b/i
+const NAPOJE = ['napoj', 'nápoj', 'drink', 'voda', 'water', 'juice', 'džus', 'kava', 'káva', 'coffee', 'caj', 'čaj', 'tea', 'energet', 'limonad', 'limonád', 'cola', 'smoothie']
 
 function urciKategorii(kategorie: string | null | undefined, nazev: string): 'drink' | 'snack' {
+  // Jednotka v názvu je nejsilnější vodítko.
+  if (OBJEM.test(nazev)) return 'drink'
+  if (HMOTNOST.test(nazev)) return 'snack'
+
   const text = `${kategorie ?? ''} ${nazev}`.toLowerCase()
   return NAPOJE.some((k) => text.includes(k)) ? 'drink' : 'snack'
 }
