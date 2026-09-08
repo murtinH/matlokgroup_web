@@ -13,7 +13,7 @@
  * kde je Cloudflare drží jako šifrované proměnné.
  */
 import {zpracujPoptavku} from './poptavka'
-import {vypisAutomaty} from './automaty'
+import {nabidkaAutomatu} from './automat'
 
 export interface Env {
   /** Statické soubory z buildu Astra. Nastavuje wrangler.jsonc. */
@@ -41,9 +41,8 @@ export default {
       return zpracujPoptavku(request, env)
     }
 
-    // DOČASNÉ — po zjištění machineId smazat i se souborem automaty.ts.
-    if (adresa.pathname === '/api/automaty') {
-      return vypisAutomaty(env)
+    if (adresa.pathname === '/api/automat') {
+      return nabidkaAutomatu(request, env)
     }
 
     // Cokoli jiného je statická stránka nebo soubor.
