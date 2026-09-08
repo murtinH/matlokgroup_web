@@ -55,7 +55,7 @@ const polozky = produkty.map((p) => {
     )
   }
 
-  <div class="prodgrid" id="prodgrid">
+  <div class="prodgrid" id="prodgrid" data-hranice={hranice}>
     {
       polozky.map((p) => (
         <div
@@ -80,34 +80,121 @@ const polozky = produkty.map((p) => {
   <p class="offer__pozn">
     <span id="fcount">Zobrazeno {polozky.length} z {polozky.length} položek</span>
     {obsah.nabidkaPoznamka && ` · ${obsah.nabidkaPoznamka}`}
+    <span id="fnote"></span>
   </p>
 </div>
 
 <script>
-  const chipy = document.querySelectorAll<HTMLButtonElement>('.chip')
-  const zbozi = document.querySelectorAll<HTMLElement>('#prodgrid .prod')
+  /**
+   * Nabídka boxu. Server vykreslí poslední známý stav ze Sanity, aby
+   * stránka nebyla prázdná a fungovala i bez JavaScriptu. Skript ji pak
+   * přepíše živými daty z /api/automat.
+   *
+   * Když volání selže, na stránce zůstane to, co vykreslil server —
+   * návštěvník o tom neví a nic nespadne.
+   */
+  const mrizka = document.getElementById('prodgrid')
   const pocitadlo = document.getElementById('fcount')
+  const poznamka = document.getElementById('fnote')
 
+  const HRANICE = Number(mrizka?.dataset.hranice ?? 3)
+
+  function stavZasoby(kusu, dochazi) {
+    if (kusu <= 0) return 'Vyprodáno'
+    if (!dochazi) return `Skladem · ${kusu} ks`
+    return kusu === 1 ? 'Zbývá 1 kus' : `Zbývají ${kusu} ks`
+  }
+
+  function vykresli(polozky) {
+    if (!mrizka) return
+    mrizka.replaceChildren(
+      ...polozky.map((p) => {
+        const dochazi = p.dostupnost <= HRANICE
+        const procento = Math.max(0, Math.min(100, Math.round((p.dostupnost / (p.kapacita || 12)) * 100)))
+
+        const karta = document.createElement('div')
+        karta.className = 'prod'
+        karta.dataset.cat = p.kategorie
+        if (p.nejprodavanejsi) karta.dataset.top = '1'
+        if (dochazi) karta.dataset.low = '1'
+
+        if (dochazi) {
+          const odznak = document.createElement('span')
+          odznak.className = 'prod__badge prod__badge--low'
+          odznak.textContent = 'Poslední kusy'
+          karta.append(odznak)
+        } else if (p.nejprodavanejsi) {
+          const odznak = document.createElement('span')
+          odznak.className = 'prod__badge'
+          odznak.textContent = 'Nejprodávanější'
+          karta.append(odznak)
+        }
+
+        const nazev = document.createElement('div')
+        nazev.className = 'prod__n'
+        nazev.textContent = p.nazev
+
+        const cena = document.createElement('div')
+        cena.className = 'prod__p'
+        cena.textContent = `${p.cena} Kč`
+
+        const prouzek = document.createElement('div')
+        prouzek.className = dochazi ? 'bar bar--low' : 'bar'
+        const vypln = document.createElement('span')
+        vypln.style.width = `${procento}%`
+        prouzek.append(vypln)
+
+        const stav = document.createElement('div')
+        stav.className = 'prod__s'
+        stav.textContent = stavZasoby(p.dostupnost, dochazi)
+
+        karta.append(nazev, cena, prouzek, stav)
+        return karta
+      }),
+    )
+    aktualizujPocet()
+  }
+
+  function aktualizujPocet() {
+    if (!pocitadlo || !mrizka) return
+    const vse = mrizka.querySelectorAll('.prod')
+    const videno = [...vse].filter((p) => !p.hidden).length
+    pocitadlo.textContent = `Zobrazeno ${videno} z ${vse.length} položek`
+  }
+
+  // --- filtr kategorií ---
+  const chipy = document.querySelectorAll('.chip')
   chipy.forEach((chip) => {
     chip.addEventListener('click', () => {
       chipy.forEach((x) => x.setAttribute('aria-pressed', String(x === chip)))
-
       const filtr = chip.dataset.f
-      let videno = 0
 
-      zbozi.forEach((polozka) => {
+      mrizka?.querySelectorAll('.prod').forEach((polozka) => {
         const sedi =
           filtr === 'all' ||
           (filtr === 'top' && polozka.dataset.top) ||
           (filtr === 'low' && polozka.dataset.low) ||
           polozka.dataset.cat === filtr
         polozka.hidden = !sedi
-        if (sedi) videno++
       })
-
-      if (pocitadlo) {
-        pocitadlo.textContent = `Zobrazeno ${videno} z ${zbozi.length} položek`
-      }
+      aktualizujPocet()
     })
   })
+
+  // --- živá data ---
+  fetch('/api/automat', {headers: {accept: 'application/json'}})
+    .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+    .then((data) => {
+      if (!Array.isArray(data.polozky) || data.polozky.length === 0) return
+      vykresli(data.polozky)
+
+      if (poznamka && data.zdroj === 'zaloha') {
+        // Návštěvník má vědět, že čísla nemusí být aktuální.
+        const cas = new Date(data.aktualizovano).toLocaleString('cs-CZ')
+        poznamka.textContent = ` · Automat se právě neozývá, zobrazujeme poslední známý stav z ${cas}.`
+      }
+    })
+    .catch(() => {
+      // Zůstane to, co vykreslil server. Nic dalšího není potřeba.
+    })
 </script>
