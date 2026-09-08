@@ -11,7 +11,11 @@ Přečti si `ZADANI.md` dřív, než začneš cokoli stavět. Je to zadání, ne
 
 ## Design
 
-- Design systém je v `../PRO CLAUDE DESIGN – Design System/`. Tokeny z `tokens/*.css`.
+- Tokeny jsou v repozitáři: `src/styles/tokens/*.css`. Načítá je `src/styles/global.css`.
+  Zdroj pravdy je design systém v iCloudu
+  (`03 Matlok Group s.r.o./05 Brand/01 Styleguide/ PRO CLAUDE DESIGN – Design System/tokens/`);
+  do repozitáře jsou zkopírované, aby build na Cloudflare nezávisel na iCloudu.
+  Když se změní styleguide, tokeny se překopírují — neupravovat je ručně.
 - Barvy nikdy natvrdo — vždy přes CSS proměnné.
 - Paleta je chladná s jedním modrým akcentem (Azure `#20B9E8`) a jedním teplým (Winter Red).
   **Nové barvy nezavádět.** Odlišení sekcí se dělá odstínem podkladu, ne novým odstínem.
@@ -22,7 +26,10 @@ Přečti si `ZADANI.md` dřív, než začneš cokoli stavět. Je to zadání, ne
 
 ## Kód
 
-- Astro 5, TypeScript, statický výstup. React jen tam, kde je nutná interaktivita.
+- Astro 7, TypeScript, statický výstup. React jen tam, kde je nutná interaktivita.
+  (Zadání psalo Astro 5; při scaffoldu 8. 9. 2026 byla aktuální 7 a projekt je na zelené louce.)
+- Tailwind 4. Výchozí paleta Tailwindu je vypnutá v `global.css` — dostupné jsou jen
+  značkové barvy (`bg-azure-500`, `text-ink-800`, …). To je záměr, ne chyba.
 - Komponenta = jeden účel. Obsah nikdy natvrdo v komponentě — vždy ze Sanity.
 - Obrázky přes Sanity CDN s responzivním `srcset`.
 - Serverové funkce v `functions/api/`. **Žádný API klíč se nikdy nedostane do klientského kódu.**

@@ -1,0 +1,104 @@
+/* ============================================================
+   MATLOK GROUP — COLOR TOKENS
+   Palette from the official style guide (Minimal Crest v7):
+     Mountain Ink  #102936   Azure Detail #20B9E8
+     Winter Red    #C44536   Snow Base    #F3F8F6
+   Derived ramps are oklch-harmonized around those anchors.
+   ============================================================ */
+:root {
+  /* --- Brand anchors (verbatim from style guide) --- */
+  --ml-ink:   #102936; /* Mountain Ink */
+  --ml-azure: #20B9E8; /* Azure Detail */
+  --ml-red:   #C44536; /* Winter Red   */
+  --ml-snow:  #F3F8F6; /* Snow Base    */
+  --ml-white: #FFFFFF;
+
+  /* --- Mountain Ink ramp (primary dark) --- */
+  --ink-900: #0B1F29;
+  --ink-800: #102936; /* anchor */
+  --ink-700: #1B3B4A;
+  --ink-600: #2C5161;
+  --ink-500: #456876;
+
+  /* --- Azure ramp (primary accent) --- */
+  --azure-700: #0A88B6;
+  --azure-600: #0E9FCF;
+  --azure-500: #20B9E8; /* anchor */
+  --azure-400: #54CBEE;
+  --azure-200: #ACE6F7;
+  --azure-100: #D7F1FB;
+  --azure-50:  #ECF9FD;
+
+  /* --- Winter Red ramp (warm / alert / seasonal CTA) --- */
+  --red-700: #8E3025;
+  --red-600: #A8392C;
+  --red-500: #C44536; /* anchor */
+  --red-400: #D46C5F;
+  --red-100: #F6DDD8;
+  --red-50:  #FBEEEB;
+
+  /* --- Cool neutral ramp (Snow -> Ink) --- */
+  --neutral-0:   #FFFFFF;
+  --snow:        #F3F8F6; /* anchor — app background */
+  --neutral-100: #E8EFF1;
+  --neutral-200: #D4DFE3;
+  --neutral-300: #B6C6CC;
+  --neutral-400: #8DA1A9;
+  --neutral-500: #627780;
+  --neutral-600: #455860;
+  --neutral-700: #2B3D45;
+  --neutral-800: #182A32;
+  --neutral-900: #102936;
+
+  /* --- Supporting semantic hues (harmonized, not in core guide) --- */
+  --green-500: #1F9D74; /* success — alpine spruce */
+  --green-100: #D7F0E6;
+  --amber-500: #E0A33B; /* warning — warm winter sun */
+  --amber-100: #FBEED2;
+
+  /* ============================================================
+     SEMANTIC ALIASES — reference these in components, not raw ramps
+     ============================================================ */
+  /* Surfaces */
+  --color-bg:            var(--snow);
+  --color-surface:       var(--neutral-0);
+  --color-surface-sunken:var(--neutral-100);
+  --color-surface-ink:   var(--ink-800);   /* dark sections */
+  --color-overlay:       rgba(16, 41, 54, 0.55);
+
+  /* Text */
+  --text-primary:   var(--ink-800);
+  --text-secondary: var(--neutral-600);
+  --text-muted:     var(--neutral-500);
+  --text-inverse:   var(--neutral-0);
+  --text-on-accent: var(--ink-900);
+  --text-link:      var(--azure-700);
+
+  /* Borders & lines */
+  --border-subtle: var(--neutral-200);
+  --border-default:var(--neutral-300);
+  --border-strong: var(--ink-800);
+
+  /* Accent (Azure) */
+  --accent:          var(--azure-500);
+  --accent-hover:    var(--azure-600);
+  --accent-active:   var(--azure-700);
+  --accent-soft:     var(--azure-100);
+  --accent-contrast: var(--ink-900);
+
+  /* Warm / Winter Red */
+  --warm:        var(--red-500);
+  --warm-hover:  var(--red-600);
+  --warm-soft:   var(--red-50);
+  --warm-contrast: var(--neutral-0);
+
+  /* Feedback */
+  --danger:  var(--red-500);
+  --success: var(--green-500);
+  --warning: var(--amber-500);
+  --info:    var(--azure-500);
+
+  /* Focus */
+  --focus-ring: var(--azure-500);
+  --focus-ring-offset: var(--neutral-0);
+}

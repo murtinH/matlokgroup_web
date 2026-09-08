@@ -1,0 +1,31 @@
+/* ============================================================
+   MATLOK GROUP — SPACING & LAYOUT TOKENS
+   4px base grid. Generous, airy spacing — the brand reads as
+   clean alpine minimalism, not dense dashboards.
+   ============================================================ */
+:root {
+  --space-0:  0;
+  --space-1:  0.25rem;  /* 4  */
+  --space-2:  0.5rem;   /* 8  */
+  --space-3:  0.75rem;  /* 12 */
+  --space-4:  1rem;     /* 16 */
+  --space-5:  1.5rem;   /* 24 */
+  --space-6:  2rem;     /* 32 */
+  --space-7:  2.5rem;   /* 40 */
+  --space-8:  3rem;     /* 48 */
+  --space-9:  4rem;     /* 64 */
+  --space-10: 5rem;     /* 80 */
+  --space-11: 6rem;     /* 96 */
+  --space-12: 8rem;     /* 128 */
+
+  /* Container widths */
+  --container-sm: 640px; /* @kind spacing */
+  --container-md: 880px; /* @kind spacing */
+  --container-lg: 1120px; /* @kind spacing */
+  --container-xl: 1320px; /* @kind spacing */
+  --gutter:       clamp(1.25rem, 4vw, 4rem); /* @kind spacing */
+
+  /* Section rhythm */
+  --section-y:    clamp(4rem, 9vw, 8rem); /* @kind spacing */
+  --section-y-sm: clamp(2.5rem, 6vw, 4rem); /* @kind spacing */
+}

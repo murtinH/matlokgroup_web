@@ -9,14 +9,14 @@ Verze 1 · září 2026 · Matlok Group s.r.o.
 
 | Vrstva | Řešení |
 |---|---|
-| Framework | Astro 5, TypeScript, Tailwind, statický výstup |
+| Framework | Astro 7, TypeScript, Tailwind 4, statický výstup (zadání psalo Astro 5, viz CLAUDE.md) |
 | CMS | Sanity (Studio v `/studio`) |
 | Hosting | Cloudflare Pages, automatický deploy z GitHubu |
 | Doména | matlok.cz — registrátor Active24, nameservery přesměrovat na Cloudflare (**pozor na MX záznamy pro e-mail**) |
 | Serverové funkce | Cloudflare Functions (`/functions/api/*`) |
 | Repozitář | GitHub org, repo `matlok-web` |
 
-Design tokeny vzít z `PRO CLAUDE DESIGN – Design System/tokens/*.css`, nepsat barvy natvrdo.
+Design tokeny jsou zkopírované do `src/styles/tokens/*.css`, zdroj je `PRO CLAUDE DESIGN – Design System/tokens/`. Barvy nikdy natvrdo.
 
 ---
 

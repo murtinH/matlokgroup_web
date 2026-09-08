@@ -1,0 +1,37 @@
+---
+/**
+ * DOČASNÁ stránka. Slouží jen k ověření, že tokeny a Tailwind
+ * fungují. V Session 3 ji nahradí skutečná domovská stránka
+ * převedená z prototyp/index.html.
+ */
+import Base from '../layouts/Base.astro';
+
+const barvy = [
+  { nazev: 'Mountain Ink', trida: 'bg-ink-800', kod: '#102936' },
+  { nazev: 'Azure Detail', trida: 'bg-azure-500', kod: '#20B9E8' },
+  { nazev: 'Winter Red', trida: 'bg-red-500', kod: '#C44536' },
+  { nazev: 'Snow Base', trida: 'bg-snow', kod: '#F3F8F6' },
+];
+---
+
+<Base titulek="Matlok Group s.r.o. — kostra projektu">
+  <main style="max-width: var(--container-md); margin-inline: auto; padding: var(--section-y) var(--gutter);">
+    <p class="ml-eyebrow">Kostra projektu</p>
+    <h1 class="ml-underline-tip">Matlok Group s.r.o.</h1>
+    <p style="color: var(--text-secondary); font-size: var(--text-md);">
+      Astro a Sanity Studio běží. Stránky se staví v Session 3.
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--space-4); margin-top: var(--space-8);">
+      {barvy.map((barva) => (
+        <div style="border: var(--border-width) solid var(--border-subtle); border-radius: var(--radius-card); overflow: hidden; background: var(--color-surface);">
+          <div class={barva.trida} style="height: 72px;"></div>
+          <div style="padding: var(--space-3);">
+            <div style="font-family: var(--font-display); font-weight: var(--fw-semibold); font-size: var(--text-sm);">{barva.nazev}</div>
+            <div style="color: var(--text-muted); font-size: var(--text-xs);">{barva.kod}</div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </main>
+</Base>

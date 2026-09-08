@@ -1,0 +1,18 @@
+{
+  "name": "studio",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "sanity dev",
+    "build": "sanity build",
+    "deploy": "sanity deploy",
+    "manage": "sanity manage"
+  },
+  "dependencies": {
+    "@sanity/vision": "^6.12.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "sanity": "^6.12.0",
+    "styled-components": "^6.5.3"
+  }
+}
