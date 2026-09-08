@@ -146,6 +146,90 @@ img { max-width: 100%; display: block; }
 .nav__links a[aria-current]::after { width: 100%; }
 @media (max-width: 980px) { .nav__links { display: none; } }
 
+/* ------------------------------------------------------------ mobilní menu
+   Prototyp navigaci pod 980 px jen skryl a nic nenabídl — z mobilu se
+   nedalo přejít nikam jinam. Tohle je doplněk, ne převzatá část.
+   Stojí na <details>, takže funguje i bez JavaScriptu.
+   ------------------------------------------------------------ */
+.navmob { display: none; }
+@media (max-width: 980px) {
+  .navmob { display: block; margin-left: auto; }
+}
+/* Bez tohohle drží .nav__links odsazení doprava; s mobilním menu
+   přebírá tuhle roli .navmob. */
+@media (max-width: 980px) {
+  .nav__links { margin-left: 0; }
+}
+
+.navmob__toggle {
+  list-style: none;
+  cursor: pointer;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.navmob__toggle::-webkit-details-marker { display: none; }
+.navmob__toggle::marker { content: ""; }
+.navmob__toggle:hover { background: rgba(16, 41, 54, 0.05); }
+
+.navmob__icon { position: relative; display: block; width: 20px; height: 14px; }
+.navmob__icon span {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--ink-800);
+  border-radius: 1px;
+  transition: transform var(--dur-base) var(--ease-out), opacity var(--dur-fast) var(--ease-out);
+}
+.navmob__icon span:nth-child(1) { top: 0; }
+.navmob__icon span:nth-child(2) { top: 6px; }
+.navmob__icon span:nth-child(3) { top: 12px; }
+.navmob[open] .navmob__icon span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.navmob[open] .navmob__icon span:nth-child(2) { opacity: 0; }
+.navmob[open] .navmob__icon span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+.navmob__panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  display: grid;
+  background: var(--neutral-0);
+  border-bottom: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-2) var(--gutter) var(--space-4);
+}
+.navmob__panel a {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-base);
+  color: var(--text-primary);
+  /* Nejmenší pohodlný cíl prstem je 44 px. */
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.navmob__panel a:last-child { border-bottom: 0; }
+.navmob__panel a:hover { text-decoration: none; color: var(--azure-700); }
+/* Aktivní stránku označuje azurový čtverec, ne barva textu:
+   --azure-700 má na bílé kontrast 4,03 : 1, což je pod WCAG AA (4,5 : 1).
+   Text proto zůstává tmavý. */
+.navmob__panel a[aria-current] { font-weight: var(--fw-bold); }
+.navmob__panel a[aria-current]::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  margin-right: 0.7em;
+  flex: none;
+}
+
 /* ------------------------------------------------------------ obecné */
 .ink { background: var(--ink-800); color: #fff; }
 .ink h1, .ink h2, .ink h3 { color: #fff; }
