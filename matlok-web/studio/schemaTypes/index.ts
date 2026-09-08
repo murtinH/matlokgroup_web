@@ -2,6 +2,7 @@
 import {siteSettings} from './siteSettings'
 import {homePage} from './homePage'
 import {matlokPage} from './matlokPage'
+import {sluzbyPage} from './sluzbyPage'
 import {division} from './division'
 import {machine} from './machine'
 import {product} from './product'
@@ -16,6 +17,7 @@ export const schemaTypes = [
   siteSettings,
   homePage,
   matlokPage,
+  sluzbyPage,
   division,
   machine,
   product,

@@ -108,6 +108,38 @@ export interface MatlokPage {
   ctaPoznamka?: string
 }
 
+export interface Service {
+  poradi: number
+  nazev: string
+  popis: string
+  ikona?: string
+}
+
+export interface Principle {
+  poradi: number
+  nadpis: string
+  text: string
+}
+
+export interface SluzbyPage {
+  heroEyebrow: string
+  heroNadpis: string
+  heroNadpisTip: string
+  heroLead: string
+  filozofieEyebrow?: string
+  filozofieNadpis?: string
+  filozofieLead?: string
+  sluzbyEyebrow?: string
+  sluzbyNadpis?: string
+  proces?: {nadpis: string; popis: string}[]
+  vzorekEyebrow?: string
+  vzorekNadpis?: string
+  vzorekText?: string
+  vzorekFakta?: {hodnota: string; popisek: string}[]
+  ctaTlacitko?: Odkaz
+  ctaPoznamka?: string
+}
+
 export function nastaveni(): Promise<SiteSettings> {
   return sanity.fetch('*[_id == "siteSettings"][0]')
 }
@@ -137,4 +169,16 @@ export function produkty(): Promise<Product[]> {
   // Řazení podle _id drží pořadí z prototypu (product-1 až product-6).
   // Je to dočasné — v Session 5 určí pořadí API podle spirál v automatu.
   return sanity.fetch('*[_type == "product" && zobrazit == true] | order(_id asc)')
+}
+
+export function strankaSluzby(): Promise<SluzbyPage> {
+  return sanity.fetch('*[_id == "sluzbyPage"][0]')
+}
+
+export function sluzby(): Promise<Service[]> {
+  return sanity.fetch('*[_type == "service"] | order(poradi asc)')
+}
+
+export function principy(): Promise<Principle[]> {
+  return sanity.fetch('*[_type == "principle"] | order(poradi asc)')
 }
