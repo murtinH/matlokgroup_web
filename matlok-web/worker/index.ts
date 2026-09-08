@@ -5,6 +5,10 @@
  * skript se spustí až u požadavku, pro který žádný soubor neexistuje.
  * Řeší tedy jen serverová volání pod /api/.
  *
+ * Právě proto tady NENÍ přesměrování z www na holou doménu: u běžné
+ * stránky se skript vůbec nespustí, protože ji Cloudflare odbaví dřív.
+ * Řeší to Redirect Rule v Cloudflare, která běží před Workerem.
+ *
  * ŽÁDNÝ KLÍČ SE NESMÍ DOSTAT DO KLIENTSKÉHO KÓDU. Všechny čteme z env,
  * kde je Cloudflare drží jako šifrované proměnné.
  */
@@ -27,14 +31,6 @@ export interface Env {
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const adresa = new URL(request.url)
-
-    // www na holou doménu. Řeší se tady, a ne v souboru _redirects —
-    // ten u Workers zvládne jen relativní adresy, takže přesun mezi
-    // doménami se do něj napsat nedá.
-    if (adresa.hostname.startsWith('www.')) {
-      adresa.hostname = adresa.hostname.slice(4)
-      return Response.redirect(adresa.toString(), 301)
-    }
 
     if (adresa.pathname === '/api/poptavka') {
       if (request.method !== 'POST') {
