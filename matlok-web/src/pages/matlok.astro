@@ -1,0 +1,113 @@
+---
+import Base from '../layouts/Base.astro'
+import Navigace from '../components/Navigace.astro'
+import Paticka from '../components/Paticka.astro'
+import Ikona from '../components/Ikona.astro'
+import NabidkaBoxu from '../components/NabidkaBoxu.astro'
+import {obrazek, srcset} from '../lib/sanity'
+import {nastaveni, strankaMatlok, produkty} from '../lib/queries'
+
+const [site, obsah, nabidka] = await Promise.all([nastaveni(), strankaMatlok(), produkty()])
+---
+
+<Base nastaveni={site}
+  titulek={`Matlok — ${obsah.heroNadpis} ${obsah.heroNadpisTip}`}
+  popis={obsah.heroLead}
+  pozadi="azure-50"
+>
+  <Navigace nastaveni={site} aktivni="/matlok" />
+
+  <main>
+    <section class="phero">
+      <div class="container">
+        <div class="phero__grid">
+          <div class="reveal">
+            <p class="eyebrow">{obsah.heroEyebrow}</p>
+            <h1>{obsah.heroNadpis}<br /><span class="tip">{obsah.heroNadpisTip}</span></h1>
+            <p class="lead">{obsah.heroLead}</p>
+            {
+              obsah.heroTlacitka && obsah.heroTlacitka.length > 0 && (
+                <div class="ctas">
+                  {obsah.heroTlacitka.map((t, i) => (
+                    <a class={`btn ${i === 0 ? 'btn--primary' : 'btn--ghost'}`} href={t.odkaz}>
+                      {t.text}
+                    </a>
+                  ))}
+                </div>
+              )
+            }
+          </div>
+
+          {
+            obsah.foto && (
+              <div class="reveal photowrap">
+                <img
+                  src={obrazek(obsah.foto).width(900).url()}
+                  srcset={srcset(obsah.foto, [450, 900, 1350])}
+                  sizes="(max-width: 900px) 100vw, 45vw"
+                  alt={(obsah.foto as {alt?: string}).alt ?? ''}
+                  width="675"
+                  height="1200"
+                  loading="eager"
+                />
+                {obsah.fotoPopisek && (
+                  <div class="photowrap__tag">
+                    <span class="livedot" />
+                    {obsah.fotoPopisek}
+                  </div>
+                )}
+              </div>
+            )
+          }
+        </div>
+
+        {
+          obsah.kpi && obsah.kpi.length > 0 && (
+            <div class="kpirow reveal">
+              {obsah.kpi.map((d) => (
+                <div class="kpitile">
+                  <div class="kpitile__v">{d.hodnota}</div>
+                  <div class="kpitile__l">{d.popisek}</div>
+                </div>
+              ))}
+            </div>
+          )
+        }
+      </div>
+    </section>
+
+    <section class="section" id="nabidka" style="padding-top: 0">
+      <div class="container">
+        <NabidkaBoxu obsah={obsah} produkty={nabidka} />
+
+        {
+          obsah.vyhody && obsah.vyhody.length > 0 && (
+            <div class="howto">
+              {obsah.vyhody.map((v) => (
+                <div class="reveal">
+                  <div class="ben__ic">{v.ikona && <Ikona jmeno={v.ikona} />}</div>
+                  <h3>{v.nadpis}</h3>
+                  <p>{v.text}</p>
+                </div>
+              ))}
+            </div>
+          )
+        }
+      </div>
+    </section>
+
+    <section class="section ink">
+      <div class="container" style="max-width: var(--container-lg)">
+        <p class="eyebrow eyebrow--onink">{obsah.ctaEyebrow}</p>
+        <h2>{obsah.ctaNadpis}</h2>
+        <p class="lead lead--onink">{obsah.ctaLead}</p>
+        <div class="ctas" style="align-items: center">
+          {obsah.ctaTlacitko && <a class="btn btn--primary" href={obsah.ctaTlacitko.odkaz}>{obsah.ctaTlacitko.text}</a>}
+          {obsah.ctaPoznamka && <span class="cta__pozn">{obsah.ctaPoznamka}</span>}
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Paticka nastaveni={site} />
+</Base>

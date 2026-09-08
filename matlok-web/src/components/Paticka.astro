@@ -1,0 +1,83 @@
+---
+import {obrazek, srcset} from '../lib/sanity'
+import type {SiteSettings} from '../lib/queries'
+
+interface Props {
+  nastaveni: SiteSettings
+}
+
+const {nastaveni} = Astro.props
+const {
+  logoInverzni,
+  nazev,
+  popisPaticky,
+  adresa,
+  telefon,
+  email,
+  ico,
+  spisovaZnacka,
+  neplatceDph,
+  patickaSloupce = [],
+} = nastaveni
+
+// Telefon bez mezer, aby fungoval tel: odkaz.
+const telefonOdkaz = telefon.replace(/\s+/g, '')
+const rok = new Date().getFullYear()
+
+// Neplátce DPH nesmí psát "ceny bez DPH" — ceny jsou konečné.
+const radekDph = neplatceDph ? 'Nejsme plátci DPH' : null
+const pravniUdaje = [adresa.replace(/\n/g, ', '), `IČO ${ico}`, spisovaZnacka, radekDph]
+  .filter(Boolean)
+  .join(' · ')
+---
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div>
+        {
+          logoInverzni && (
+            <img
+              src={obrazek(logoInverzni).height(52).url()}
+              srcset={srcset(logoInverzni, [104, 156, 208])}
+              sizes="104px"
+              width="198"
+              height="52"
+              alt={nazev}
+            />
+          )
+        }
+        {popisPaticky && <p class="footer__popis">{popisPaticky}</p>}
+        <div class="footcontact">
+          <Fragment set:html={adresa.replace(/\n/g, '<br>')} />
+          <br />
+          <a href={`tel:${telefonOdkaz}`}>{telefon}</a>
+          <br />
+          <a href={`mailto:${email}`}>{email}</a>
+        </div>
+      </div>
+
+      {
+        patickaSloupce.map((sloupec) => (
+          <div>
+            <h4>{sloupec.nadpis}</h4>
+            <ul>
+              {sloupec.odkazy?.map((o) => (
+                <li>
+                  <a href={o.odkaz}>{o.text}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="footer__legal">
+      <div>
+        <strong style="color:rgba(255,255,255,.7)">{nazev}</strong> · {pravniUdaje}
+      </div>
+      <div>© {rok} {nazev} · Vytvořeno divizí <a href="/sluzby">Digital Services</a></div>
+    </div>
+  </div>
+</footer>

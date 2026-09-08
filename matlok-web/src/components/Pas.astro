@@ -1,0 +1,22 @@
+---
+interface Props {
+  polozky: string[]
+}
+
+const {polozky} = Astro.props
+// Seznam se vypisuje dvakrát — animace posune pás o polovinu šířky
+// a druhá kopie navazuje, takže se pás točí bez skoku.
+const dvojmo = [...polozky, ...polozky]
+---
+
+{
+  polozky.length > 0 && (
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee__track">
+        {dvojmo.map((text) => (
+          <span>{text}</span>
+        ))}
+      </div>
+    </div>
+  )
+}

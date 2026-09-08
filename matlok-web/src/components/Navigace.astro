@@ -1,0 +1,100 @@
+---
+import {obrazek, srcset} from '../lib/sanity'
+import type {SiteSettings} from '../lib/queries'
+
+interface Props {
+  nastaveni: SiteSettings
+  aktivni?: string
+}
+
+const {nastaveni, aktivni} = Astro.props
+const {logo, navigace = [], navigaceTlacitko, nazev} = nastaveni
+---
+
+<header class="nav">
+  <div class="nav__inner">
+    <a class="nav__logo" href="/" aria-label={nazev}>
+      {
+        logo && (
+          <img
+            src={obrazek(logo).height(56).url()}
+            srcset={srcset(logo, [112, 168, 224])}
+            sizes="112px"
+            width="214"
+            height="56"
+            alt={nazev}
+          />
+        )
+      }
+    </a>
+
+    <nav class="nav__links" aria-label="Hlavní navigace">
+      {
+        navigace.map((polozka) => (
+          <a href={polozka.odkaz} aria-current={polozka.odkaz === aktivni ? 'page' : undefined}>
+            {polozka.text}
+          </a>
+        ))
+      }
+    </nav>
+
+    {
+      navigaceTlacitko && (
+        <a class="btn btn--primary btn--sm nav__cta" href={navigaceTlacitko.odkaz}>
+          {navigaceTlacitko.text}
+        </a>
+      )
+    }
+
+    {/*
+      Mobilní menu. Postavené na <details>, ne na JavaScriptu — rozbaluje
+      a zavírá se i s vypnutým skriptem. Skript níž jen dovírá po kliknutí,
+      po Esc a při přechodu na širokou obrazovku.
+      Odkazy se vypisují podruhé, protože na desktopu je .nav__links a na
+      mobilu tenhle panel — vždy je v dokumentu vidět jen jeden z nich.
+    */}
+    <details class="navmob">
+      <summary class="navmob__toggle" aria-label="Menu">
+        <span class="navmob__icon" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+        </span>
+      </summary>
+      <nav class="navmob__panel" aria-label="Hlavní navigace">
+        {
+          navigace.map((polozka) => (
+            <a href={polozka.odkaz} aria-current={polozka.odkaz === aktivni ? 'page' : undefined}>
+              {polozka.text}
+            </a>
+          ))
+        }
+      </nav>
+    </details>
+  </div>
+</header>
+
+<script>
+  const menu = document.querySelector<HTMLDetailsElement>('.navmob')
+
+  if (menu) {
+    // Klik na odkaz uvnitř panelu — u kotev na stejné stránce by menu
+    // jinak zůstalo otevřené přes obsah, ke kterému návštěvník skočil.
+    menu.querySelectorAll('a').forEach((odkaz) => {
+      odkaz.addEventListener('click', () => menu.removeAttribute('open'))
+    })
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && menu.open) {
+        menu.removeAttribute('open')
+        menu.querySelector('summary')?.focus()
+      }
+    })
+
+    // Po otočení telefonu na šířku se panel schová a zůstal by otevřený.
+    const siroka = window.matchMedia('(min-width: 981px)')
+    siroka.addEventListener('change', (e) => {
+      if (e.matches) menu.removeAttribute('open')
+    })
+  }
+</script>

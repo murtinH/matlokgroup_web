@@ -1,37 +1,102 @@
 ---
-/**
- * DOČASNÁ stránka. Slouží jen k ověření, že tokeny a Tailwind
- * fungují. V Session 3 ji nahradí skutečná domovská stránka
- * převedená z prototyp/index.html.
- */
-import Base from '../layouts/Base.astro';
+import Base from '../layouts/Base.astro'
+import Navigace from '../components/Navigace.astro'
+import Paticka from '../components/Paticka.astro'
+import Hero from '../components/Hero.astro'
+import Pas from '../components/Pas.astro'
+import KartaDivize from '../components/KartaDivize.astro'
+import KartaZakladatele from '../components/KartaZakladatele.astro'
+import {nastaveni, domovskaStranka, divize, zakladatele} from '../lib/queries'
 
-const barvy = [
-  { nazev: 'Mountain Ink', trida: 'bg-ink-800', kod: '#102936' },
-  { nazev: 'Azure Detail', trida: 'bg-azure-500', kod: '#20B9E8' },
-  { nazev: 'Winter Red', trida: 'bg-red-500', kod: '#C44536' },
-  { nazev: 'Snow Base', trida: 'bg-snow', kod: '#F3F8F6' },
-];
+const [site, obsah, seznamDivizi, seznamZakladatelu] = await Promise.all([
+  nastaveni(),
+  domovskaStranka(),
+  divize(),
+  zakladatele(),
+])
 ---
 
-<Base titulek="Matlok Group s.r.o. — kostra projektu">
-  <main style="max-width: var(--container-md); margin-inline: auto; padding: var(--section-y) var(--gutter);">
-    <p class="ml-eyebrow">Kostra projektu</p>
-    <h1 class="ml-underline-tip">Matlok Group s.r.o.</h1>
-    <p style="color: var(--text-secondary); font-size: var(--text-md);">
-      Astro a Sanity Studio běží. Stránky se staví v Session 3.
-    </p>
+<Base nastaveni={site}
+  titulek={`${site.nazev} — ${obsah.heroNadpis} ${obsah.heroNadpisTip}`}
+  popis={obsah.heroLead}
+>
+  <Navigace nastaveni={site} aktivni="/" />
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--space-4); margin-top: var(--space-8);">
-      {barvy.map((barva) => (
-        <div style="border: var(--border-width) solid var(--border-subtle); border-radius: var(--radius-card); overflow: hidden; background: var(--color-surface);">
-          <div class={barva.trida} style="height: 72px;"></div>
-          <div style="padding: var(--space-3);">
-            <div style="font-family: var(--font-display); font-weight: var(--fw-semibold); font-size: var(--text-sm);">{barva.nazev}</div>
-            <div style="color: var(--text-muted); font-size: var(--text-xs);">{barva.kod}</div>
-          </div>
+  <main>
+    <Hero obsah={obsah} />
+    <Pas polozky={obsah.pas ?? []} />
+
+    <section class="section" id="divize">
+      <div class="container">
+        <div class="sechead reveal">
+          <p class="eyebrow">{obsah.divizeEyebrow}</p>
+          <h2>{obsah.divizeNadpis}</h2>
+          <p class="lead">{obsah.divizeLead}</p>
         </div>
-      ))}
-    </div>
+        <div class="divgrid">
+          {seznamDivizi.map((d) => <KartaDivize divize={d} />)}
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="zakladatele" style="background: var(--neutral-0)">
+      <div class="container">
+        <div class="sechead reveal">
+          <p class="eyebrow">{obsah.zakladateleEyebrow}</p>
+          <h2>
+            {obsah.zakladateleNadpis}<br /><span class="tip">{obsah.zakladateleNadpisTip}</span>
+          </h2>
+          <p class="lead">{obsah.zakladateleLead}</p>
+        </div>
+
+        <div class="founders">
+          {seznamZakladatelu.map((z) => <KartaZakladatele zakladatel={z} />)}
+        </div>
+
+        {
+          obsah.pribehy && obsah.pribehy.length > 0 && (
+            <div class="story">
+              {obsah.pribehy.map((p) => (
+                <article class="reveal">
+                  <h3>{p.nadpis}</h3>
+                  <p>{p.text}</p>
+                </article>
+              ))}
+            </div>
+          )
+        }
+
+        {
+          obsah.vize && (
+            <div class="vision reveal">
+              <h3>{obsah.vize.nadpis}</h3>
+              <p>{obsah.vize.text}</p>
+            </div>
+          )
+        }
+      </div>
+    </section>
+
+    <section class="section" style="background: var(--snow)">
+      <div class="container">
+        <div class="sechead reveal">
+          <p class="eyebrow">{obsah.procEyebrow}</p>
+          <h2>{obsah.procNadpis}</h2>
+        </div>
+        <div class="why">
+          {
+            obsah.duvody?.map((d) => (
+              <div class="reveal">
+                <div class="why__i" />
+                <h3>{d.nadpis}</h3>
+                <p>{d.text}</p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
   </main>
+
+  <Paticka nastaveni={site} />
 </Base>

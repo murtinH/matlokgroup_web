@@ -1,0 +1,90 @@
+---
+/**
+ * Vykreslení Portable Textu ze Sanity. Vlastní, ne knihovna — bloků máme
+ * pět druhů a vlastní renderer je předvídatelnější než závislost navíc.
+ *
+ * Odrážky přicházejí ze Sanity jako samostatné bloky s listItem: 'bullet',
+ * ne jako vnořený seznam. Sousedící odrážky proto slučujeme do jednoho <ul>,
+ * jinak by každá byla vlastním seznamem — a čtečka obrazovky by ohlásila
+ * čtyři seznamy po jedné položce místo jednoho o čtyřech.
+ */
+interface Span {
+  _type: 'span'
+  text: string
+  marks?: string[]
+}
+
+interface Blok {
+  _type: string
+  _key: string
+  style?: string
+  listItem?: string
+  children?: Span[]
+  popisek?: string
+  zahlavi?: string[]
+  kodovySloupec?: number
+  radky?: {_key: string; bunky: string[]}[]
+}
+
+interface Props {
+  bloky: Blok[]
+}
+
+const {bloky} = Astro.props
+
+type Skupina = {typ: 'seznam'; polozky: Blok[]} | {typ: 'blok'; blok: Blok}
+
+const skupiny: Skupina[] = []
+for (const blok of bloky) {
+  if (blok.listItem === 'bullet') {
+    const posledni = skupiny.at(-1)
+    if (posledni?.typ === 'seznam') posledni.polozky.push(blok)
+    else skupiny.push({typ: 'seznam', polozky: [blok]})
+  } else {
+    skupiny.push({typ: 'blok', blok})
+  }
+}
+---
+
+{
+  skupiny.map((skupina) =>
+    skupina.typ === 'seznam' ? (
+      <ul>
+        {skupina.polozky.map((polozka) => (
+          <li>
+            {polozka.children?.map((usek) =>
+              usek.marks?.includes('strong') ? <strong>{usek.text}</strong> : usek.text,
+            )}
+          </li>
+        ))}
+      </ul>
+    ) : skupina.blok._type === 'tabulka' ? (
+      <table>
+        {skupina.blok.zahlavi && (
+          <tr>
+            {skupina.blok.zahlavi.map((hlavicka) => (
+              <th>{hlavicka}</th>
+            ))}
+          </tr>
+        )}
+        {skupina.blok.radky?.map((radek) => (
+          <tr>
+            {radek.bunky.map((bunka, i) => (
+              <td>{i === skupina.blok.kodovySloupec ? <code>{bunka}</code> : bunka}</td>
+            ))}
+          </tr>
+        ))}
+      </table>
+    ) : skupina.blok.style === 'h2' ? (
+      <h2>{skupina.blok.children?.map((u) => u.text)}</h2>
+    ) : skupina.blok.style === 'h3' ? (
+      <h3>{skupina.blok.children?.map((u) => u.text)}</h3>
+    ) : (
+      <p>
+        {skupina.blok.children?.map((usek) =>
+          usek.marks?.includes('strong') ? <strong>{usek.text}</strong> : usek.text,
+        )}
+      </p>
+    ),
+  )
+}

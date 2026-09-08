@@ -1,0 +1,16 @@
+# Hlavičky pro Cloudflare Pages.
+# Obsah tohohle souboru se nekopíruje do HTML — Cloudflare ho čte při nasazení.
+
+/*
+  # Prohlížeč nemá hádat typ souboru podle obsahu.
+  X-Content-Type-Options: nosniff
+  # Web nesmí jít vložit do rámu na cizí stránce (ochrana proti clickjackingu).
+  X-Frame-Options: DENY
+  # Při odchodu na cizí web posíláme jen doménu, ne celou adresu.
+  Referrer-Policy: strict-origin-when-cross-origin
+  # Nepoužíváme kameru, mikrofon ani polohu — tak si o ně web nesmí říct.
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
+
+# Soubory s otiskem v názvu se nikdy nemění — může je držet cache navždy.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable

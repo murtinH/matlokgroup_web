@@ -1,0 +1,30 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "matlokgroup-web",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-09-08",
+
+  // Výstup Astro buildu. Cloudflare soubory servíruje sám a skript
+  // v worker/index.ts spustí až u adres, pro které soubor neexistuje.
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+
+    // Odkazy na webu jsou bez lomítka na konci (/matlok, ne /matlok/).
+    // Výchozí chování Cloudflare je opačné a každý proklik by dělal
+    // přesměrování navíc.
+    "html_handling": "drop-trailing-slash"
+  },
+
+  "vars": {
+    // Veřejné identifikátory, klidně smí do repozitáře.
+    "PUBLIC_SANITY_PROJECT_ID": "jew7wcoq",
+    "PUBLIC_SANITY_DATASET": "production"
+  }
+
+  // SANITY_WRITE_TOKEN a RESEND_API_KEY sem NEPATŘÍ. Vkládají se
+  // v Cloudflare jako šifrované proměnné (Settings → Variables and Secrets).
+  //
+  // Až v Cloudflare vznikne KV úložiště pro počítadlo odeslání, přibude sem:
+  // "kv_namespaces": [{ "binding": "RATE_LIMIT", "id": "<id z dashboardu>" }]
+}

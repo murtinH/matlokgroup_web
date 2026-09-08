@@ -1,16 +1,24 @@
 ---
 /**
- * Základní layout. Jediné místo, kde se načítá globální CSS.
+ * Základní layout. Jediné místo, kde se načítá globální CSS a písma.
  * Obsah stránek se vkládá do <slot />.
  */
-import '../styles/global.css';
+import '../styles/global.css'
+import '../styles/site.css'
+import CookieLista from '../components/CookieLista.astro'
+import type {SiteSettings} from '../lib/queries'
 
 interface Props {
-  titulek: string;
-  popis?: string;
+  titulek: string
+  popis?: string
+  /** Název tokenu podkladu bez uvozovek, například "azure-50".
+      Každá stránka má podle zadání vlastní odstín. */
+  pozadi?: string
+  /** Kvůli cookie liště, která patří na každou stránku. */
+  nastaveni: SiteSettings
 }
 
-const { titulek, popis } = Astro.props;
+const {titulek, popis, pozadi, nastaveni} = Astro.props
 ---
 
 <!doctype html>
@@ -18,7 +26,7 @@ const { titulek, popis } = Astro.props;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
 
     <!-- Značková písma. Načítají se tady, ne v CSS — viz komentář
          v src/styles/tokens/fonts.css. -->
@@ -28,10 +36,43 @@ const { titulek, popis } = Astro.props;
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap"
     />
+
     <title>{titulek}</title>
     {popis && <meta name="description" content={popis} />}
+
+    <!-- Bez JavaScriptu se nájezdy sekcí vůbec nezapnou a obsah je rovnou
+         vidět. Třída se přidává tady, aby nedošlo k probliknutí. -->
+    <script is:inline>
+      document.documentElement.classList.add('js')
+    </script>
   </head>
-  <body>
+  <body style={pozadi ? `--page-bg: var(--${pozadi})` : undefined}>
     <slot />
+
+    <CookieLista nastaveni={nastaveni} />
+
+    <script>
+      const prvky = document.querySelectorAll('.reveal')
+      const tlumit = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+      if (tlumit || !('IntersectionObserver' in window)) {
+        prvky.forEach((el) => el.classList.add('in'))
+      } else {
+        const io = new IntersectionObserver(
+          (zaznamy) =>
+            zaznamy.forEach((z) => {
+              if (z.isIntersecting) {
+                z.target.classList.add('in')
+                io.unobserve(z.target)
+              }
+            }),
+          {threshold: 0.1},
+        )
+        prvky.forEach((el, i) => {
+          ;(el as HTMLElement).style.transitionDelay = `${(i % 3) * 70}ms`
+          io.observe(el)
+        })
+      }
+    </script>
   </body>
 </html>

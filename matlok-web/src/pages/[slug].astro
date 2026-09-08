@@ -1,0 +1,77 @@
+---
+import Base from '../layouts/Base.astro'
+import Navigace from '../components/Navigace.astro'
+import Paticka from '../components/Paticka.astro'
+import Text from '../components/Text.astro'
+import {nastaveni, pravniStranky, type LegalPage} from '../lib/queries'
+
+/**
+ * Právní stránky. Adresy vznikají z dokumentů legalPage v Sanity.
+ *
+ * Zásady ochrany osobních údajů jsou v seznamu vždy, i když dokument
+ * ještě neexistuje — odkazuje na ně patička a mrtvý odkaz na živém webu
+ * je horší než stránka, která poctivě řekne, že se text připravuje.
+ * Jakmile dokument v Sanity vznikne, náhradní text zmizí sám.
+ */
+export async function getStaticPaths() {
+  // Uvnitř funkce záměrně: Astro getStaticPaths při buildu vytrhne
+  // do samostatného modulu, takže na konstanty ve frontmatteru nedosáhne.
+  const CHYSTANE = ['ochrana-osobnich-udaju']
+
+  const stranky = await pravniStranky()
+  const adresy = new Map<string, LegalPage | null>()
+
+  for (const slug of CHYSTANE) adresy.set(slug, null)
+  for (const stranka of stranky) adresy.set(stranka.slug.current, stranka)
+
+  return [...adresy].map(([slug, stranka]) => ({params: {slug}, props: {stranka}}))
+}
+
+interface Props {
+  stranka: LegalPage | null
+}
+
+const {stranka} = Astro.props
+const site = await nastaveni()
+const chystame = site.chystanaStranka
+
+const titulek = stranka?.titulek ?? chystame?.titulek ?? 'Právní informace'
+const nadradek = stranka?.nadradek ?? chystame?.nadradek
+
+// Podtitulek: datum účinnosti a údaje správce. Hodnoty jdou z Nastavení webu,
+// popisky z dokumentu — aby se dalo měnit oboje bez zásahu do kódu.
+const datum = stranka?.ucinnostOd
+  ? new Date(stranka.ucinnostOd).toLocaleDateString('cs-CZ')
+  : null
+const spravce = [site.nazev, `IČO ${site.ico}`, site.adresa.replace(/\n/g, ', '), site.email].join(', ')
+const meta =
+  stranka && datum
+    ? `${stranka.popisekUcinnost ?? ''} ${datum} · ${stranka.popisekSpravce ?? ''}: ${spravce}`.trim()
+    : null
+---
+
+<Base nastaveni={site} titulek={`${titulek} — ${site.nazev}`}>
+  <Navigace nastaveni={site} aktivni={`/${Astro.params.slug}`} />
+
+  <main>
+    <section class="section">
+      <div class="container legal">
+        {nadradek && <p class="eyebrow">{nadradek}</p>}
+        <h1>{titulek}</h1>
+        {meta && <p class="meta">{meta}</p>}
+
+        {
+          stranka?.text ? (
+            <Text bloky={stranka.text as never[]} />
+          ) : (
+            <div class="chystame">
+              <p>{chystame?.text}</p>
+            </div>
+          )
+        }
+      </div>
+    </section>
+  </main>
+
+  <Paticka nastaveni={site} />
+</Base>

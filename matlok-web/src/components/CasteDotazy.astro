@@ -1,0 +1,71 @@
+---
+import type {Faq, KontaktPage} from '../lib/queries'
+
+interface Props {
+  obsah: KontaktPage
+  dotazy: Faq[]
+}
+
+const {obsah, dotazy} = Astro.props
+
+/**
+ * Structured data pro Google. Zadání to chce (kapitola 4) — u lokálních
+ * firem to má měřitelný vliv na prokliky, protože se otázky zobrazují
+ * přímo ve výsledcích vyhledávání.
+ */
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: dotazy.map((d) => ({
+    '@type': 'Question',
+    name: d.otazka,
+    acceptedAnswer: {'@type': 'Answer', text: d.odpoved},
+  })),
+}
+---
+
+<div class="faqtabs" role="group" aria-label="Kategorie dotazů">
+  {
+    obsah.faqFiltry?.map((f, i) => (
+      <button class="faqtab" type="button" data-c={f.hodnota} aria-pressed={i === 0 ? 'true' : 'false'}>
+        {f.text}
+      </button>
+    ))
+  }
+</div>
+
+<div class="faqlist">
+  {
+    dotazy.map((d) => (
+      <details class="faq" data-cat={d.kategorie}>
+        <summary>{d.otazka}</summary>
+        <p>{d.odpoved}</p>
+      </details>
+    ))
+  }
+</div>
+
+{obsah.poznamkaDph && <p class="vatnote">{obsah.poznamkaDph}</p>}
+
+<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
+
+<script>
+  // Filtr kategorií. Rozbalování samotné dělá <details> bez JavaScriptu,
+  // skript jen skrývá otázky mimo zvolenou kategorii.
+  const zalozky = document.querySelectorAll<HTMLButtonElement>('.faqtab')
+  const otazky = document.querySelectorAll<HTMLElement>('.faqlist details')
+
+  zalozky.forEach((zalozka) => {
+    zalozka.addEventListener('click', () => {
+      zalozky.forEach((z) => z.setAttribute('aria-pressed', String(z === zalozka)))
+      const kategorie = zalozka.dataset.c
+      otazky.forEach((otazka) => {
+        const patri = kategorie === 'all' || otazka.dataset.cat === kategorie
+        otazka.hidden = !patri
+        // Skrytá otázka nesmí zůstat rozbalená — po přepnutí zpátky by
+        // seznam vypadal, jako by si pamatoval něco, co uživatel nezvolil.
+        if (!patri) otazka.removeAttribute('open')
+      })
+    })
+  })
+</script>

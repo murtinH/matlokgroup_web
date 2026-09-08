@@ -1,0 +1,120 @@
+---
+import Base from '../layouts/Base.astro'
+import Navigace from '../components/Navigace.astro'
+import Paticka from '../components/Paticka.astro'
+import Ikona from '../components/Ikona.astro'
+import {nastaveni, strankaSluzby, sluzby, principy} from '../lib/queries'
+
+const [site, obsah, seznamSluzeb, seznamPrincipu] = await Promise.all([
+  nastaveni(),
+  strankaSluzby(),
+  sluzby(),
+  principy(),
+])
+
+/** Čísla principů i kroků procesu se odvozují z pořadí, nepíšou se do Sanity. */
+const cislo = (i: number) => String(i + 1).padStart(2, '0')
+---
+
+<Base nastaveni={site}
+  titulek={`Digital Services — ${obsah.heroNadpis} ${obsah.heroNadpisTip}`}
+  popis={obsah.heroLead}
+  pozadi="neutral-100"
+>
+  <Navigace nastaveni={site} aktivni="/sluzby" />
+
+  <main>
+    <section class="phero">
+      <div class="container">
+        <div style="max-width: 70ch">
+          <p class="eyebrow">{obsah.heroEyebrow}</p>
+          <h1>{obsah.heroNadpis}<br /><span class="tip">{obsah.heroNadpisTip}</span></h1>
+          <p class="lead">{obsah.heroLead}</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top: var(--space-8)">
+      <div class="container">
+        <div class="sechead reveal">
+          <p class="eyebrow">{obsah.filozofieEyebrow}</p>
+          <h2>{obsah.filozofieNadpis}</h2>
+          <p class="lead">{obsah.filozofieLead}</p>
+        </div>
+        <div class="principles">
+          {
+            seznamPrincipu.map((p, i) => (
+              <article class="principle reveal">
+                <div class="principle__n">{cislo(i)}</div>
+                <h3>{p.nadpis}</h3>
+                <p>{p.text}</p>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="background: var(--neutral-0)">
+      <div class="container">
+        <div class="sechead reveal">
+          <p class="eyebrow">{obsah.sluzbyEyebrow}</p>
+          <h2>{obsah.sluzbyNadpis}</h2>
+        </div>
+
+        <div class="svcgrid">
+          {
+            seznamSluzeb.map((s) => (
+              <article class="svc reveal">
+                <div class="svc__ic">{s.ikona && <Ikona jmeno={s.ikona} />}</div>
+                <h3>{s.nazev}</h3>
+                <p>{s.popis}</p>
+              </article>
+            ))
+          }
+        </div>
+
+        {
+          obsah.proces && obsah.proces.length > 0 && (
+            <div class="rail reveal">
+              {obsah.proces.map((krok, i) => (
+                <div>
+                  <div class="step__n">{cislo(i)}</div>
+                  <div class="step__t">{krok.nadpis}</div>
+                  <div class="step__d">{krok.popis}</div>
+                </div>
+              ))}
+            </div>
+          )
+        }
+
+        <div class="sample reveal" style="margin-top: var(--space-9)">
+          <div>
+            <p class="eyebrow eyebrow--onink">{obsah.vzorekEyebrow}</p>
+            <h2>{obsah.vzorekNadpis}</h2>
+            <p>{obsah.vzorekText}</p>
+          </div>
+          {
+            obsah.vzorekFakta && obsah.vzorekFakta.length > 0 && (
+              <div class="sample__facts">
+                {obsah.vzorekFakta.map((f) => (
+                  <div class="sfact">
+                    <b>{f.hodnota}</b>
+                    <span>{f.popisek}</span>
+                  </div>
+                ))}
+              </div>
+            )
+          }
+        </div>
+
+        <div class="ctas" style="align-items: center; margin-top: var(--space-8)">
+          {obsah.ctaTlacitko && <a class="btn btn--primary" href={obsah.ctaTlacitko.odkaz}>{obsah.ctaTlacitko.text}</a>}
+          {obsah.ctaPoznamka && <span class="cta__pozn cta__pozn--svetla">{obsah.ctaPoznamka}</span>}
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Paticka nastaveni={site} />
+</Base>
