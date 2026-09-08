@@ -13,6 +13,7 @@
  * kde je Cloudflare drží jako šifrované proměnné.
  */
 import {zpracujPoptavku} from './poptavka'
+import {vypisAutomaty} from './automaty'
 
 export interface Env {
   /** Statické soubory z buildu Astra. Nastavuje wrangler.jsonc. */
@@ -20,6 +21,7 @@ export interface Env {
 
   SANITY_WRITE_TOKEN: string
   RESEND_API_KEY?: string
+  MUJAUTOMAT_API_KEY?: string
 
   /**
    * Počítadlo odeslání formuláře. Binding je nepovinný — dokud v Cloudflare
@@ -37,6 +39,11 @@ export default {
         return new Response('Metoda není povolena.', {status: 405, headers: {allow: 'POST'}})
       }
       return zpracujPoptavku(request, env)
+    }
+
+    // DOČASNÉ — po zjištění machineId smazat i se souborem automaty.ts.
+    if (adresa.pathname === '/api/automaty') {
+      return vypisAutomaty(env)
     }
 
     // Cokoli jiného je statická stránka nebo soubor.

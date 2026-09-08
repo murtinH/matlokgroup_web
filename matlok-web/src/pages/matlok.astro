@@ -4,7 +4,7 @@ import Navigace from '../components/Navigace.astro'
 import Paticka from '../components/Paticka.astro'
 import Ikona from '../components/Ikona.astro'
 import NabidkaBoxu from '../components/NabidkaBoxu.astro'
-import {obrazek, srcset} from '../lib/sanity'
+import IlustraceBoxu from '../components/IlustraceBoxu.astro'
 import {nastaveni, strankaMatlok, produkty} from '../lib/queries'
 
 const [site, obsah, nabidka] = await Promise.all([nastaveni(), strankaMatlok(), produkty()])
@@ -21,7 +21,7 @@ const [site, obsah, nabidka] = await Promise.all([nastaveni(), strankaMatlok(), 
     <section class="phero">
       <div class="container">
         <div class="phero__grid">
-          <div class="reveal">
+          <div class="phero__uvod">
             <p class="eyebrow">{obsah.heroEyebrow}</p>
             <h1>{obsah.heroNadpis}<br /><span class="tip">{obsah.heroNadpisTip}</span></h1>
             <p class="lead">{obsah.heroLead}</p>
@@ -38,27 +38,17 @@ const [site, obsah, nabidka] = await Promise.all([nastaveni(), strankaMatlok(), 
             }
           </div>
 
-          {
-            obsah.foto && (
-              <div class="reveal photowrap">
-                <img
-                  src={obrazek(obsah.foto).width(900).url()}
-                  srcset={srcset(obsah.foto, [450, 900, 1350])}
-                  sizes="(max-width: 900px) 100vw, 45vw"
-                  alt={(obsah.foto as {alt?: string}).alt ?? ''}
-                  width="675"
-                  height="1200"
-                  loading="eager"
-                />
-                {obsah.fotoPopisek && (
-                  <div class="photowrap__tag">
-                    <span class="livedot" />
-                    {obsah.fotoPopisek}
-                  </div>
-                )}
-              </div>
-            )
-          }
+          <div class="photowrap">
+            <IlustraceBoxu />
+            {
+              obsah.fotoPopisek && (
+                <div class="photowrap__tag">
+                  <span class="livedot" />
+                  {obsah.fotoPopisek}
+                </div>
+              )
+            }
+          </div>
         </div>
 
         {
