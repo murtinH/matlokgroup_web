@@ -72,6 +72,11 @@ export async function vypisAutomaty(env: Env): Promise<Response> {
     nazev: najdi(z, ['name', 'nazev', 'title', 'label', 'displayName']),
   }))
 
+  // Struktura detailu prvního automatu — podle ní se napíše skutečné
+  // napojení. Hodnoty se nevypisují, jen názvy polí.
+  const prvni = automaty[0]?.machineId
+  const detail = prvni ? await popisDetail(env, prvni) : null
+
   return Response.json({
     ok: true,
     pocet: automaty.length,
@@ -80,5 +85,47 @@ export async function vypisAutomaty(env: Env): Promise<Response> {
     // se ven nedostane nic citlivého.
     dostupnaPole: seznam.length > 0 ? Object.keys(seznam[0] as object).sort() : [],
     obalka: Array.isArray(data) ? '(pole)' : Object.keys(obal).sort(),
+    detail,
   })
+}
+
+/**
+ * Popíše tvar odpovědi na detail automatu, aniž by vypsal hodnoty.
+ * Zajímají mě názvy polí a to, kde v odpovědi leží seznam řádků
+ * se zbožím — podle zadání vrací API řádek na každou spirálu.
+ */
+async function popisDetail(env: Env, machineId: string) {
+  const odpoved = await fetch(`${BASE}/machines/${machineId}`, {
+    headers: {
+      authorization: `Bearer ${env.MUJAUTOMAT_API_KEY}`,
+      accept: 'application/json',
+    },
+  })
+
+  const telo = await odpoved.text()
+  if (!odpoved.ok) return {stav: odpoved.status, popis: telo.slice(0, 200)}
+
+  let data: unknown
+  try {
+    data = JSON.parse(telo)
+  } catch {
+    return {chyba: 'Detail nevrátil JSON.'}
+  }
+
+  const obal = data as Record<string, unknown>
+  const pole = Object.entries(obal)
+    .filter(([, v]) => Array.isArray(v))
+    .map(([klic, v]) => {
+      const polozky = v as Record<string, unknown>[]
+      return {
+        klic,
+        polozek: polozky.length,
+        poleZaznamu: polozky.length > 0 ? Object.keys(polozky[0]).sort() : [],
+      }
+    })
+
+  return {
+    korenovaPole: Object.keys(obal).sort(),
+    seznamy: pole,
+  }
 }
