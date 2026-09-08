@@ -148,6 +148,18 @@ export const siteSettings = defineType({
       ],
     }),
     defineField({
+      name: 'chystanaStranka',
+      title: 'Text nenapsané stránky',
+      type: 'object',
+      description:
+        'Zobrazí se na právní stránce, jejíž text ještě neexistuje — místo chyby 404. Jakmile dokument vznikne, tenhle text zmizí sám.',
+      fields: [
+        {name: 'nadradek', title: 'Nadřádek', type: 'string'},
+        {name: 'titulek', title: 'Titulek', type: 'string'},
+        {name: 'text', title: 'Text', type: 'text', rows: 4},
+      ],
+    }),
+    defineField({
       name: 'notifikacniEmail',
       title: 'E-mail pro poptávky',
       type: 'string',

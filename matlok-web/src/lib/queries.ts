@@ -19,6 +19,7 @@ export interface SiteSettings {
   navigace?: Odkaz[]
   navigaceTlacitko?: Odkaz
   patickaSloupce?: {nadpis: string; odkazy: Odkaz[]}[]
+  chystanaStranka?: {nadradek?: string; titulek?: string; text?: string}
 }
 
 export interface Division {
@@ -172,6 +173,16 @@ export interface KontaktPage {
   poznamkaDph?: string
 }
 
+export interface LegalPage {
+  titulek: string
+  slug: {current: string}
+  ucinnostOd?: string
+  nadradek?: string
+  popisekUcinnost?: string
+  popisekSpravce?: string
+  text?: unknown[]
+}
+
 export function nastaveni(): Promise<SiteSettings> {
   return sanity.fetch('*[_id == "siteSettings"][0]')
 }
@@ -221,4 +232,8 @@ export function strankaKontakt(): Promise<KontaktPage> {
 
 export function otazky(): Promise<Faq[]> {
   return sanity.fetch('*[_type == "faq" && zobrazit == true] | order(poradi asc)')
+}
+
+export function pravniStranky(): Promise<LegalPage[]> {
+  return sanity.fetch('*[_type == "legalPage"]')
 }

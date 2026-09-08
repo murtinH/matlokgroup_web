@@ -26,6 +26,24 @@ export const legalPage = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: 'nadradek',
+      title: 'Nadřádek',
+      type: 'string',
+      description: 'Malý text nad nadpisem, například "Právní informace".',
+    }),
+    defineField({
+      name: 'popisekUcinnost',
+      title: 'Popisek účinnosti',
+      type: 'string',
+      description: 'Uvozuje datum v podtitulku, například "Účinné od".',
+    }),
+    defineField({
+      name: 'popisekSpravce',
+      title: 'Popisek správce',
+      type: 'string',
+      description: 'Uvozuje údaje o firmě v podtitulku, například "Správce".',
+    }),
+    defineField({
       name: 'text',
       title: 'Text',
       type: 'array',
@@ -44,6 +62,13 @@ export const legalPage = defineType({
               title: 'Záhlaví',
               type: 'array',
               of: [{type: 'string'}],
+            },
+            {
+              name: 'kodovySloupec',
+              title: 'Sloupec strojopisem',
+              type: 'number',
+              description:
+                'Pořadí sloupce (od 0), jehož buňky se vysází strojopisem jako názvy cookies. Nechat prázdné, když to není potřeba.',
             },
             {
               name: 'radky',
