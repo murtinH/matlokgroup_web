@@ -1,0 +1,49 @@
+---
+import {obrazek, srcset} from '../lib/sanity'
+import type {SiteSettings} from '../lib/queries'
+
+interface Props {
+  nastaveni: SiteSettings
+  aktivni?: string
+}
+
+const {nastaveni, aktivni} = Astro.props
+const {logo, navigace = [], navigaceTlacitko, nazev} = nastaveni
+---
+
+<header class="nav">
+  <div class="nav__inner">
+    <a class="nav__logo" href="/" aria-label={nazev}>
+      {
+        logo && (
+          <img
+            src={obrazek(logo).height(56).url()}
+            srcset={srcset(logo, [112, 168, 224])}
+            sizes="112px"
+            width="214"
+            height="56"
+            alt={nazev}
+          />
+        )
+      }
+    </a>
+
+    <nav class="nav__links" aria-label="Hlavní navigace">
+      {
+        navigace.map((polozka) => (
+          <a href={polozka.odkaz} aria-current={polozka.odkaz === aktivni ? 'page' : undefined}>
+            {polozka.text}
+          </a>
+        ))
+      }
+    </nav>
+
+    {
+      navigaceTlacitko && (
+        <a class="btn btn--primary btn--sm" href={navigaceTlacitko.odkaz}>
+          {navigaceTlacitko.text}
+        </a>
+      )
+    }
+  </div>
+</header>

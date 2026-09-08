@@ -1,0 +1,566 @@
+/* ============================================================
+   MATLOK GROUP — komponentové styly
+   Převzaté z prototypu (prototyp/*.html). Proměnné se sem
+   nepíšou — ty jsou v tokens/. Tady jsou jen třídy komponent.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   Typografická škála a rytmus sekcí
+
+   Tyhle tři hodnoty se liší od výchozích tokenů, protože prototyp
+   je má jinak a zadání Session 3 říká držet vizuál přesně podle něj:
+     · nadpisy jsou plynulé (clamp), token dává pevnou velikost
+     · --section-y je o něco těsnější
+     · řádkování textu 1.55 místo 1.5
+   Kdyby se mělo jet podle tokenů, stačí smazat tenhle blok.
+   ------------------------------------------------------------ */
+:root {
+  --section-y: clamp(3.5rem, 8vw, 7rem);
+}
+body {
+  line-height: 1.55;
+}
+h1 {
+  font-size: clamp(2.3rem, 5.5vw, var(--text-4xl));
+  line-height: 1.05;
+}
+h2 {
+  font-size: clamp(1.7rem, 3.8vw, var(--text-2xl));
+}
+h3 {
+  font-size: var(--text-lg);
+}
+h1, h2, h3, h4 {
+  line-height: 1.18;
+}
+h1 { line-height: 1.05; }
+html { scroll-behavior: smooth; }
+img { max-width: 100%; display: block; }
+
+/* ------------------------------------------------------------ layout */
+.container {
+  max-width: var(--container-xl);
+  margin: 0 auto;
+  padding-inline: var(--gutter);
+}
+.section { padding-block: var(--section-y); }
+.sechead { max-width: var(--container-lg); margin-bottom: var(--space-8); }
+
+.eyebrow {
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--azure-700);
+  margin: 0 0 var(--space-4);
+}
+.eyebrow--onink { color: var(--azure-400); }
+
+.lead {
+  font-size: var(--text-md);
+  color: var(--text-secondary);
+  max-width: 60ch;
+  line-height: 1.65;
+}
+.lead--onink { color: rgba(255, 255, 255, 0.72); }
+
+/* Azurový čtverec pod nadpisem — značkový motiv. */
+.tip { position: relative; display: inline-block; padding-bottom: 0.1em; }
+.tip::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0.5em;
+  height: 0.14em;
+  background: var(--accent);
+}
+
+/* ------------------------------------------------------------ tlačítka */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55em;
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-sm);
+  padding: 0.85em 1.5em;
+  border-radius: var(--radius-md);
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-out);
+}
+.btn:active { transform: translateY(1px); }
+.btn--primary { background: var(--accent); color: var(--accent-contrast); }
+.btn--primary:hover { background: var(--azure-600); box-shadow: var(--shadow-accent); }
+.btn--ghost { background: transparent; color: var(--text-primary); border-color: var(--border-default); }
+.btn--ghost:hover { background: rgba(16, 41, 54, 0.05); border-color: var(--ink-800); }
+.btn--ghost-ink { background: transparent; color: #fff; border-color: rgba(255, 255, 255, 0.28); }
+.btn--ghost-ink:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.55); }
+.btn--sm { font-size: var(--text-xs); padding: 0.65em 1.1em; }
+.btn:hover { text-decoration: none; }
+.ctas { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-6); }
+
+/* ------------------------------------------------------------ navigace */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.nav__inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  height: 74px;
+  max-width: var(--container-xl);
+  margin: 0 auto;
+  padding-inline: var(--gutter);
+}
+.nav__logo img { height: 28px; width: auto; }
+.nav__links { display: flex; gap: var(--space-5); margin-left: auto; align-items: center; }
+.nav__links a {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  position: relative;
+  padding-bottom: 3px;
+}
+.nav__links a:hover { text-decoration: none; }
+.nav__links a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 2px;
+  background: var(--accent);
+  transition: width var(--dur-base) var(--ease-out);
+}
+.nav__links a:hover::after,
+.nav__links a[aria-current]::after { width: 100%; }
+@media (max-width: 980px) { .nav__links { display: none; } }
+
+/* ------------------------------------------------------------ obecné */
+.ink { background: var(--ink-800); color: #fff; }
+.ink h1, .ink h2, .ink h3 { color: #fff; }
+.ridge {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  width: 100%;
+  height: clamp(36px, 5vw, 80px);
+  display: block;
+}
+.card {
+  background: var(--neutral-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+}
+.badge {
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  padding: 0.45em 0.8em;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+}
+.badge--live { background: var(--accent-soft); color: var(--azure-700); }
+.badge--soon { background: var(--neutral-100); color: var(--neutral-500); }
+.livedot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--green-500);
+  display: inline-block;
+  animation: pulse 2.4s var(--ease-out) infinite;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(31, 157, 116, 0.55); }
+  70% { box-shadow: 0 0 0 10px rgba(31, 157, 116, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(31, 157, 116, 0); }
+}
+
+/* ------------------------------------------------------------ patička */
+.footer {
+  background: var(--ink-900);
+  color: rgba(255, 255, 255, 0.62);
+  padding-block: var(--space-10) var(--space-6);
+}
+.footer__grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: var(--space-7); }
+@media (max-width: 860px) { .footer__grid { grid-template-columns: 1fr 1fr; } }
+.footer img { height: 26px; width: auto; margin-bottom: var(--space-5); }
+.footer h4 {
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42);
+  font-weight: var(--fw-bold);
+  margin-bottom: var(--space-4);
+}
+.footer ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.7em; }
+.footer a { color: rgba(255, 255, 255, 0.72); font-size: var(--text-sm); }
+.footer a:hover { color: #fff; }
+.footer__legal {
+  margin-top: var(--space-9);
+  padding-top: var(--space-5);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4) var(--space-6);
+  justify-content: space-between;
+  font-size: var(--text-2xs);
+  color: rgba(255, 255, 255, 0.4);
+  line-height: 1.6;
+}
+.footer__legal a { font-size: var(--text-2xs); color: rgba(255, 255, 255, 0.55); }
+.footer__popis { font-size: var(--text-sm); max-width: 34ch; margin: 0; }
+.footcontact { font-size: var(--text-sm); line-height: 1.75; margin-top: var(--space-4); }
+
+/* ------------------------------------------------------------ hero */
+.hero {
+  background: var(--ink-800);
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  padding-block: clamp(3.5rem, 8vw, 6rem) clamp(5rem, 10vw, 8rem);
+}
+.hero h1 { color: #fff; }
+.hero__grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: clamp(2rem, 5vw, 4rem);
+  align-items: center;
+}
+@media (max-width: 900px) { .hero__grid { grid-template-columns: 1fr; } }
+.hero__stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-8);
+  padding-top: var(--space-6);
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+@media (max-width: 640px) { .hero__stats { grid-template-columns: repeat(2, 1fr); } }
+.stat__num {
+  font-family: var(--font-display);
+  font-weight: var(--fw-black);
+  font-size: var(--text-xl);
+  color: #fff;
+  line-height: 1.05;
+}
+.stat__num--sm { font-size: var(--text-md); letter-spacing: var(--tracking-tight); }
+.stat__label {
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  margin-top: 0.5em;
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+/* ------------------------------------------------------------ živá karta */
+.livecard {
+  background: var(--ink-700);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  position: relative;
+  box-shadow: var(--shadow-lg);
+}
+.livecard::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: var(--space-6);
+  width: 26px;
+  height: 8px;
+  background: var(--accent);
+}
+.livecard__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+.livecard__title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+}
+.livecard__place {
+  font-family: var(--font-display);
+  font-weight: var(--fw-black);
+  font-size: var(--text-lg);
+  color: #fff;
+  margin: var(--space-5) 0 var(--space-2);
+}
+.livecard__meta { font-size: var(--text-sm); color: rgba(255, 255, 255, 0.6); margin-bottom: var(--space-5); }
+.kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-3); }
+.kpi { background: rgba(255, 255, 255, 0.05); border-radius: var(--radius-sm); padding: var(--space-4) var(--space-3); }
+.kpi__v { font-family: var(--font-display); font-weight: var(--fw-black); font-size: var(--text-lg); color: #fff; line-height: 1; }
+.kpi__l { font-size: var(--text-2xs); color: rgba(255, 255, 255, 0.5); margin-top: 0.45em; }
+.livecard__foot {
+  margin-top: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: var(--text-2xs);
+  color: rgba(255, 255, 255, 0.42);
+}
+
+/* ------------------------------------------------------------ běžící pás */
+.marquee {
+  background: var(--ink-900);
+  color: rgba(255, 255, 255, 0.8);
+  overflow: hidden;
+  padding-block: var(--space-4);
+  border-block: 1px solid rgba(255, 255, 255, 0.08);
+}
+.marquee__track { display: flex; gap: var(--space-6); width: max-content; animation: slide 38s linear infinite; }
+@keyframes slide { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.marquee span {
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  white-space: nowrap;
+}
+.marquee span::after { content: ""; width: 7px; height: 7px; background: var(--accent); flex: none; }
+
+/* ------------------------------------------------------------ karty divizí */
+.divgrid { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--space-5); }
+.divcard {
+  grid-column: span 3;
+  border-radius: var(--radius-lg);
+  padding: var(--space-7);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
+}
+.divcard--soon {
+  grid-column: span 2;
+  background: transparent;
+  border-style: dashed;
+  border-color: var(--neutral-300);
+  box-shadow: none;
+}
+.divcard--live:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.divcard--live::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: var(--space-7);
+  width: 26px;
+  height: 8px;
+  background: var(--accent);
+}
+/* Odlišení sekcí odstínem podkladu, ne novou barvou — viz CLAUDE.md. */
+.divcard--matlok { background: var(--azure-50); }
+.divcard--services { background: var(--neutral-100); }
+@media (max-width: 900px) { .divcard, .divcard--soon { grid-column: span 6; } }
+.divcard__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+.divcard__name {
+  font-family: var(--font-display);
+  font-weight: var(--fw-black);
+  font-size: var(--text-xl);
+  letter-spacing: var(--tracking-tight);
+  color: var(--ink-800);
+  flex: 1;
+}
+.divcard__name small {
+  font-weight: 500;
+  color: var(--neutral-400);
+  font-size: 0.5em;
+  display: block;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  margin-bottom: 0.4em;
+}
+.divcard--soon .divcard__name { font-size: var(--text-lg); color: var(--neutral-500); }
+.divcard p { font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.65; }
+.divcard--soon p { color: var(--neutral-500); }
+.divcard__claim {
+  margin-top: auto;
+  padding-top: var(--space-5);
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-sm);
+  color: var(--ink-800);
+}
+.divcard--soon .divcard__claim { color: var(--neutral-400); }
+.divcard__link {
+  margin-top: var(--space-5);
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-sm);
+  color: var(--azure-700);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  transition: gap var(--dur-base) var(--ease-out);
+}
+.divcard__link:hover { gap: 0.9em; text-decoration: none; }
+
+/* ------------------------------------------------------------ zakladatelé */
+.founders { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5); }
+@media (max-width: 900px) { .founders { grid-template-columns: 1fr; } }
+.fcard {
+  background: var(--neutral-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: clamp(1.5rem, 3vw, var(--space-7));
+  position: relative;
+  box-shadow: var(--shadow-sm);
+}
+.fcard::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: clamp(1.5rem, 3vw, var(--space-7));
+  width: 26px;
+  height: 8px;
+  background: var(--accent);
+}
+.fcard__head { display: flex; align-items: center; gap: var(--space-4); margin-bottom: var(--space-5); }
+.fcard__av {
+  width: 56px;
+  height: 56px;
+  flex: none;
+  border-radius: var(--radius-pill);
+  background: var(--ink-800);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: var(--fw-black);
+  font-size: var(--text-base);
+  letter-spacing: 0.02em;
+  overflow: hidden;
+}
+.fcard__av img { width: 100%; height: 100%; object-fit: cover; }
+.fcard__role {
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--azure-700);
+  margin-bottom: 0.35em;
+}
+.fcard__name {
+  font-family: var(--font-display);
+  font-weight: var(--fw-black);
+  font-size: var(--text-lg);
+  letter-spacing: var(--tracking-tight);
+  line-height: 1.15;
+}
+.fcard__claim {
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-base);
+  color: var(--ink-800);
+  margin-bottom: var(--space-4);
+  line-height: 1.4;
+}
+.fcard p { font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.7; }
+.fcard__human {
+  border-left: 2px solid var(--accent);
+  padding: 0.2em 0 0.2em var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: var(--space-5) 0;
+  line-height: 1.6;
+}
+.tags { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.tag {
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.4em 0.8em;
+  border-radius: var(--radius-pill);
+  background: var(--accent-soft);
+  color: var(--azure-700);
+}
+.story { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-6); margin-top: var(--space-8); }
+@media (max-width: 820px) { .story { grid-template-columns: 1fr; } }
+.story article { border-top: 2px solid var(--ink-800); padding-top: var(--space-4); }
+.story article h3 { font-size: var(--text-base); margin-bottom: 0.5em; }
+.story article p { font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.7; margin: 0; }
+.vision {
+  margin-top: var(--space-8);
+  background: var(--ink-800);
+  color: #fff;
+  border-radius: var(--radius-xl);
+  padding: clamp(1.75rem, 4vw, var(--space-9));
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: clamp(1.5rem, 4vw, var(--space-8));
+  align-items: center;
+}
+@media (max-width: 760px) { .vision { grid-template-columns: 1fr; } }
+.vision h3 { color: #fff; font-size: var(--text-xl); font-weight: var(--fw-black); margin: 0; white-space: nowrap; }
+.vision p { color: rgba(255, 255, 255, 0.72); margin: 0; font-size: var(--text-md); line-height: 1.6; }
+
+/* ------------------------------------------------------------ proč Matlok */
+.why { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-7); }
+@media (max-width: 860px) { .why { grid-template-columns: 1fr; } }
+.why__i { width: 36px; height: 4px; background: var(--accent); margin-bottom: var(--space-5); }
+.why h3 { font-size: var(--text-lg); margin-bottom: 0.5em; }
+.why p { font-size: var(--text-sm); color: var(--text-secondary); margin: 0; }
+
+/* ------------------------------------------------------------ mobil */
+@media (max-width: 600px) {
+  :root { --gutter: 1.1rem; }
+  h1 { font-size: clamp(2rem, 8vw, 2.6rem); }
+  h2 { font-size: clamp(1.45rem, 6vw, 1.8rem); }
+  .btn { width: 100%; justify-content: center; }
+  .ctas { gap: var(--space-2); }
+}
+
+/* ------------------------------------------------------------ nájezd sekcí */
+/* Skrývá se jen tehdy, když běží JavaScript, který to zase odkryje.
+   Bez JS je obsah rovnou vidět — web nesmí zmizet kvůli skriptu. */
+.js .reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out);
+}
+.js .reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .js .reveal { opacity: 1; transform: none; }
+}

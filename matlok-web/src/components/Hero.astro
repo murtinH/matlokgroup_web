@@ -1,0 +1,87 @@
+---
+import type {HomePage} from '../lib/queries'
+
+interface Props {
+  obsah: HomePage
+}
+
+const {obsah} = Astro.props
+const {heroEyebrow, heroNadpis, heroNadpisTip, heroLead, heroTlacitka = [], heroStatistiky = [], zivaKarta} =
+  obsah
+---
+
+<section class="hero">
+  <div class="container">
+    <div class="hero__grid">
+      <div>
+        <p class="eyebrow eyebrow--onink">{heroEyebrow}</p>
+        <h1>{heroNadpis}<br /><span class="tip">{heroNadpisTip}</span></h1>
+        <p class="lead lead--onink">{heroLead}</p>
+
+        {
+          heroTlacitka.length > 0 && (
+            <div class="ctas">
+              {heroTlacitka.map((tlacitko, i) => (
+                <a class={`btn ${i === 0 ? 'btn--primary' : 'btn--ghost-ink'}`} href={tlacitko.odkaz}>
+                  {tlacitko.text}
+                </a>
+              ))}
+            </div>
+          )
+        }
+
+        {
+          heroStatistiky.length > 0 && (
+            <div class="hero__stats">
+              {heroStatistiky.map((stat) => (
+                <div>
+                  <div class={`stat__num ${stat.maleFormatovani ? 'stat__num--sm' : ''}`}>
+                    {stat.hodnota.split('\n').map((radek, i) => (
+                      <Fragment>
+                        {i > 0 && <br />}
+                        {radek}
+                      </Fragment>
+                    ))}
+                  </div>
+                  <div class="stat__label">{stat.popisek}</div>
+                </div>
+              ))}
+            </div>
+          )
+        }
+      </div>
+
+      {
+        zivaKarta && (
+          <aside class="livecard">
+            <div class="livecard__head">
+              <span class="livecard__title">
+                <span class="livedot" />
+                {zivaKarta.titulek}
+              </span>
+              <span class="badge badge--live">{zivaKarta.stav}</span>
+            </div>
+            <div class="livecard__place">{zivaKarta.misto}</div>
+            <div class="livecard__meta">{zivaKarta.podtitulek}</div>
+            <div class="kpis">
+              {zivaKarta.kpi?.map((k) => (
+                <div class="kpi">
+                  <div class="kpi__v">{k.hodnota}</div>
+                  <div class="kpi__l">{k.popisek}</div>
+                </div>
+              ))}
+            </div>
+            <div class="livecard__foot">{zivaKarta.poznamka}</div>
+          </aside>
+        )
+      }
+    </div>
+  </div>
+
+  <!-- Hřeben hor — přechod z tmavé hero sekce do světlého podkladu. -->
+  <svg class="ridge" viewBox="0 0 1440 90" preserveAspectRatio="none" aria-hidden="true">
+    <path
+      d="M0 90 L0 62 L210 24 L420 58 L640 12 L880 52 L1090 20 L1290 54 L1440 30 L1440 90 Z"
+      fill="var(--snow)"></path>
+  </svg>
+</section>

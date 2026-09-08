@@ -1,0 +1,56 @@
+---
+import type {Division} from '../lib/queries'
+
+interface Props {
+  divize: Division
+}
+
+const {divize} = Astro.props
+const jeZiva = divize.stav === 'live'
+
+// Odstín podkladu se u živých divizí liší podle kódu — odlišení sekcí
+// se dělá odstínem, ne novou barvou (CLAUDE.md).
+const odstin: Record<string, string> = {
+  '01': 'divcard--matlok',
+  '02': 'divcard--services',
+}
+
+const tridy = ['divcard', jeZiva ? 'divcard--live' : 'divcard--soon', jeZiva ? odstin[divize.kod] : '', 'reveal']
+  .filter(Boolean)
+  .join(' ')
+---
+
+<article class={tridy}>
+  <div class="divcard__top">
+    <div class="divcard__name">
+      <small>Divize {divize.kod}</small>{divize.nazev}
+    </div>
+    <span class={`badge ${jeZiva ? 'badge--live' : 'badge--soon'}`}>
+      {jeZiva ? 'V provozu' : 'Připravujeme'}
+    </span>
+  </div>
+
+  <p>{divize.popis}</p>
+  <div class="divcard__claim">{divize.claim}</div>
+
+  {
+    jeZiva && divize.odkaz && (
+      <a class="divcard__link" href={divize.odkaz}>
+        Zobrazit divizi
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M5 12h14M13 6l6 6-6 6" />
+        </svg>
+      </a>
+    )
+  }
+</article>

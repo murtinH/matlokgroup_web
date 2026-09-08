@@ -18,6 +18,8 @@
     "build:studio": "npm run build --workspace studio"
   },
   "dependencies": {
+    "@sanity/client": "^8.6.0",
+    "@sanity/image-url": "^2.1.1",
     "astro": "^7.3.1"
   },
   "devDependencies": {

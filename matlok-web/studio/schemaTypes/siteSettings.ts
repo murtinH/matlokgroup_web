@@ -15,8 +15,16 @@ export const siteSettings = defineType({
     }),
     defineField({
       name: 'logo',
-      title: 'Logo',
+      title: 'Logo — tmavé',
       type: 'image',
+      description: 'Pro světlé podklady, například navigace.',
+      options: {hotspot: true},
+    }),
+    defineField({
+      name: 'logoInverzni',
+      title: 'Logo — bílé',
+      type: 'image',
+      description: 'Pro tmavé podklady, například patička.',
       options: {hotspot: true},
     }),
     defineField({
@@ -70,6 +78,72 @@ export const siteSettings = defineType({
             {name: 'url', title: 'Odkaz', type: 'url'},
           ],
           preview: {select: {title: 'sit', subtitle: 'url'}},
+        },
+      ],
+    }),
+    defineField({
+      name: 'popisPaticky',
+      title: 'Popis v patičce',
+      type: 'text',
+      rows: 3,
+      description: 'Krátký odstavec pod logem v patičce.',
+    }),
+    defineField({
+      name: 'navigace',
+      title: 'Hlavní navigace',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          name: 'polozka',
+          fields: [
+            {name: 'text', title: 'Text', type: 'string'},
+            {name: 'odkaz', title: 'Odkaz', type: 'string'},
+          ],
+          preview: {select: {title: 'text', subtitle: 'odkaz'}},
+        },
+      ],
+    }),
+    defineField({
+      name: 'navigaceTlacitko',
+      title: 'Tlačítko v navigaci',
+      type: 'object',
+      fields: [
+        {name: 'text', title: 'Text', type: 'string'},
+        {name: 'odkaz', title: 'Odkaz', type: 'string'},
+      ],
+    }),
+    defineField({
+      name: 'patickaSloupce',
+      title: 'Sloupce v patičce',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          name: 'sloupec',
+          fields: [
+            {name: 'nadpis', title: 'Nadpis', type: 'string'},
+            {
+              name: 'odkazy',
+              title: 'Odkazy',
+              type: 'array',
+              of: [
+                {
+                  type: 'object',
+                  name: 'odkaz',
+                  fields: [
+                    {name: 'text', title: 'Text', type: 'string'},
+                    {name: 'odkaz', title: 'Cíl', type: 'string'},
+                  ],
+                  preview: {select: {title: 'text', subtitle: 'odkaz'}},
+                },
+              ],
+            },
+          ],
+          preview: {
+            select: {title: 'nadpis', odkazy: 'odkazy'},
+            prepare: ({title, odkazy}: any) => ({title, subtitle: `${(odkazy ?? []).length} odkazů`}),
+          },
         },
       ],
     }),
