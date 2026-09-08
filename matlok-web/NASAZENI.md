@@ -80,17 +80,13 @@ jinam ji nevkládej.
 
 ### Úložiště pro omezení počtu odeslání
 
-Storage & Databases → KV → Create → název `matlok-rate-limit`.
-Zkopíruj **ID** vzniklého úložiště a pošli mi ho — doplním ho do
-`wrangler.jsonc`, aby konfigurace zůstala v gitu:
+**Hotovo 8. 9. 2026** — úložiště `matlok-rate-limit` existuje a jeho ID je
+ve `wrangler.jsonc`. ID není tajné, je to jen identifikátor.
 
-```jsonc
-"kv_namespaces": [{ "binding": "RATE_LIMIT", "id": "<id z dashboardu>" }]
-```
+Limit je pět odeslání z jedné adresy za hodinu. Počítadlo drží otisk IP,
+ne IP samotnou, a po hodině se samo smaže.
 
-ID není tajné, je to jen identifikátor.
-
-Bez tohohle bindingu formulář funguje dál, jen se neomezuje počet odeslání.
+Kdyby binding někdy zmizel, formulář funguje dál — jen bez omezení počtu.
 Skript to pozná sám a nespadne.
 
 ---
