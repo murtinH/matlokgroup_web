@@ -44,13 +44,21 @@ const datum = stranka?.ucinnostOd
   ? new Date(stranka.ucinnostOd).toLocaleDateString('cs-CZ')
   : null
 const spravce = [site.nazev, `IČO ${site.ico}`, site.adresa.replace(/\n/g, ', '), site.email].join(', ')
+/** Popis pro vyhledávače: první odstavec textu, nebo obecná věta. */
+const prvniOdstavec = (stranka?.text as {_type?: string; children?: {text?: string}[]}[] | undefined)
+  ?.find((b) => b._type === 'block' && (b.children ?? []).some((u) => (u.text ?? '').length > 40))
+  ?.children?.map((u) => u.text ?? '')
+  .join('')
+
+const popisStranky = prvniOdstavec ? prvniOdstavec.slice(0, 160) : `${titulek} — ${site.nazev}.`
+
 const meta =
   stranka && datum
     ? `${stranka.popisekUcinnost ?? ''} ${datum} · ${stranka.popisekSpravce ?? ''}: ${spravce}`.trim()
     : null
 ---
 
-<Base nastaveni={site} titulek={`${titulek} — ${site.nazev}`}>
+<Base nastaveni={site} titulek={`${titulek} — ${site.nazev}`} popis={popisStranky}>
   <Navigace nastaveni={site} aktivni={`/${Astro.params.slug}`} />
 
   <main>

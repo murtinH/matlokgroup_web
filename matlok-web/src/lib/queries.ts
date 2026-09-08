@@ -29,6 +29,7 @@ export interface SiteSettings {
   }
   analytikaToken?: string
   turnstileSiteKey?: string
+  ogObrazek?: unknown
 }
 
 export interface Division {

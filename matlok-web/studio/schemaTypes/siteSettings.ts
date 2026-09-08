@@ -160,6 +160,13 @@ export const siteSettings = defineType({
       ],
     }),
     defineField({
+      name: 'ogObrazek',
+      title: 'Obrázek pro sdílení',
+      type: 'image',
+      description:
+        'Zobrazí se, když někdo sdílí odkaz na web na sociální síti nebo v chatu. Poměr 1200 × 630 px.',
+    }),
+    defineField({
       name: 'turnstileSiteKey',
       title: 'Turnstile — veřejný klíč',
       type: 'string',

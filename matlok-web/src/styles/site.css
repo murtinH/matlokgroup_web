@@ -55,7 +55,7 @@ img { max-width: 100%; display: block; }
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-wider);
   text-transform: uppercase;
-  color: var(--azure-700);
+  color: var(--azure-800);
   margin: 0 0 var(--space-4);
 }
 .eyebrow--onink { color: var(--azure-400); }
@@ -219,7 +219,7 @@ img { max-width: 100%; display: block; }
   border-bottom: 1px solid var(--border-subtle);
 }
 .navmob__panel a:last-child { border-bottom: 0; }
-.navmob__panel a:hover { text-decoration: none; color: var(--azure-700); }
+.navmob__panel a:hover { text-decoration: none; color: var(--azure-800); }
 /* Aktivní stránku označuje azurový čtverec, ne barva textu:
    --azure-700 má na bílé kontrast 4,03 : 1, což je pod WCAG AA (4,5 : 1).
    Text proto zůstává tmavý. */
@@ -262,7 +262,7 @@ img { max-width: 100%; display: block; }
   border-radius: var(--radius-pill);
   white-space: nowrap;
 }
-.badge--live { background: var(--accent-soft); color: var(--azure-700); }
+.badge--live { background: var(--accent-soft); color: var(--azure-800); }
 .badge--soon { background: var(--neutral-100); color: var(--neutral-500); }
 .livedot {
   width: 8px;
@@ -307,10 +307,11 @@ img { max-width: 100%; display: block; }
   gap: var(--space-4) var(--space-6);
   justify-content: space-between;
   font-size: var(--text-2xs);
-  color: rgba(255, 255, 255, 0.4);
+  /* 0,4 dávalo na ink-900 kontrast 3,78 — pod hranicí WCAG AA. */
+  color: rgba(255, 255, 255, 0.55);
   line-height: 1.6;
 }
-.footer__legal a { font-size: var(--text-2xs); color: rgba(255, 255, 255, 0.55); }
+.footer__legal a { font-size: var(--text-2xs); color: rgba(255, 255, 255, 0.72); }
 .footer__popis { font-size: var(--text-sm); max-width: 34ch; margin: 0; }
 .footcontact { font-size: var(--text-sm); line-height: 1.75; margin-top: var(--space-4); }
 
@@ -512,7 +513,7 @@ img { max-width: 100%; display: block; }
   font-family: var(--font-display);
   font-weight: var(--fw-bold);
   font-size: var(--text-sm);
-  color: var(--azure-700);
+  color: var(--azure-800);
   display: inline-flex;
   align-items: center;
   gap: 0.5em;
@@ -564,7 +565,7 @@ img { max-width: 100%; display: block; }
   font-size: var(--text-2xs);
   letter-spacing: var(--tracking-wider);
   text-transform: uppercase;
-  color: var(--azure-700);
+  color: var(--azure-800);
   margin-bottom: 0.35em;
 }
 .fcard__name {
@@ -601,7 +602,7 @@ img { max-width: 100%; display: block; }
   padding: 0.4em 0.8em;
   border-radius: var(--radius-pill);
   background: var(--accent-soft);
-  color: var(--azure-700);
+  color: var(--azure-800);
 }
 .story { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-6); margin-top: var(--space-8); }
 @media (max-width: 820px) { .story { grid-template-columns: 1fr; } }
@@ -816,7 +817,7 @@ img { max-width: 100%; display: block; }
   height: 44px;
   border-radius: var(--radius-md);
   background: var(--accent-soft);
-  color: var(--azure-700);
+  color: var(--azure-800);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -857,7 +858,7 @@ img { max-width: 100%; display: block; }
   font-weight: var(--fw-black);
   font-size: var(--text-2xs);
   letter-spacing: var(--tracking-wider);
-  color: var(--azure-700);
+  color: var(--azure-800);
   margin-bottom: 0.8em;
 }
 
@@ -881,7 +882,7 @@ img { max-width: 100%; display: block; }
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--azure-700);
+  color: var(--azure-800);
   margin-bottom: var(--space-5);
 }
 .svc h3 { font-size: var(--text-base); margin-bottom: 0.5em; }
@@ -901,7 +902,7 @@ img { max-width: 100%; display: block; }
   font-weight: var(--fw-black);
   font-size: var(--text-2xs);
   letter-spacing: var(--tracking-wider);
-  color: var(--azure-700);
+  color: var(--azure-800);
   margin-bottom: 0.7em;
 }
 .step__t { font-family: var(--font-display); font-weight: var(--fw-bold); font-size: var(--text-sm); color: var(--ink-800); }
@@ -933,7 +934,7 @@ img { max-width: 100%; display: block; }
 }
 .sfact b { font-family: var(--font-display); font-weight: var(--fw-black); font-size: var(--text-lg); color: var(--azure-400); line-height: 1; }
 .sfact span { font-size: var(--text-sm); color: rgba(255, 255, 255, 0.75); line-height: 1.5; }
-.cta__pozn--svetla { color: var(--azure-700); }
+.cta__pozn--svetla { color: var(--azure-800); }
 
 /* ============================================================
    STRÁNKA /kontakt
@@ -1173,7 +1174,7 @@ details.faq summary::after {
   font-weight: var(--fw-bold);
   font-size: var(--text-lg);
   line-height: 1;
-  color: var(--azure-700);
+  color: var(--azure-800);
   flex: none;
   transition: transform var(--dur-base) var(--ease-out);
 }
@@ -1317,7 +1318,7 @@ details.faq p { font-size: var(--text-sm); color: var(--text-secondary); margin:
   height: 44px;
   border-radius: var(--radius-md);
   background: var(--accent-soft);
-  color: var(--azure-700);
+  color: var(--azure-800);
   display: flex;
   align-items: center;
   justify-content: center;

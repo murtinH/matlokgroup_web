@@ -17,6 +17,33 @@
 @import "./tokens/base.css";
 
 /* ------------------------------------------------------------
+   Doplněk palety: azurová pro text na světlém podkladu
+
+   --azure-700 (#0A88B6) je nejtmavší azurová ve styleguidu, ale na bílé
+   má kontrast 4,03 : 1 — pod hranicí WCAG AA, která žádá 4,5 pro běžný
+   text. Týkalo se to devíti míst: nadřádků sekcí, štítků, odkazů
+   v kartách, čísel principů i rolí zakladatelů.
+
+   #147390 je nejsvětlejší odstín téhož tónu, který projde na všech
+   podkladech, jaké web používá — nejhorší případ jsou štítky na
+   azurovém podkladu, kde vychází 4,60.
+
+   NENÍ TO NOVÁ BARVA, je to prodloužení azurové řady o jeden stupeň.
+   Patří do styleguidu; dokud tam není, žije tady. Až se budou tokeny
+   překopírovávat, tenhle blok musí zůstat, jinak se kontrast rozbije.
+   ------------------------------------------------------------ */
+:root {
+  --azure-800: #147390;
+
+  /* Odkazy a akcentovaný text berou tmavší odstín. Podklady, výplně
+     a aktivní stav tlačítek zůstávají na --azure-700. */
+  --text-link: var(--azure-800);
+
+  /* --neutral-500 dává na sněhovém podkladu 4,38 : 1, taky pod hranicí. */
+  --text-muted: var(--neutral-600);
+}
+
+/* ------------------------------------------------------------
    Paleta pro Tailwind
    Výchozí paleta Tailwindu je vypnutá záměrně. CLAUDE.md říká
    "nové barvy nezavádět" — takhle na barvu mimo styleguide
