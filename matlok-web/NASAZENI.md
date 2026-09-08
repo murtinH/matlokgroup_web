@@ -224,15 +224,19 @@ nevykonalo.
 | Pole | Hodnota |
 |---|---|
 | Rule name | `www na holou doménu` |
-| When incoming requests match | Custom filter expression |
-| Field / Operator / Value | `Hostname` · `equals` · `www.matlok.cz` |
-| URL redirect → Type | **Dynamic** |
-| Expression | `concat("https://matlok.cz", http.request.uri.path)` |
+| If incoming requests match | **Wildcard pattern** |
+| Request URL | `https://www.matlok.cz/*` |
+| Target URL | `https://matlok.cz/${1}` |
 | Status code | **301** |
 | Preserve query string | zapnuto |
 
-Dynamic a ten výraz jsou tam kvůli tomu, aby přesměrování zachovalo cestu:
-`www.matlok.cz/kontakt` má vést na `matlok.cz/kontakt`, ne na domovskou stránku.
+Hvězdička v Request URL zachytí cestu a `${1}` ji na druhé straně vloží zpátky,
+takže `www.matlok.cz/kontakt` skončí na `matlok.cz/kontakt`, ne na domovské
+stránce. U samotné `www.matlok.cz/` je hvězdička prázdná a chování je správné.
+
+Upozornění o POST požadavcích se nás netýká — formulář odesílá data rovnou
+na `matlok.cz/api/poptavka`, tedy na holou doménu, a přes tohle pravidlo
+neprochází.
 
 ### Kontrola po přepnutí
 
