@@ -26,7 +26,10 @@ const {titulek, popis, pozadi, nastaveni} = Astro.props
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
+    <!-- SVG má tmavý podklad, aby byl bílý monogram vidět i na světlém
+         panelu prohlížeče. PNG zůstává pro prohlížeče, které SVG neumí. -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" type="image/png" href="/favicon.png" />
 
     <!-- Značková písma. Načítají se tady, ne v CSS — viz komentář
          v src/styles/tokens/fonts.css. -->

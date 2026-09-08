@@ -6,6 +6,7 @@ import Hero from '../components/Hero.astro'
 import Pas from '../components/Pas.astro'
 import KartaDivize from '../components/KartaDivize.astro'
 import KartaZakladatele from '../components/KartaZakladatele.astro'
+import Ikona from '../components/Ikona.astro'
 import {nastaveni, domovskaStranka, divize, zakladatele} from '../lib/queries'
 
 const [site, obsah, seznamDivizi, seznamZakladatelu] = await Promise.all([
@@ -86,8 +87,8 @@ const [site, obsah, seznamDivizi, seznamZakladatelu] = await Promise.all([
         <div class="why">
           {
             obsah.duvody?.map((d) => (
-              <div class="reveal">
-                <div class="why__i" />
+              <div class="whycard reveal">
+                <div class="why__ic">{d.ikona && <Ikona jmeno={d.ikona} />}</div>
                 <h3>{d.nadpis}</h3>
                 <p>{d.text}</p>
               </div>

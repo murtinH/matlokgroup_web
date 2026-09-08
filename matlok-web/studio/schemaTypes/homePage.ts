@@ -119,6 +119,18 @@ export const homePage = defineType({
         fields: [
           {name: 'nadpis', title: 'Nadpis', type: 'string'},
           {name: 'text', title: 'Text', type: 'text', rows: 4},
+          {
+            name: 'ikona', title: 'Ikona', type: 'string',
+            options: {
+              list: [
+                {title: 'Vlastní provoz', value: 'provoz'},
+                {title: 'Rychlost', value: 'rychlost'},
+                {title: 'Trvanlivost', value: 'trvanlivost'},
+                {title: 'Hodiny', value: 'hodiny'},
+                {title: 'Platební karta', value: 'karta'},
+              ],
+            },
+          },
         ],
         preview: {select: {title: 'nadpis', subtitle: 'text'}},
       }],

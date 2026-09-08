@@ -96,14 +96,18 @@ const [site, obsah, nabidka] = await Promise.all([nastaveni(), strankaMatlok(), 
       </div>
     </section>
 
-    <section class="section ink">
-      <div class="container" style="max-width: var(--container-lg)">
-        <p class="eyebrow eyebrow--onink">{obsah.ctaEyebrow}</p>
-        <h2>{obsah.ctaNadpis}</h2>
-        <p class="lead lead--onink">{obsah.ctaLead}</p>
-        <div class="ctas" style="align-items: center">
-          {obsah.ctaTlacitko && <a class="btn btn--primary" href={obsah.ctaTlacitko.odkaz}>{obsah.ctaTlacitko.text}</a>}
-          {obsah.ctaPoznamka && <span class="cta__pozn">{obsah.ctaPoznamka}</span>}
+    <section class="section" style="padding-top: 0">
+      <div class="container">
+        <div class="vyzva reveal">
+          <div>
+            <p class="eyebrow eyebrow--onink">{obsah.ctaEyebrow}</p>
+            <h2>{obsah.ctaNadpis}</h2>
+            <p>{obsah.ctaLead}</p>
+          </div>
+          <div class="vyzva__akce">
+            {obsah.ctaTlacitko && <a class="btn btn--primary" href={obsah.ctaTlacitko.odkaz}>{obsah.ctaTlacitko.text}</a>}
+            {obsah.ctaPoznamka && <p class="vyzva__pozn">{obsah.ctaPoznamka}</p>}
+          </div>
         </div>
       </div>
     </section>

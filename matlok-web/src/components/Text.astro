@@ -14,12 +14,19 @@ interface Span {
   marks?: string[]
 }
 
+interface Znacka {
+  _key: string
+  _type: string
+  href?: string
+}
+
 interface Blok {
   _type: string
   _key: string
   style?: string
   listItem?: string
   children?: Span[]
+  markDefs?: Znacka[]
   popisek?: string
   zahlavi?: string[]
   kodovySloupec?: number
@@ -33,6 +40,13 @@ interface Props {
 const {bloky} = Astro.props
 
 type Skupina = {typ: 'seznam'; polozky: Blok[]} | {typ: 'blok'; blok: Blok}
+
+/** Odkaz v textu přichází jako značka v markDefs, na kterou úsek odkazuje klíčem. */
+function odkazUseku(blok: Blok, usek: Span): string | undefined {
+  const klic = usek.marks?.find((m) => m !== 'strong' && m !== 'em')
+  if (!klic) return undefined
+  return blok.markDefs?.find((z) => z._key === klic)?.href
+}
 
 const skupiny: Skupina[] = []
 for (const blok of bloky) {
@@ -52,9 +66,11 @@ for (const blok of bloky) {
       <ul>
         {skupina.polozky.map((polozka) => (
           <li>
-            {polozka.children?.map((usek) =>
-              usek.marks?.includes('strong') ? <strong>{usek.text}</strong> : usek.text,
-            )}
+            {polozka.children?.map((usek) => {
+              const href = odkazUseku(polozka, usek)
+              const obsah = usek.marks?.includes('strong') ? <strong>{usek.text}</strong> : usek.text
+              return href ? <a href={href}>{obsah}</a> : obsah
+            })}
           </li>
         ))}
       </ul>
@@ -81,9 +97,11 @@ for (const blok of bloky) {
       <h3>{skupina.blok.children?.map((u) => u.text)}</h3>
     ) : (
       <p>
-        {skupina.blok.children?.map((usek) =>
-          usek.marks?.includes('strong') ? <strong>{usek.text}</strong> : usek.text,
-        )}
+        {skupina.blok.children?.map((usek) => {
+          const href = odkazUseku(skupina.blok, usek)
+          const obsah = usek.marks?.includes('strong') ? <strong>{usek.text}</strong> : usek.text
+          return href ? <a href={href}>{obsah}</a> : obsah
+        })}
       </p>
     ),
   )
