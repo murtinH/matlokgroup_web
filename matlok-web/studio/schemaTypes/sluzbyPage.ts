@@ -63,6 +63,9 @@ export const sluzbyPage = defineType({
       }],
       validation: (r) => r.max(4),
     }),
+    defineField({name: 'ctaEyebrow', title: 'Výzva — nadřádek', type: 'string', group: 'vzorek'}),
+    defineField({name: 'ctaNadpis', title: 'Výzva — nadpis', type: 'string', group: 'vzorek'}),
+    defineField({name: 'ctaLead', title: 'Výzva — text', type: 'text', rows: 3, group: 'vzorek'}),
     defineField({
       name: 'ctaTlacitko', title: 'Tlačítko', type: 'object', group: 'vzorek',
       fields: [

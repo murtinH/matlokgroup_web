@@ -108,9 +108,16 @@ const cislo = (i: number) => String(i + 1).padStart(2, '0')
           }
         </div>
 
-        <div class="ctas" style="align-items: center; margin-top: var(--space-8)">
-          {obsah.ctaTlacitko && <a class="btn btn--primary" href={obsah.ctaTlacitko.odkaz}>{obsah.ctaTlacitko.text}</a>}
-          {obsah.ctaPoznamka && <span class="cta__pozn cta__pozn--svetla">{obsah.ctaPoznamka}</span>}
+        <div class="vyzva reveal">
+          <div>
+            <p class="eyebrow eyebrow--onink">{obsah.ctaEyebrow}</p>
+            <h2>{obsah.ctaNadpis}</h2>
+            <p>{obsah.ctaLead}</p>
+          </div>
+          <div class="vyzva__akce">
+            {obsah.ctaTlacitko && <a class="btn btn--primary" href={obsah.ctaTlacitko.odkaz}>{obsah.ctaTlacitko.text}</a>}
+            {obsah.ctaPoznamka && <p class="vyzva__pozn">{obsah.ctaPoznamka}</p>}
+          </div>
         </div>
       </div>
     </section>

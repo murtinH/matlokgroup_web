@@ -83,7 +83,7 @@ export interface HomePage {
   vize?: {nadpis: string; text: string}
   procEyebrow: string
   procNadpis: string
-  duvody?: {nadpis: string; text: string}[]
+  duvody?: {nadpis: string; text: string; ikona?: string}[]
 }
 
 export interface Product {
@@ -145,6 +145,9 @@ export interface SluzbyPage {
   vzorekNadpis?: string
   vzorekText?: string
   vzorekFakta?: {hodnota: string; popisek: string}[]
+  ctaEyebrow?: string
+  ctaNadpis?: string
+  ctaLead?: string
   ctaTlacitko?: Odkaz
   ctaPoznamka?: string
 }
