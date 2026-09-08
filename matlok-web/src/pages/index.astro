@@ -5,7 +5,7 @@ import Paticka from '../components/Paticka.astro'
 import Hero from '../components/Hero.astro'
 import Pas from '../components/Pas.astro'
 import KartaDivize from '../components/KartaDivize.astro'
-import KartaZakladatele from '../components/KartaZakladatele.astro'
+import PasZakladatele from '../components/PasZakladatele.astro'
 import Ikona from '../components/Ikona.astro'
 import {nastaveni, domovskaStranka, divize, zakladatele} from '../lib/queries'
 
@@ -50,8 +50,8 @@ const [site, obsah, seznamDivizi, seznamZakladatelu] = await Promise.all([
           <p class="lead">{obsah.zakladateleLead}</p>
         </div>
 
-        <div class="founders">
-          {seznamZakladatelu.map((z) => <KartaZakladatele zakladatel={z} />)}
+        <div class="zakladatele">
+          {seznamZakladatelu.map((z) => <PasZakladatele zakladatel={z} />)}
         </div>
 
         {
