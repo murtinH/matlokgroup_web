@@ -73,22 +73,41 @@ const cislo = (i: number) => String(i + 1).padStart(2, '0')
             ))
           }
         </div>
+      </div>
+    </section>
+
+    {/*
+      Jak to stavíme — samostatná sekce, ne patka sekce Služby.
+      Původně to byl proužek bez nadpisu, bez karet a bez nadpisové
+      semantiky; vedle Filozofie a Služeb vypadal jako poznámka pod čarou.
+    */}
+    <section class="section" id="proces">
+      <div class="container">
+        <div class="sechead reveal">
+          <p class="eyebrow">{obsah.procesEyebrow}</p>
+          <h2>{obsah.procesNadpis}</h2>
+          {obsah.procesLead && <p class="lead">{obsah.procesLead}</p>}
+        </div>
 
         {
           obsah.proces && obsah.proces.length > 0 && (
-            <div class="rail reveal">
+            <div class="kroky">
               {obsah.proces.map((krok, i) => (
-                <div>
-                  <div class="step__n">{cislo(i)}</div>
-                  <div class="step__t">{krok.nadpis}</div>
-                  <div class="step__d">{krok.popis}</div>
-                </div>
+                <article class="krok reveal">
+                  <div class="krok__n">{cislo(i)}</div>
+                  <h3>{krok.nadpis}</h3>
+                  <p>{krok.popis}</p>
+                </article>
               ))}
             </div>
           )
         }
+      </div>
+    </section>
 
-        <div class="sample reveal" style="margin-top: var(--space-9)">
+    <section class="section" style="background: var(--neutral-0)">
+      <div class="container">
+        <div class="sample reveal">
           <div>
             <p class="eyebrow eyebrow--onink">{obsah.vzorekEyebrow}</p>
             <h2>{obsah.vzorekNadpis}</h2>
@@ -116,7 +135,6 @@ const cislo = (i: number) => String(i + 1).padStart(2, '0')
           </div>
           <div class="vyzva__akce">
             {obsah.ctaTlacitko && <a class="btn btn--primary" href={obsah.ctaTlacitko.odkaz}>{obsah.ctaTlacitko.text}</a>}
-            {obsah.ctaPoznamka && <p class="vyzva__pozn">{obsah.ctaPoznamka}</p>}
           </div>
         </div>
       </div>

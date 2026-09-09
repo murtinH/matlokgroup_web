@@ -96,7 +96,6 @@ const [site, obsah, nabidka] = await Promise.all([nastaveni(), strankaMatlok(), 
           </div>
           <div class="vyzva__akce">
             {obsah.ctaTlacitko && <a class="btn btn--primary" href={obsah.ctaTlacitko.odkaz}>{obsah.ctaTlacitko.text}</a>}
-            {obsah.ctaPoznamka && <p class="vyzva__pozn">{obsah.ctaPoznamka}</p>}
           </div>
         </div>
       </div>

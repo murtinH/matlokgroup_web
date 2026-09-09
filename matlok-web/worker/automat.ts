@@ -11,9 +11,12 @@ import {SANITY_API_VERZE, SANITY_DATASET, SANITY_PROJECT_ID} from '../src/lib/ko
  *    přijde dvakrát, takže se řádky seskupují podle produktu a zásoby sčítají.
  *
  * 2. Ven jde jen název, cena, kategorie a zásoba. Objednávky se čtou kvůli
- *    prodávanosti, ale zůstává z nich pouhé pořadí — žádné částky, počty
- *    ani údaje o zákaznících. Zadání to zakazuje a klíč má partner:write,
- *    takže čím míň se z něj dostane ven, tím líp.
+ *    prodávanosti a kvůli jedinému souhrnnému číslu — kolik kusů se celkem
+ *    prodalo. Nic dalšího z nich neodchází: žádné částky, žádné e-maily,
+ *    žádné jednotlivé objednávky. Ten součet je vědomá výjimka, ne
+ *    opomenutí; je to agregát přes celý automat, ze kterého nejde nic
+ *    odvodit o konkrétním zákazníkovi. Klíč má partner:write, takže čím
+ *    míň se z něj dostane ven, tím líp.
  *
  * 3. Když API neodpoví, vrátí se poslední známý stav ze Sanity. Web kvůli
  *    cizí službě nespadne.
@@ -21,11 +24,22 @@ import {SANITY_API_VERZE, SANITY_DATASET, SANITY_PROJECT_ID} from '../src/lib/ko
 
 const BASE = 'https://www.mujautomat.cz/api/partner/v1'
 
-/** Deset až patnáct minut podle zadání; volíme střed. */
-const CACHE_SEKUND = 12 * 60
+/**
+ * Zadání chtělo deset až patnáct minut. Od chvíle, kdy se prochází celá
+ * historie objednávek, je jedno volání násobně dražší než dřív a prodané
+ * kusy se po minutách nemění — třicet minut je rozumný kompromis.
+ */
+const CACHE_SEKUND = 30 * 60
 
-/** Kolik posledních objednávek se čte pro pořadí prodávanosti. */
+/** Kolik objednávek se natáhne najednou. Stránkuje se přes cursor. */
 const OBJEDNAVEK = 100
+
+/**
+ * Strop na počet stránek. Pojistka proti nekonečné smyčce, kdyby API
+ * vracelo hasMore navždy. Při stovce objednávek na stránku to je čtyři
+ * tisíce objednávek — na jeden automat s rezervou.
+ */
+const STRANEK_NEJVYS = 40
 
 /** Kolik produktů dostane odznak „nejprodávanější". */
 const TOP = 3
@@ -44,6 +58,12 @@ export interface Nabidka {
   zdroj: 'api' | 'zaloha'
   aktualizovano: string
   polozky: Polozka[]
+  /**
+   * Kolik kusů se z automatu celkem prodalo od spuštění.
+   * null znamená „nepodařilo se zjistit“ — web pak nechá stát hodnotu
+   * uloženou v Sanity místo aby ukázal nulu.
+   */
+  prodano: number | null
 }
 
 /**
@@ -95,36 +115,61 @@ async function zavolej(env: Env, cesta: string): Promise<unknown> {
 }
 
 /**
- * Pořadí prodávanosti z posledních zaplacených objednávek.
- * Z odpovědi se bere výhradně productId a množství; všechno ostatní —
- * jména, e-maily, částky — se zahazuje hned při průchodu.
+ * Průchod zaplacenými objednávkami. Vrací dvě věci naráz, protože obojí
+ * vzniká ze stejných dat a druhý průchod by jen zdvojil volání API:
+ *
+ *  - `top`      — ID nejprodávanějších produktů, kvůli odznaku v nabídce
+ *  - `prodano`  — kolik kusů se celkem prodalo, kvůli číslu na titulce
+ *
+ * Z odpovědi se bere výhradně productId a množství. Jména, e-maily
+ * i částky se zahazují hned při průchodu a nikam se nepředávají.
+ *
+ * Stránkuje se přes cursor, dokud API hlásí hasMore. Bez toho by součet
+ * říkal „posledních sto objednávek“, a to není celkový počet prodaných kusů.
  */
-async function poradiProdavanosti(env: Env, machineId: string): Promise<Set<string>> {
+async function prodeje(env: Env, machineId: string): Promise<{top: Set<string>; prodano: number | null}> {
   try {
-    const data = (await zavolej(
-      env,
-      `/machines/${machineId}/orders?limit=${OBJEDNAVEK}&paymentStatus=paid`,
-    )) as {orders?: Record<string, unknown>[]}
+    const naProdukt = new Map<string, number>()
+    let celkem = 0
+    let cursor: string | undefined
+    let stranka = 0
 
-    const prodeje = new Map<string, number>()
-    for (const objednavka of data.orders ?? []) {
-      const polozky = (objednavka.items ?? []) as Record<string, unknown>[]
-      for (const p of polozky) {
-        const id = typeof p.productId === 'string' ? p.productId : null
-        const mnozstvi = cislo(p.quantity) ?? 0
-        if (id) prodeje.set(id, (prodeje.get(id) ?? 0) + mnozstvi)
+    do {
+      const parametry = new URLSearchParams({limit: String(OBJEDNAVEK), paymentStatus: 'paid'})
+      if (cursor) parametry.set('cursor', cursor)
+
+      const data = (await zavolej(env, `/machines/${machineId}/orders?${parametry}`)) as {
+        orders?: Record<string, unknown>[]
+        nextCursor?: string
+        hasMore?: boolean
       }
-    }
 
-    return new Set(
-      [...prodeje.entries()]
+      for (const objednavka of data.orders ?? []) {
+        const polozky = (objednavka.items ?? []) as Record<string, unknown>[]
+        for (const p of polozky) {
+          const mnozstvi = cislo(p.quantity) ?? 0
+          celkem += mnozstvi
+          const id = typeof p.productId === 'string' ? p.productId : null
+          if (id) naProdukt.set(id, (naProdukt.get(id) ?? 0) + mnozstvi)
+        }
+      }
+
+      cursor = data.hasMore ? data.nextCursor : undefined
+      stranka += 1
+    } while (cursor && stranka < STRANEK_NEJVYS)
+
+    const top = new Set(
+      [...naProdukt.entries()]
         .sort((a, b) => b[1] - a[1])
         .slice(0, TOP)
         .map(([id]) => id),
     )
+
+    return {top, prodano: celkem}
   } catch {
-    // Prodávanost je ozdoba, ne podstata. Když se nepodaří, nabídka jede dál.
-    return new Set()
+    // Prodávanost i počet jsou ozdoba, ne podstata. Když se nepodaří,
+    // nabídka jede dál a číslo zůstane takové, jaké je v Sanity.
+    return {top: new Set(), prodano: null}
   }
 }
 
@@ -198,7 +243,9 @@ async function zaloha(): Promise<Nabidka> {
     nejprodavanejsi: Boolean(p.nejprodavanejsi),
   }))
 
-  return {ok: true, zdroj: 'zaloha', aktualizovano: new Date().toISOString(), polozky}
+  // Prodané kusy jdou jen z API. Ze Sanity se nedopočítávají — číslo, které
+  // by se zaseklo na poslední známé hodnotě, je horší než žádné.
+  return {ok: true, zdroj: 'zaloha', aktualizovano: new Date().toISOString(), polozky, prodano: null}
 }
 
 export async function nabidkaAutomatu(request: Request, env: Env): Promise<Response> {
@@ -222,9 +269,9 @@ export async function nabidkaAutomatu(request: Request, env: Env): Promise<Respo
 
     if (!machineId || machineId === 'DOPLNIT') throw new Error('V Sanity není machineId.')
 
-    const [detail, top] = await Promise.all([
+    const [detail, {top, prodano}] = await Promise.all([
       zavolej(env, `/machines/${machineId}`) as Promise<Record<string, unknown>>,
-      poradiProdavanosti(env, machineId),
+      prodeje(env, machineId),
     ])
 
     // Seznam spirál může být pod několika názvy; bereme první pole objektů.
@@ -236,7 +283,7 @@ export async function nabidkaAutomatu(request: Request, env: Env): Promise<Respo
     const polozky = seskup(seznam, top)
     if (polozky.length === 0) throw new Error('API nevrátilo žádné zboží.')
 
-    nabidka = {ok: true, zdroj: 'api', aktualizovano: new Date().toISOString(), polozky}
+    nabidka = {ok: true, zdroj: 'api', aktualizovano: new Date().toISOString(), polozky, prodano}
   } catch (chyba) {
     console.error('Nabídka z Partner API selhala:', chyba)
     nabidka = await zaloha()

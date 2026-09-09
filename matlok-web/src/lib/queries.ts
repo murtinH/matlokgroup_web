@@ -1,4 +1,4 @@
-import {sanity} from './sanity'
+import {sanity, type Obrazek} from './sanity'
 
 export interface Odkaz {
   text: string
@@ -7,14 +7,13 @@ export interface Odkaz {
 
 export interface SiteSettings {
   nazev: string
-  logo?: unknown
-  logoInverzni?: unknown
+  logo?: Obrazek
+  logoInverzni?: Obrazek
   adresa: string
   ico: string
   spisovaZnacka?: string
   telefon: string
   email: string
-  neplatceDph: boolean
   popisPaticky?: string
   socialniSite?: {sit: string; url: string}[]
   navigace?: Odkaz[]
@@ -30,7 +29,7 @@ export interface SiteSettings {
   }
   analytikaToken?: string
   turnstileSiteKey?: string
-  ogObrazek?: unknown
+  ogObrazek?: Obrazek
 }
 
 export interface Division {
@@ -58,7 +57,7 @@ export interface Statistika {
   popisek: string
   maleFormatovani?: boolean
   /** Když je vyplněno, hodnotu přepíše živý údaj z automatu. */
-  zdroj?: 'pocet' | 'dostupnost'
+  zdroj?: 'pocet' | 'prodano'
 }
 
 export interface HomePage {
@@ -84,7 +83,6 @@ export interface HomePage {
   zakladateleNadpis: string
   zakladateleNadpisTip: string
   zakladateleLead: string
-  pribehy?: {nadpis: string; text: string}[]
   vize?: {nadpis: string; text: string}
   procEyebrow: string
   procNadpis: string
@@ -108,7 +106,7 @@ export interface MatlokPage {
   heroTlacitka?: Odkaz[]
   foto?: unknown
   fotoPopisek?: string
-  kpi?: {hodnota: string; popisek: string; zdroj?: 'pocet' | 'dostupnost'}[]
+  kpi?: {hodnota: string; popisek: string; zdroj?: 'pocet' | 'prodano'}[]
   nabidkaNadpis: string
   nabidkaStitek?: string
   kategorie?: {text: string; hodnota: string}[]
@@ -119,7 +117,6 @@ export interface MatlokPage {
   ctaNadpis?: string
   ctaLead?: string
   ctaTlacitko?: Odkaz
-  ctaPoznamka?: string
 }
 
 export interface Service {
@@ -145,6 +142,9 @@ export interface SluzbyPage {
   filozofieLead?: string
   sluzbyEyebrow?: string
   sluzbyNadpis?: string
+  procesEyebrow?: string
+  procesNadpis?: string
+  procesLead?: string
   proces?: {nadpis: string; popis: string}[]
   vzorekEyebrow?: string
   vzorekNadpis?: string
@@ -154,7 +154,6 @@ export interface SluzbyPage {
   ctaNadpis?: string
   ctaLead?: string
   ctaTlacitko?: Odkaz
-  ctaPoznamka?: string
 }
 
 export interface Faq {
@@ -169,7 +168,7 @@ export interface KontaktPage {
   heroNadpis: string
   heroNadpisTip: string
   heroLead: string
-  popiskyUdaju?: {spolecnost?: string; sidlo?: string; ico?: string; telefon?: string; email?: string}
+  popiskyUdaju?: {spolecnost?: string; sidlo?: string; ico?: string; zapis?: string; telefon?: string; email?: string}
   nadpisyKroku?: {zamer?: string; sluzby?: string; lokalita?: string; kontakt?: string}
   zamery?: {text: string; popis?: string; hodnota: string}[]
   sluzbyVolby?: {text: string; hodnota: string}[]

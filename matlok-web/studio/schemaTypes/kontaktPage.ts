@@ -40,6 +40,7 @@ export const kontaktPage = defineType({
         {name: 'spolecnost', title: 'Společnost', type: 'string'},
         {name: 'sidlo', title: 'Sídlo', type: 'string'},
         {name: 'ico', title: 'IČO', type: 'string'},
+        {name: 'zapis', title: 'Zápis v obchodním rejstříku', type: 'string'},
         {name: 'telefon', title: 'Telefon', type: 'string'},
         {name: 'email', title: 'E-mail', type: 'string'},
       ],

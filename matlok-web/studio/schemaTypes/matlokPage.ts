@@ -21,7 +21,7 @@ const dvojice = {
       options: {
         list: [
           {title: 'Počet produktů v nabídce', value: 'pocet'},
-          {title: 'Dostupnost v procentech', value: 'dostupnost'},
+          {title: 'Prodaných kusů celkem', value: 'prodano'},
         ],
       },
     },
@@ -146,7 +146,6 @@ export const matlokPage = defineType({
         {name: 'odkaz', title: 'Odkaz', type: 'string'},
       ],
     }),
-    defineField({name: 'ctaPoznamka', title: 'Poznámka vedle tlačítka', type: 'string', group: 'cta'}),
   ],
   preview: {prepare: () => ({title: 'Stránka Matlok'})},
 })

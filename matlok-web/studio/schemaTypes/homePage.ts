@@ -20,11 +20,11 @@ const dvojiceCislo = {
       title: 'Brát hodnotu z automatu',
       type: 'string',
       description:
-        'Když je vyplněno, hodnotu přepíše živý údaj z Partner API. Ručně zadaná hodnota slouží jako záloha, než se data načtou.',
+        'Když je vyplněno, hodnotu přepíše živý údaj z Partner API. Ručně zadaná hodnota slouží jako záloha, než se data načtou. U prodaných kusů zálohu nevyplňujte číslem — to nikdo neověří; nechte pomlčku.',
       options: {
         list: [
           {title: 'Počet produktů v nabídce', value: 'pocet'},
-          {title: 'Dostupnost v procentech', value: 'dostupnost'},
+          {title: 'Prodaných kusů celkem', value: 'prodano'},
         ],
       },
     },
@@ -87,7 +87,6 @@ export const homePage = defineType({
         {name: 'poznamka', title: 'Poznámka pod čarou', type: 'string'},
       ],
     }),
-
     defineField({name: 'pas', title: 'Běžící pás', type: 'array', of: [{type: 'string'}],
       options: {layout: 'tags'}, group: 'hero',
       description: 'Krátké názvy oborů. Na webu se opakují dokola.'}),
@@ -102,18 +101,6 @@ export const homePage = defineType({
     defineField({name: 'zakladateleNadpis', title: 'Nadpis — první řádek', type: 'string', group: 'zakladatele'}),
     defineField({name: 'zakladateleNadpisTip', title: 'Nadpis — druhý řádek', type: 'string', group: 'zakladatele'}),
     defineField({name: 'zakladateleLead', title: 'Perex', type: 'text', rows: 4, group: 'zakladatele'}),
-    defineField({
-      name: 'pribehy', title: 'Tři odstavce pod kartami', type: 'array', group: 'zakladatele',
-      of: [{
-        type: 'object', name: 'pribeh',
-        fields: [
-          {name: 'nadpis', title: 'Nadpis', type: 'string'},
-          {name: 'text', title: 'Text', type: 'text', rows: 4},
-        ],
-        preview: {select: {title: 'nadpis', subtitle: 'text'}},
-      }],
-      validation: (r) => r.max(3),
-    }),
     defineField({
       name: 'vize', title: 'Vize', type: 'object', group: 'zakladatele',
       fields: [

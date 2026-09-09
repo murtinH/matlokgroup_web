@@ -11,7 +11,8 @@ export const sluzbyPage = defineType({
   groups: [
     {name: 'hero', title: 'Úvod'},
     {name: 'filozofie', title: 'Filozofie'},
-    {name: 'sluzby', title: 'Služby a proces'},
+    {name: 'sluzby', title: 'Služby'},
+    {name: 'proces', title: 'Jak to stavíme'},
     {name: 'vzorek', title: 'Náš vzorek'},
   ],
   fields: [
@@ -34,8 +35,11 @@ export const sluzbyPage = defineType({
 
     defineField({name: 'sluzbyEyebrow', title: 'Nadřádek', type: 'string', group: 'sluzby'}),
     defineField({name: 'sluzbyNadpis', title: 'Nadpis', type: 'string', group: 'sluzby'}),
+    defineField({name: 'procesEyebrow', title: 'Nadřádek', type: 'string', group: 'proces'}),
+    defineField({name: 'procesNadpis', title: 'Nadpis', type: 'string', group: 'proces'}),
+    defineField({name: 'procesLead', title: 'Perex', type: 'text', rows: 3, group: 'proces'}),
     defineField({
-      name: 'proces', title: 'Kroky procesu', type: 'array', group: 'sluzby',
+      name: 'proces', title: 'Kroky procesu', type: 'array', group: 'proces',
       of: [{
         type: 'object', name: 'krok',
         fields: [
@@ -73,7 +77,6 @@ export const sluzbyPage = defineType({
         {name: 'odkaz', title: 'Odkaz', type: 'string'},
       ],
     }),
-    defineField({name: 'ctaPoznamka', title: 'Poznámka vedle tlačítka', type: 'string', group: 'vzorek'}),
   ],
   preview: {prepare: () => ({title: 'Stránka Digital Services'})},
 })
