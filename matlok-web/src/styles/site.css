@@ -951,7 +951,10 @@ img { max-width: 100%; display: block; }
   margin-bottom: var(--space-5);
 }
 .kgrid { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: clamp(2rem, 5vw, 4rem); align-items: start; }
-@media (max-width: 960px) { .kgrid { grid-template-columns: 1fr; } }
+/* minmax(0, …), ne 1fr. Poptávkový formulář má kvůli widgetu Turnstile
+   min-content 342 px a s pouhým 1fr (= minmax(auto, 1fr)) na tuhle šířku
+   roztáhl celý sloupec — na 320px displeji pak stránka přetékala. */
+@media (max-width: 960px) { .kgrid { grid-template-columns: minmax(0, 1fr); } }
 
 .dl { display: grid; gap: var(--space-4); margin-top: var(--space-7); }
 .dl__row {
@@ -1512,7 +1515,34 @@ details.faq p { font-size: var(--text-sm); color: var(--text-secondary); margin:
 
 /* Ochrana formuláře proti robotům. Widget si kreslí Cloudflare sám,
    my mu jen dáme místo v mřížce formuláře. */
+/* Turnstile se vykresluje do rámu o pevných 300 px; užší ho Cloudflare
+   neumí. Na 320px displeji zbývá po odsazení 285 px, takže by widget
+   z formuláře vylezl a stránka by se dala posouvat do strany.
+   Zmenšení je čistě vizuální — kliknutí i ověření fungují dál. */
 .cf-turnstile { min-height: 65px; }
+@media (max-width: 380px) {
+  .cf-turnstile {
+    /* 0,8 × 300 px = 240 px. Uvnitř formuláře zbývá na 320px displeji
+       244,8 px, takže se to vejde i s rezervou. */
+    transform: scale(0.8);
+    transform-origin: left top;
+    /* Transformace mění jen vykreslení, ne rozvržení — box zůstává
+       300 px široký a roztlačil by celý formulář.
+
+       contain: inline-size odřízne vliv obsahu na šířku boxu, takže se
+       widget přestane počítat do min-content formuláře. Samotné
+       overflow-x: clip nestačí: na rozdíl od hidden nedělá ze prvku
+       scroll kontejner a min-content zůstane 300 px.
+
+       Svisle se nic neořezává. Kdyby Turnstile vyrostl (chybová hláška,
+       druhý krok ověření), nesmí se uříznout — je to bezpečnostní prvek.
+       Ztrátu 20 % výšky dorovná záporný spodní okraj. */
+    width: 100%;
+    contain: inline-size;
+    overflow-x: clip;
+    margin-bottom: -13px;
+  }
+}
 
 /* Odkazy na sociální sítě v patičce. Vykreslí se jen ty, které jsou
    vyplněné v Nastavení webu — prázdný seznam nezobrazí nic. */
@@ -1529,3 +1559,260 @@ details.faq p { font-size: var(--text-sm); color: var(--text-secondary); margin:
   transition: all var(--dur-fast) var(--ease-out);
 }
 .socialni a:hover { color: #fff; border-color: var(--accent); background: rgba(32, 185, 232, 0.12); }
+
+/* ============================================================
+   STRÁNKA /cenik
+
+   Nová je jen mřížka cen a červený blok slev. Karty, nadpisy sekcí,
+   výzva k akci i nájezd se berou z toho, co na webu už je: .sechead,
+   .svc/.svcgrid, .krok/.kroky, .vyzva a .reveal.
+
+   Všechny mřížky mají minmax(0, 1fr), ne 1fr. Proč, viz komentář
+   u .prodgrid — nezlomitelné české slovo jinak roztlačí stopu sloupce
+   nad šířku kontejneru.
+   ============================================================ */
+
+/* Věta o DPH a platnosti ceníku. Není to drobná poznámka pod čarou —
+   u neplátce je to podstatná informace o ceně. */
+.dphnote {
+  margin-top: var(--space-6);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  border-left: 3px solid var(--accent);
+  padding-left: var(--space-4);
+  line-height: 1.6;
+}
+.dphnote--pod { margin-top: var(--space-6); }
+
+/* ------------------------------------------------------------ tarify */
+.tarify {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-5);
+  margin-top: var(--space-8);
+}
+/* Rovnou na jeden sloupec. Dva sloupce ze tří by osiřelou kartu položily
+   pod dvojici a zvýrazněný tarif by ztratil prostřední pozici. */
+@media (max-width: 900px) { .tarify { grid-template-columns: minmax(0, 1fr); } }
+
+.tarif {
+  background: var(--neutral-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-xs);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow-wrap: break-word;
+}
+/* Azurový čtverec u horní hrany — stejný motiv jako .krok a .whycard. */
+.tarif::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: var(--space-6);
+  width: 22px;
+  height: 7px;
+  background: var(--accent);
+}
+/* Zvýrazněný tarif se liší rámečkem a stínem, ne barvou. Paleta je
+   zamčená a Winter Red patří slevám na konci stránky. */
+.tarif--hlavni { border-color: var(--accent); box-shadow: var(--shadow-md); }
+.tarif--hlavni::before { width: 32px; height: 8px; }
+
+.tarif__stitek {
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--azure-800);
+  margin-bottom: 0.7em;
+}
+.tarif h3 { font-size: var(--text-base); margin-bottom: var(--space-3); }
+
+/* Vlastní třída, ne .kpitile__v ani .sfact b. Ty dvě animuje počítadlo
+   v Base.astro a cena by tři vteřiny ukazovala číslo, které není pravda —
+   „490 Kč" by naskakovalo od nuly. Na ceníku je to nepřijatelné. */
+.tarif__cena {
+  font-family: var(--font-display);
+  font-weight: var(--fw-black);
+  font-size: var(--text-xl);
+  line-height: 1.05;
+  color: var(--ink-800);
+  margin-bottom: var(--space-5);
+}
+
+/* Odrážky nejsou azurové čtverce — ty jsou motiv pro patku nadpisu
+   a roh karty, ne pro každý řádek (CLAUDE.md). Řádky odděluje linka. */
+.tarif__polozky { list-style: none; margin: 0; padding: 0; display: grid; }
+.tarif__polozky li {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: 1.6;
+  padding: 0.6em 0;
+  border-top: 1px solid var(--border-subtle);
+}
+.tarif__vcene {
+  /* auto přitiskne řádek ke spodní hraně, takže „V ceně" sedí ve všech
+     kartách ve stejné výšce i při různě dlouhých seznamech. */
+  margin: auto 0 0;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+  font-size: var(--text-2xs);
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* ------------------------------------------------------------ doplňkové ceníky */
+.prices {
+  display: grid;
+  /* auto-fit, protože bloků je podle skupiny jeden až tři.
+     min(100%, 20rem) je nutné — samotné minmax(20rem, 1fr) by na úzkém
+     displeji přeteklo, protože 20rem je pevná dolní mez stopy. */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  gap: var(--space-5);
+  margin-top: var(--space-7);
+}
+.priceblok {
+  background: var(--neutral-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-xs);
+  position: relative;
+  overflow-wrap: break-word;
+}
+.priceblok::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: var(--space-6);
+  width: 22px;
+  height: 7px;
+  background: var(--accent);
+}
+.priceblok h3 { font-size: var(--text-base); margin-bottom: var(--space-4); }
+.priceblok__popis {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: 0 0 var(--space-5);
+  line-height: 1.6;
+}
+.priceblok__pozn {
+  margin: var(--space-5) 0 0;
+  font-size: var(--text-2xs);
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.pricelist { display: grid; }
+.priceline {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0 var(--space-4);
+  align-items: baseline;
+  padding: 0.7em 0;
+  border-top: 1px solid var(--border-subtle);
+}
+.priceline:first-child { border-top: 0; padding-top: 0; }
+.priceline__n {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  color: var(--ink-800);
+}
+.priceline__c {
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-sm);
+  color: var(--azure-800);
+  justify-self: end;
+}
+/* Upřesnění je na druhém řádku pod oběma sloupci. */
+.priceline__d {
+  grid-column: 1 / -1;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-top: 0.25em;
+}
+/* Pod 440 px se z dvojice stane dvojřádek — cena vedle dlouhého názvu
+   by jinak sloupec s názvem zmáčkla na dvě slova pod sebou. */
+@media (max-width: 440px) {
+  .priceline { grid-template-columns: minmax(0, 1fr); }
+  .priceline__c { justify-self: start; margin-top: 0.2em; }
+}
+
+/* ------------------------------------------------------------ slevy
+   Jediný blok na webu na Winter Red. Odlišuje poslední sdělení stránky
+   od azurového zbytku, aniž by přibyla barva — --warm je alias pro
+   --red-500 z tokens/colors.css.
+
+   Pozor na kontrast. Na tmavém inkoustu web běžně tlumí sekundární text
+   na rgba(255,255,255,.72), což tam vychází 8,45 : 1. Na Winter Red
+   (#C44536) má ale i .82 jen 3,8 : 1, tedy pod WCAG AA. Text je proto
+   čistě bílý (4,94 : 1) a hierarchii dělá velikost, ne průhlednost.
+   ------------------------------------------------------------ */
+.slevy {
+  background: var(--warm);
+  color: #fff;
+  border-radius: var(--radius-xl);
+  padding: clamp(1.75rem, 4vw, var(--space-9));
+  margin-top: var(--space-9);
+  position: relative;
+  overflow: hidden;
+}
+/* Značkový čtverec zůstává, ale v inkoustu. Azurová na Winter Red je
+   jediná dvojice v paletě, která spolu drnčí; ink je z téže palety. */
+.slevy::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: clamp(1.75rem, 4vw, var(--space-9));
+  width: 32px;
+  height: 8px;
+  background: var(--ink-800);
+}
+/* Nadřádek musí být bílý, ne azurový. --azure-400 má na Winter Red
+   kontrast 2,62 : 1 a je to malé verzálkové písmo — WCAG AA chce 4,5 : 1.
+   Bílá dává 4,94 : 1. */
+.slevy .eyebrow { color: #fff; }
+.slevy h2 { color: #fff; margin-bottom: var(--space-3); }
+.slevy__lead {
+  color: #fff;
+  font-size: var(--text-md);
+  line-height: 1.65;
+  max-width: 60ch;
+  margin: 0 0 var(--space-7);
+}
+.slevy__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-5);
+}
+@media (max-width: 760px) { .slevy__grid { grid-template-columns: minmax(0, 1fr); } }
+.sleva { border-top: 2px solid rgba(255, 255, 255, 0.45); padding-top: var(--space-4); }
+.sleva__v {
+  font-family: var(--font-display);
+  font-weight: var(--fw-black);
+  font-size: var(--text-2xl);
+  line-height: 1;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+.sleva h3 { color: #fff; font-size: var(--text-base); margin: var(--space-3) 0 0.4em; }
+.sleva p { color: #fff; font-size: var(--text-sm); line-height: 1.6; margin: 0; }
+.slevy__pozn { margin: var(--space-7) 0 0; font-size: var(--text-xs); color: #fff; line-height: 1.6; }
+.slevy__akce { margin-top: var(--space-6); }
+/* Bílé tlačítko, ne azurové.
+   Azurová na Winter Red má proti podkladu kontrast 2,16 : 1 — pod hranicí
+   3 : 1, kterou WCAG 1.4.11 žádá po obrysu ovládacího prvku. A je to
+   navíc jediná dvojice v paletě, která spolu drnčí. Bílá dává 4,94 : 1
+   a inkoustový text na ní 15,9 : 1. */
+.slevy__akce .btn--primary { background: #fff; color: var(--ink-800); }
+.slevy__akce .btn--primary:hover { background: var(--snow); box-shadow: none; }
+@media (max-width: 600px) { .slevy__akce .btn { width: 100%; } }

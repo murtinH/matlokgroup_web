@@ -48,6 +48,7 @@ export const homePage = defineType({
     {name: 'divize', title: 'Divize'},
     {name: 'zakladatele', title: 'Zakladatelé'},
     {name: 'proc', title: 'Proč Matlok'},
+    {name: 'seo', title: 'Vyhledávače'},
   ],
   fields: [
     // --- Hero ---
@@ -135,6 +136,18 @@ export const homePage = defineType({
         preview: {select: {title: 'nadpis', subtitle: 'text'}},
       }],
       validation: (r) => r.max(3),
+    }),
+
+    // --- Vyhledávače ---
+    defineField({
+      name: 'seoTitulek', title: 'Titulek pro vyhledávače', type: 'string', group: 'seo',
+      description: 'Prázdné = poskládá se z nadpisu a názvu společnosti. Google zobrazí zhruba 60 znaků.',
+      validation: (rule) => rule.max(60).warning('Delší než 60 znaků Google zkrátí.'),
+    }),
+    defineField({
+      name: 'seoPopis', title: 'Popis pro vyhledávače', type: 'text', rows: 3, group: 'seo',
+      description: 'Prázdné = zkrácený perex. Perexy jsou na popis ve výsledku vyhledávání skoro vždy moc dlouhé. Ideálně 120–155 znaků.',
+      validation: (rule) => rule.max(160).warning('Delší než 160 znaků se ve výsledcích ořízne.'),
     }),
   ],
   preview: {prepare: () => ({title: 'Domovská stránka'})},

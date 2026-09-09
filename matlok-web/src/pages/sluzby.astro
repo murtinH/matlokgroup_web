@@ -3,6 +3,8 @@ import Base from '../layouts/Base.astro'
 import Navigace from '../components/Navigace.astro'
 import Paticka from '../components/Paticka.astro'
 import Ikona from '../components/Ikona.astro'
+import StrukturovanaData from '../components/StrukturovanaData.astro'
+import {drobecky} from '../lib/drobecky'
 import {nastaveni, strankaSluzby, sluzby, principy} from '../lib/queries'
 
 const [site, obsah, seznamSluzeb, seznamPrincipu] = await Promise.all([
@@ -12,6 +14,9 @@ const [site, obsah, seznamSluzeb, seznamPrincipu] = await Promise.all([
   principy(),
 ])
 
+const zaklad = (Astro.site?.href ?? 'https://matlok.cz/').replace(/\/$/, '')
+const uzly = [drobecky(zaklad, [{nazev: 'Digital Services', cesta: '/sluzby'}])]
+
 /** Čísla principů i kroků procesu se odvozují z pořadí, nepíšou se do Sanity. */
 const cislo = (i: number) => String(i + 1).padStart(2, '0')
 ---
@@ -19,6 +24,7 @@ const cislo = (i: number) => String(i + 1).padStart(2, '0')
 <Base nastaveni={site}
   titulek={`Digital Services — ${obsah.heroNadpis} ${obsah.heroNadpisTip}`}
   popis={obsah.heroLead}
+  seo={obsah}
   pozadi="neutral-100"
 >
   <Navigace nastaveni={site} aktivni="/sluzby" />
@@ -142,4 +148,6 @@ const cislo = (i: number) => String(i + 1).padStart(2, '0')
   </main>
 
   <Paticka nastaveni={site} />
+
+  <StrukturovanaData nastaveni={site} uzly={uzly} />
 </Base>

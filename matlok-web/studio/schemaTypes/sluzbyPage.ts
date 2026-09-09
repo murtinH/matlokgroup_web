@@ -14,6 +14,7 @@ export const sluzbyPage = defineType({
     {name: 'sluzby', title: 'Služby'},
     {name: 'proces', title: 'Jak to stavíme'},
     {name: 'vzorek', title: 'Náš vzorek'},
+    {name: 'seo', title: 'Vyhledávače'},
   ],
   fields: [
     defineField({name: 'heroEyebrow', title: 'Nadřádek', type: 'string', group: 'hero',
@@ -76,6 +77,18 @@ export const sluzbyPage = defineType({
         {name: 'text', title: 'Text', type: 'string'},
         {name: 'odkaz', title: 'Odkaz', type: 'string'},
       ],
+    }),
+
+    // --- Vyhledávače ---
+    defineField({
+      name: 'seoTitulek', title: 'Titulek pro vyhledávače', type: 'string', group: 'seo',
+      description: 'Prázdné = poskládá se z nadpisu a názvu společnosti. Google zobrazí zhruba 60 znaků.',
+      validation: (rule) => rule.max(60).warning('Delší než 60 znaků Google zkrátí.'),
+    }),
+    defineField({
+      name: 'seoPopis', title: 'Popis pro vyhledávače', type: 'text', rows: 3, group: 'seo',
+      description: 'Prázdné = zkrácený perex. Perexy jsou na popis ve výsledku vyhledávání skoro vždy moc dlouhé. Ideálně 120–155 znaků.',
+      validation: (rule) => rule.max(160).warning('Delší než 160 znaků se ve výsledcích ořízne.'),
     }),
   ],
   preview: {prepare: () => ({title: 'Stránka Digital Services'})},

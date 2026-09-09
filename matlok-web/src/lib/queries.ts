@@ -60,7 +60,7 @@ export interface Statistika {
   zdroj?: 'pocet' | 'prodano'
 }
 
-export interface HomePage {
+export interface HomePage extends Seo {
   heroEyebrow: string
   heroNadpis: string
   heroNadpisTip: string
@@ -98,7 +98,7 @@ export interface Product {
   nejprodavanejsi?: boolean
 }
 
-export interface MatlokPage {
+export interface MatlokPage extends Seo {
   heroEyebrow: string
   heroNadpis: string
   heroNadpisTip: string
@@ -132,7 +132,7 @@ export interface Principle {
   text: string
 }
 
-export interface SluzbyPage {
+export interface SluzbyPage extends Seo {
   heroEyebrow: string
   heroNadpis: string
   heroNadpisTip: string
@@ -163,7 +163,81 @@ export interface Faq {
   odpoved: string
 }
 
-export interface KontaktPage {
+/** Volitelný ruční přepis titulku a popisu pro vyhledávače. */
+export interface Seo {
+  seoTitulek?: string
+  seoPopis?: string
+}
+
+export interface Tarif {
+  stitek?: string
+  nazev: string
+  cena: string
+  /** Jen pro strukturovaná data. Na stránce se nezobrazuje. */
+  cenaCislo?: number
+  polozky?: string[]
+  vCene?: string
+  zvyraznit?: boolean
+}
+
+export interface BlokCeniku {
+  nadpis: string
+  popis?: string
+  polozky?: {nazev: string; popis?: string; cena?: string}[]
+  poznamka?: string
+}
+
+export interface CenovaSkupina {
+  eyebrow?: string
+  nadpis: string
+  kotva: string
+  lead?: string
+  tarify?: Tarif[]
+  poznamka?: string
+  bloky?: BlokCeniku[]
+}
+
+export interface CenikPage extends Seo {
+  heroEyebrow: string
+  heroNadpis: string
+  heroNadpisTip: string
+  heroLead: string
+  poznamkaDph: string
+  platnost: string
+  /** ISO datum, jen pro strukturovaná data. */
+  platnostOd?: string
+  skupiny?: CenovaSkupina[]
+  automatyEyebrow?: string
+  automatyNadpis?: string
+  automatyLead?: string
+  automatyFaktory?: {nadpis: string; text: string; ikona?: string}[]
+  automatyCtaNadpis?: string
+  automatyCtaLead?: string
+  automatyTlacitko?: Odkaz
+  procesZobrazit?: boolean
+  procesEyebrow?: string
+  procesNadpis?: string
+  proces?: {nadpis: string; popis: string}[]
+  slevyEyebrow?: string
+  slevyNadpis?: string
+  slevyLead?: string
+  slevy?: {hodnota: string; nazev: string; popis?: string}[]
+  slevyPoznamka?: string
+  slevyTlacitko?: Odkaz
+}
+
+/** Automat v terénu. Zatím jediný, ale dotaz počítá s víc než jedním. */
+export interface Machine {
+  nazev: string
+  machineId: string
+  lokalita: string
+  gps?: {lat: number; lng: number}
+  oteviraciDoba?: string
+  platby?: string[]
+  stav: 'live' | 'off'
+}
+
+export interface KontaktPage extends Seo {
   slib?: string
   heroNadpis: string
   heroNadpisTip: string
@@ -188,7 +262,7 @@ export interface KontaktPage {
   poznamkaDph?: string
 }
 
-export interface LegalPage {
+export interface LegalPage extends Seo {
   titulek: string
   slug: {current: string}
   ucinnostOd?: string
@@ -239,6 +313,18 @@ export function sluzby(): Promise<Service[]> {
 
 export function principy(): Promise<Principle[]> {
   return sanity.fetch('*[_type == "principle"] | order(poradi asc)')
+}
+
+export function strankaCenik(): Promise<CenikPage> {
+  return sanity.fetch('*[_id == "cenikPage"][0]')
+}
+
+/**
+ * Automat pro strukturovaná data na /matlok. Zatím je jediný, dotaz ale
+ * bere první v provozu, ať přidání druhého boxu nerozbije stránku.
+ */
+export function automat(): Promise<Machine | null> {
+  return sanity.fetch('*[_type == "machine" && stav == "live"] | order(_id asc)[0]')
 }
 
 export function strankaKontakt(): Promise<KontaktPage> {

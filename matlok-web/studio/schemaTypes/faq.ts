@@ -1,4 +1,5 @@
 import {defineField, defineType} from 'sanity'
+import {zakazBezDph} from './validace'
 
 export const faq = defineType({
   name: 'faq',
@@ -38,13 +39,7 @@ export const faq = defineType({
       rows: 6,
       description:
         'Nikdy nepsat "ceny bez DPH". Společnost není plátcem DPH — ceny jsou konečné.',
-      validation: (rule) =>
-        rule.required().custom((hodnota) => {
-          if (typeof hodnota === 'string' && /bez\s+DPH/i.test(hodnota)) {
-            return 'Nepoužívat "bez DPH". Společnost není plátcem DPH, ceny jsou konečné.'
-          }
-          return true
-        }),
+      validation: (rule) => rule.required().custom(zakazBezDph),
     }),
     defineField({
       name: 'zobrazit',

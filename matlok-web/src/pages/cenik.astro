@@ -1,0 +1,261 @@
+---
+import Base from '../layouts/Base.astro'
+import Navigace from '../components/Navigace.astro'
+import Paticka from '../components/Paticka.astro'
+import Ikona from '../components/Ikona.astro'
+import StrukturovanaData from '../components/StrukturovanaData.astro'
+import {drobecky} from '../lib/drobecky'
+import {nastaveni, strankaCenik} from '../lib/queries'
+
+const [site, obsah] = await Promise.all([nastaveni(), strankaCenik()])
+
+/**
+ * Ceny se nesmí zalomit uprostřed čísla. Redaktor píše obyčejné mezery,
+ * tady se z nich stanou nezlomitelné — „15 000 Kč" zůstane pohromadě
+ * i v úzké kartě na telefonu.
+ */
+const nezlomit = (text?: string) => text?.replace(/ /g, ' ')
+
+/** Čísla kroků se odvozují z pořadí, nepíšou se do Sanity — jako na /sluzby. */
+const cislo = (i: number) => String(i + 1).padStart(2, '0')
+
+const zaklad = (Astro.site?.href ?? 'https://matlok.cz/').replace(/\/$/, '')
+
+/**
+ * Nabídka pro vyhledávače. Bere jen tarify, které mají vyplněné číselné
+ * pole cenaCislo. Cena se nikdy nedopočítává z textu — z „700 Kč/h" by
+ * vyšlo 700 a z „v ceně" NaN, a strojově čitelná cena na ceníku je věc,
+ * u které se hádat nedá.
+ *
+ * valueAddedTaxIncluded se neuvádí vůbec: true i false by u neplátce DPH
+ * tvrdily něco, co není pravda.
+ */
+const katalogy = (obsah.skupiny ?? [])
+  .map((skupina) => {
+    const nabidky = (skupina.tarify ?? [])
+      .filter((t) => typeof t.cenaCislo === 'number')
+      .map((t) => ({
+        '@type': 'Offer',
+        name: t.nazev,
+        url: `${zaklad}/cenik#${skupina.kotva}`,
+        priceSpecification: {
+          '@type': 'PriceSpecification',
+          price: t.cenaCislo,
+          priceCurrency: 'CZK',
+          ...(obsah.platnostOd ? {validFrom: obsah.platnostOd} : {}),
+        },
+      }))
+
+    if (nabidky.length === 0) return null
+
+    return {
+      '@type': 'Service',
+      '@id': `${zaklad}/cenik#${skupina.kotva}`,
+      name: skupina.nadpis,
+      provider: {'@id': `${zaklad}/#organizace`},
+      areaServed: {'@type': 'Country', name: 'Česko'},
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: skupina.eyebrow ?? skupina.nadpis,
+        itemListElement: nabidky,
+      },
+    }
+  })
+  .filter(Boolean)
+
+const uzly = [
+  drobecky(zaklad, [
+    {nazev: 'Digital Services', cesta: '/sluzby'},
+    {nazev: 'Ceník', cesta: '/cenik'},
+  ]),
+  ...katalogy,
+]
+---
+
+<Base
+  nastaveni={site}
+  titulek={`Ceník — ${site.nazev}`}
+  popis={obsah.heroLead}
+  seo={obsah}
+  pozadi="neutral-100"
+>
+  <Navigace nastaveni={site} aktivni="/cenik" />
+
+  <main>
+    <section class="phero">
+      <div class="container">
+        <div class="phero__uvod" style="max-width: 70ch">
+          <p class="eyebrow">{obsah.heroEyebrow}</p>
+          <h1>{obsah.heroNadpis}<br /><span class="tip">{obsah.heroNadpisTip}</span></h1>
+          <p class="lead">{obsah.heroLead}</p>
+          <p class="dphnote">{obsah.poznamkaDph} {obsah.platnost}</p>
+        </div>
+      </div>
+    </section>
+
+    {
+      obsah.skupiny?.map((skupina, poradi) => (
+        <section
+          class="section"
+          id={skupina.kotva}
+          style={poradi % 2 === 1 ? 'background: var(--neutral-0)' : 'padding-top: var(--space-8)'}
+        >
+          <div class="container">
+            <div class="sechead reveal">
+              <p class="eyebrow">{skupina.eyebrow}</p>
+              <h2>{skupina.nadpis}</h2>
+              {skupina.lead && <p class="lead">{skupina.lead}</p>}
+            </div>
+
+            {skupina.tarify && skupina.tarify.length > 0 && (
+              <div class="tarify">
+                {skupina.tarify.map((t) => (
+                  <article class={`tarif reveal${t.zvyraznit ? ' tarif--hlavni' : ''}`}>
+                    {t.stitek && <p class="tarif__stitek">{t.stitek}</p>}
+                    <h3>{t.nazev}</h3>
+                    <p class="tarif__cena">{nezlomit(t.cena)}</p>
+                    {t.polozky && t.polozky.length > 0 && (
+                      <ul class="tarif__polozky">
+                        {t.polozky.map((polozka) => (
+                          <li>{polozka}</li>
+                        ))}
+                      </ul>
+                    )}
+                    {t.vCene && <p class="tarif__vcene">{t.vCene}</p>}
+                  </article>
+                ))}
+              </div>
+            )}
+
+            {skupina.poznamka && <p class="dphnote dphnote--pod">{skupina.poznamka}</p>}
+
+            {skupina.bloky && skupina.bloky.length > 0 && (
+              <div class="prices">
+                {skupina.bloky.map((blok) => (
+                  <section class="priceblok reveal">
+                    <h3>{blok.nadpis}</h3>
+                    {blok.popis && <p class="priceblok__popis">{blok.popis}</p>}
+                    <div class="pricelist">
+                      {blok.polozky?.map((polozka) => (
+                        <div class="priceline">
+                          <div class="priceline__n">{polozka.nazev}</div>
+                          {polozka.cena && <div class="priceline__c">{nezlomit(polozka.cena)}</div>}
+                          {polozka.popis && <div class="priceline__d">{polozka.popis}</div>}
+                        </div>
+                      ))}
+                    </div>
+                    {blok.poznamka && <p class="priceblok__pozn">{blok.poznamka}</p>}
+                  </section>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+      ))
+    }
+
+    <section class="section" id="automaty">
+      <div class="container">
+        <div class="sechead reveal">
+          <p class="eyebrow">{obsah.automatyEyebrow}</p>
+          <h2>{obsah.automatyNadpis}</h2>
+          {obsah.automatyLead && <p class="lead">{obsah.automatyLead}</p>}
+        </div>
+
+        {
+          obsah.automatyFaktory && obsah.automatyFaktory.length > 0 && (
+            <div class="svcgrid">
+              {obsah.automatyFaktory.map((f) => (
+                <article class="svc reveal">
+                  <div class="svc__ic">{f.ikona && <Ikona jmeno={f.ikona} />}</div>
+                  <h3>{f.nadpis}</h3>
+                  <p>{f.text}</p>
+                </article>
+              ))}
+            </div>
+          )
+        }
+
+        <div class="vyzva reveal">
+          <div>
+            <h2>{obsah.automatyCtaNadpis}</h2>
+            <p>{obsah.automatyCtaLead}</p>
+          </div>
+          <div class="vyzva__akce">
+            {
+              obsah.automatyTlacitko && (
+                <a class="btn btn--primary" href={obsah.automatyTlacitko.odkaz}>
+                  {obsah.automatyTlacitko.text}
+                </a>
+              )
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {/*
+      Sekci „Jak to probíhá" schová a vrátí jediné přepnutí v Sanity.
+      Obsah přitom zůstane uložený.
+    */}
+    {
+      obsah.procesZobrazit && obsah.proces && obsah.proces.length > 0 && (
+        <section class="section" id="jak-to-probiha" style="background: var(--neutral-0)">
+          <div class="container">
+            <div class="sechead reveal">
+              <p class="eyebrow">{obsah.procesEyebrow}</p>
+              <h2>{obsah.procesNadpis}</h2>
+            </div>
+            <div class="kroky">
+              {obsah.proces.map((krok, i) => (
+                <article class="krok reveal">
+                  <div class="krok__n">{cislo(i)}</div>
+                  <h3>{krok.nadpis}</h3>
+                  <p>{krok.popis}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      )
+    }
+
+    <section class="section" id="slevy" style="padding-top: 0">
+      <div class="container">
+        <div class="slevy reveal">
+          <p class="eyebrow">{obsah.slevyEyebrow}</p>
+          <h2>{obsah.slevyNadpis}</h2>
+          {obsah.slevyLead && <p class="slevy__lead">{obsah.slevyLead}</p>}
+
+          <div class="slevy__grid">
+            {
+              obsah.slevy?.map((s) => (
+                <article class="sleva">
+                  <div class="sleva__v">{nezlomit(s.hodnota)}</div>
+                  <h3>{s.nazev}</h3>
+                  {s.popis && <p>{s.popis}</p>}
+                </article>
+              ))
+            }
+          </div>
+
+          {obsah.slevyPoznamka && <p class="slevy__pozn">{obsah.slevyPoznamka}</p>}
+
+          {
+            obsah.slevyTlacitko && (
+              <div class="slevy__akce">
+                <a class="btn btn--primary" href={obsah.slevyTlacitko.odkaz}>
+                  {obsah.slevyTlacitko.text}
+                </a>
+              </div>
+            )
+          }
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Paticka nastaveni={site} />
+
+  <StrukturovanaData nastaveni={site} uzly={uzly} />
+</Base>

@@ -98,6 +98,18 @@ export const legalPage = defineType({
       ],
       validation: (rule) => rule.required(),
     }),
+
+    // --- Vyhledávače ---
+    defineField({
+      name: 'seoTitulek', title: 'Titulek pro vyhledávače', type: 'string',
+      description: 'Prázdné = poskládá se z nadpisu a názvu společnosti. Google zobrazí zhruba 60 znaků.',
+      validation: (rule) => rule.max(60).warning('Delší než 60 znaků Google zkrátí.'),
+    }),
+    defineField({
+      name: 'seoPopis', title: 'Popis pro vyhledávače', type: 'text', rows: 3,
+      description: 'Prázdné = zkrácený perex. Perexy jsou na popis ve výsledku vyhledávání skoro vždy moc dlouhé. Ideálně 120–155 znaků.',
+      validation: (rule) => rule.max(160).warning('Delší než 160 znaků se ve výsledcích ořízne.'),
+    }),
   ],
   preview: {
     select: {title: 'titulek', slug: 'slug.current', ucinnostOd: 'ucinnostOd'},
