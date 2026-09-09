@@ -92,7 +92,8 @@ export interface HomePage extends Seo {
 export interface Product {
   nazev: string
   cena: number
-  kategorie: 'drink' | 'snack'
+  /** Volný řetězec, kategorie určuje MůjAutomat. */
+  kategorie: string
   dostupnost: number
   kapacita?: number
   nejprodavanejsi?: boolean
@@ -109,7 +110,6 @@ export interface MatlokPage extends Seo {
   kpi?: {hodnota: string; popisek: string; zdroj?: 'pocet' | 'prodano'}[]
   nabidkaNadpis: string
   nabidkaStitek?: string
-  kategorie?: {text: string; hodnota: string}[]
   nabidkaPoznamka?: string
   hranicePoslednichKusu?: number
   vyhody?: {nadpis: string; text: string; ikona?: string}[]

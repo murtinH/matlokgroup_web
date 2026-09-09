@@ -1816,3 +1816,23 @@ details.faq p { font-size: var(--text-sm); color: var(--text-secondary); margin:
 .slevy__akce .btn--primary { background: #fff; color: var(--ink-800); }
 .slevy__akce .btn--primary:hover { background: var(--snow); box-shadow: none; }
 @media (max-width: 600px) { .slevy__akce .btn { width: 100%; } }
+
+/* Rozbalení celé nabídky automatu. Automat vydává skoro čtyřicet druhů
+   zboží a celý seznam naráz z nabídky udělal nekonečný sloupec. */
+.offer__vic {
+  line-height: normal;
+  margin-top: var(--space-5);
+  width: 100%;
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+  padding: 0.85em 1.5em;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-out);
+}
+.offer__vic:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.5); }
