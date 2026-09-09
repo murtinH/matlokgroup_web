@@ -21,7 +21,7 @@ const dvojice = {
       options: {
         list: [
           {title: 'Počet produktů v nabídce', value: 'pocet'},
-          {title: 'Dostupnost v procentech', value: 'dostupnost'},
+          {title: 'Prodaných kusů celkem', value: 'prodano'},
         ],
       },
     },
@@ -38,6 +38,7 @@ export const matlokPage = defineType({
     {name: 'nabidka', title: 'Nabídka'},
     {name: 'vyhody', title: 'Výhody'},
     {name: 'cta', title: 'Výzva'},
+    {name: 'seo', title: 'Vyhledávače'},
   ],
   fields: [
     defineField({name: 'heroEyebrow', title: 'Nadřádek', type: 'string', group: 'hero',
@@ -146,7 +147,18 @@ export const matlokPage = defineType({
         {name: 'odkaz', title: 'Odkaz', type: 'string'},
       ],
     }),
-    defineField({name: 'ctaPoznamka', title: 'Poznámka vedle tlačítka', type: 'string', group: 'cta'}),
+
+    // --- Vyhledávače ---
+    defineField({
+      name: 'seoTitulek', title: 'Titulek pro vyhledávače', type: 'string', group: 'seo',
+      description: 'Prázdné = poskládá se z nadpisu a názvu společnosti. Google zobrazí zhruba 60 znaků.',
+      validation: (rule) => rule.max(60).warning('Delší než 60 znaků Google zkrátí.'),
+    }),
+    defineField({
+      name: 'seoPopis', title: 'Popis pro vyhledávače', type: 'text', rows: 3, group: 'seo',
+      description: 'Prázdné = zkrácený perex. Perexy jsou na popis ve výsledku vyhledávání skoro vždy moc dlouhé. Ideálně 120–155 znaků.',
+      validation: (rule) => rule.max(160).warning('Delší než 160 znaků se ve výsledcích ořízne.'),
+    }),
   ],
   preview: {prepare: () => ({title: 'Stránka Matlok'})},
 })

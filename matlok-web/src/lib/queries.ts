@@ -1,4 +1,4 @@
-import {sanity} from './sanity'
+import {sanity, type Obrazek} from './sanity'
 
 export interface Odkaz {
   text: string
@@ -7,14 +7,13 @@ export interface Odkaz {
 
 export interface SiteSettings {
   nazev: string
-  logo?: unknown
-  logoInverzni?: unknown
+  logo?: Obrazek
+  logoInverzni?: Obrazek
   adresa: string
   ico: string
   spisovaZnacka?: string
   telefon: string
   email: string
-  neplatceDph: boolean
   popisPaticky?: string
   socialniSite?: {sit: string; url: string}[]
   navigace?: Odkaz[]
@@ -30,7 +29,7 @@ export interface SiteSettings {
   }
   analytikaToken?: string
   turnstileSiteKey?: string
-  ogObrazek?: unknown
+  ogObrazek?: Obrazek
 }
 
 export interface Division {
@@ -58,10 +57,10 @@ export interface Statistika {
   popisek: string
   maleFormatovani?: boolean
   /** Když je vyplněno, hodnotu přepíše živý údaj z automatu. */
-  zdroj?: 'pocet' | 'dostupnost'
+  zdroj?: 'pocet' | 'prodano'
 }
 
-export interface HomePage {
+export interface HomePage extends Seo {
   heroEyebrow: string
   heroNadpis: string
   heroNadpisTip: string
@@ -84,7 +83,6 @@ export interface HomePage {
   zakladateleNadpis: string
   zakladateleNadpisTip: string
   zakladateleLead: string
-  pribehy?: {nadpis: string; text: string}[]
   vize?: {nadpis: string; text: string}
   procEyebrow: string
   procNadpis: string
@@ -100,7 +98,7 @@ export interface Product {
   nejprodavanejsi?: boolean
 }
 
-export interface MatlokPage {
+export interface MatlokPage extends Seo {
   heroEyebrow: string
   heroNadpis: string
   heroNadpisTip: string
@@ -108,7 +106,7 @@ export interface MatlokPage {
   heroTlacitka?: Odkaz[]
   foto?: unknown
   fotoPopisek?: string
-  kpi?: {hodnota: string; popisek: string; zdroj?: 'pocet' | 'dostupnost'}[]
+  kpi?: {hodnota: string; popisek: string; zdroj?: 'pocet' | 'prodano'}[]
   nabidkaNadpis: string
   nabidkaStitek?: string
   kategorie?: {text: string; hodnota: string}[]
@@ -119,7 +117,6 @@ export interface MatlokPage {
   ctaNadpis?: string
   ctaLead?: string
   ctaTlacitko?: Odkaz
-  ctaPoznamka?: string
 }
 
 export interface Service {
@@ -135,7 +132,7 @@ export interface Principle {
   text: string
 }
 
-export interface SluzbyPage {
+export interface SluzbyPage extends Seo {
   heroEyebrow: string
   heroNadpis: string
   heroNadpisTip: string
@@ -145,6 +142,9 @@ export interface SluzbyPage {
   filozofieLead?: string
   sluzbyEyebrow?: string
   sluzbyNadpis?: string
+  procesEyebrow?: string
+  procesNadpis?: string
+  procesLead?: string
   proces?: {nadpis: string; popis: string}[]
   vzorekEyebrow?: string
   vzorekNadpis?: string
@@ -154,7 +154,6 @@ export interface SluzbyPage {
   ctaNadpis?: string
   ctaLead?: string
   ctaTlacitko?: Odkaz
-  ctaPoznamka?: string
 }
 
 export interface Faq {
@@ -164,12 +163,86 @@ export interface Faq {
   odpoved: string
 }
 
-export interface KontaktPage {
+/** Volitelný ruční přepis titulku a popisu pro vyhledávače. */
+export interface Seo {
+  seoTitulek?: string
+  seoPopis?: string
+}
+
+export interface Tarif {
+  stitek?: string
+  nazev: string
+  cena: string
+  /** Jen pro strukturovaná data. Na stránce se nezobrazuje. */
+  cenaCislo?: number
+  polozky?: string[]
+  vCene?: string
+  zvyraznit?: boolean
+}
+
+export interface BlokCeniku {
+  nadpis: string
+  popis?: string
+  polozky?: {nazev: string; popis?: string; cena?: string}[]
+  poznamka?: string
+}
+
+export interface CenovaSkupina {
+  eyebrow?: string
+  nadpis: string
+  kotva: string
+  lead?: string
+  tarify?: Tarif[]
+  poznamka?: string
+  bloky?: BlokCeniku[]
+}
+
+export interface CenikPage extends Seo {
+  heroEyebrow: string
+  heroNadpis: string
+  heroNadpisTip: string
+  heroLead: string
+  poznamkaDph: string
+  platnost: string
+  /** ISO datum, jen pro strukturovaná data. */
+  platnostOd?: string
+  skupiny?: CenovaSkupina[]
+  automatyEyebrow?: string
+  automatyNadpis?: string
+  automatyLead?: string
+  automatyFaktory?: {nadpis: string; text: string; ikona?: string}[]
+  automatyCtaNadpis?: string
+  automatyCtaLead?: string
+  automatyTlacitko?: Odkaz
+  procesZobrazit?: boolean
+  procesEyebrow?: string
+  procesNadpis?: string
+  proces?: {nadpis: string; popis: string}[]
+  slevyEyebrow?: string
+  slevyNadpis?: string
+  slevyLead?: string
+  slevy?: {hodnota: string; nazev: string; popis?: string}[]
+  slevyPoznamka?: string
+  slevyTlacitko?: Odkaz
+}
+
+/** Automat v terénu. Zatím jediný, ale dotaz počítá s víc než jedním. */
+export interface Machine {
+  nazev: string
+  machineId: string
+  lokalita: string
+  gps?: {lat: number; lng: number}
+  oteviraciDoba?: string
+  platby?: string[]
+  stav: 'live' | 'off'
+}
+
+export interface KontaktPage extends Seo {
   slib?: string
   heroNadpis: string
   heroNadpisTip: string
   heroLead: string
-  popiskyUdaju?: {spolecnost?: string; sidlo?: string; ico?: string; telefon?: string; email?: string}
+  popiskyUdaju?: {spolecnost?: string; sidlo?: string; ico?: string; zapis?: string; telefon?: string; email?: string}
   nadpisyKroku?: {zamer?: string; sluzby?: string; lokalita?: string; kontakt?: string}
   zamery?: {text: string; popis?: string; hodnota: string}[]
   sluzbyVolby?: {text: string; hodnota: string}[]
@@ -189,7 +262,7 @@ export interface KontaktPage {
   poznamkaDph?: string
 }
 
-export interface LegalPage {
+export interface LegalPage extends Seo {
   titulek: string
   slug: {current: string}
   ucinnostOd?: string
@@ -240,6 +313,18 @@ export function sluzby(): Promise<Service[]> {
 
 export function principy(): Promise<Principle[]> {
   return sanity.fetch('*[_type == "principle"] | order(poradi asc)')
+}
+
+export function strankaCenik(): Promise<CenikPage> {
+  return sanity.fetch('*[_id == "cenikPage"][0]')
+}
+
+/**
+ * Automat pro strukturovaná data na /matlok. Zatím je jediný, dotaz ale
+ * bere první v provozu, ať přidání druhého boxu nerozbije stránku.
+ */
+export function automat(): Promise<Machine | null> {
+  return sanity.fetch('*[_type == "machine" && stav == "live"] | order(_id asc)[0]')
 }
 
 export function strankaKontakt(): Promise<KontaktPage> {

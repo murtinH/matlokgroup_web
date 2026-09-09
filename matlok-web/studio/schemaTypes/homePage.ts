@@ -20,11 +20,11 @@ const dvojiceCislo = {
       title: 'Brát hodnotu z automatu',
       type: 'string',
       description:
-        'Když je vyplněno, hodnotu přepíše živý údaj z Partner API. Ručně zadaná hodnota slouží jako záloha, než se data načtou.',
+        'Když je vyplněno, hodnotu přepíše živý údaj z Partner API. Ručně zadaná hodnota slouží jako záloha, než se data načtou. U prodaných kusů zálohu nevyplňujte číslem — to nikdo neověří; nechte pomlčku.',
       options: {
         list: [
           {title: 'Počet produktů v nabídce', value: 'pocet'},
-          {title: 'Dostupnost v procentech', value: 'dostupnost'},
+          {title: 'Prodaných kusů celkem', value: 'prodano'},
         ],
       },
     },
@@ -48,6 +48,7 @@ export const homePage = defineType({
     {name: 'divize', title: 'Divize'},
     {name: 'zakladatele', title: 'Zakladatelé'},
     {name: 'proc', title: 'Proč Matlok'},
+    {name: 'seo', title: 'Vyhledávače'},
   ],
   fields: [
     // --- Hero ---
@@ -87,7 +88,6 @@ export const homePage = defineType({
         {name: 'poznamka', title: 'Poznámka pod čarou', type: 'string'},
       ],
     }),
-
     defineField({name: 'pas', title: 'Běžící pás', type: 'array', of: [{type: 'string'}],
       options: {layout: 'tags'}, group: 'hero',
       description: 'Krátké názvy oborů. Na webu se opakují dokola.'}),
@@ -102,18 +102,6 @@ export const homePage = defineType({
     defineField({name: 'zakladateleNadpis', title: 'Nadpis — první řádek', type: 'string', group: 'zakladatele'}),
     defineField({name: 'zakladateleNadpisTip', title: 'Nadpis — druhý řádek', type: 'string', group: 'zakladatele'}),
     defineField({name: 'zakladateleLead', title: 'Perex', type: 'text', rows: 4, group: 'zakladatele'}),
-    defineField({
-      name: 'pribehy', title: 'Tři odstavce pod kartami', type: 'array', group: 'zakladatele',
-      of: [{
-        type: 'object', name: 'pribeh',
-        fields: [
-          {name: 'nadpis', title: 'Nadpis', type: 'string'},
-          {name: 'text', title: 'Text', type: 'text', rows: 4},
-        ],
-        preview: {select: {title: 'nadpis', subtitle: 'text'}},
-      }],
-      validation: (r) => r.max(3),
-    }),
     defineField({
       name: 'vize', title: 'Vize', type: 'object', group: 'zakladatele',
       fields: [
@@ -148,6 +136,18 @@ export const homePage = defineType({
         preview: {select: {title: 'nadpis', subtitle: 'text'}},
       }],
       validation: (r) => r.max(3),
+    }),
+
+    // --- Vyhledávače ---
+    defineField({
+      name: 'seoTitulek', title: 'Titulek pro vyhledávače', type: 'string', group: 'seo',
+      description: 'Prázdné = poskládá se z nadpisu a názvu společnosti. Google zobrazí zhruba 60 znaků.',
+      validation: (rule) => rule.max(60).warning('Delší než 60 znaků Google zkrátí.'),
+    }),
+    defineField({
+      name: 'seoPopis', title: 'Popis pro vyhledávače', type: 'text', rows: 3, group: 'seo',
+      description: 'Prázdné = zkrácený perex. Perexy jsou na popis ve výsledku vyhledávání skoro vždy moc dlouhé. Ideálně 120–155 znaků.',
+      validation: (rule) => rule.max(160).warning('Delší než 160 znaků se ve výsledcích ořízne.'),
     }),
   ],
   preview: {prepare: () => ({title: 'Domovská stránka'})},

@@ -7,7 +7,7 @@ import Pas from '../components/Pas.astro'
 import KartaDivize from '../components/KartaDivize.astro'
 import PasZakladatele from '../components/PasZakladatele.astro'
 import Ikona from '../components/Ikona.astro'
-import {obrazek} from '../lib/sanity'
+import StrukturovanaData from '../components/StrukturovanaData.astro'
 import {nastaveni, domovskaStranka, divize, zakladatele} from '../lib/queries'
 
 const [site, obsah, seznamDivizi, seznamZakladatelu] = await Promise.all([
@@ -17,40 +17,12 @@ const [site, obsah, seznamDivizi, seznamZakladatelu] = await Promise.all([
   zakladatele(),
 ])
 
-const logoUrl = site.logo ? obrazek(site.logo).width(600).url() : null
-/**
- * Structured data o firmě. Zadání to chce (kapitola 7) — Google podle toho
- * skládá panel s kontaktem u výsledků vyhledávání.
- *
- * Adresa je v Sanity jako dvouřádkový text, tady se rozebírá na ulici,
- * PSČ a město. Když se formát změní, poznáme to podle chybějícího PSČ.
- */
-const [ulice = '', mesto = ''] = site.adresa.split('\n')
-const psc = mesto.match(/\d{3}\s?\d{2}/)?.[0]
-const obec = mesto.replace(psc ?? '', '').trim()
-
-const firmaLd = {
-  '@context': 'https://schema.org',
-  '@type': 'Organization',
-  name: site.nazev,
-  url: Astro.site?.href,
-  ...(logoUrl ? {logo: logoUrl} : {}),
-  email: site.email,
-  telephone: site.telefon.replace(/\s+/g, ''),
-  identifier: site.ico,
-  address: {
-    '@type': 'PostalAddress',
-    streetAddress: ulice.trim(),
-    ...(psc ? {postalCode: psc} : {}),
-    addressLocality: obec,
-    addressCountry: 'CZ',
-  },
-}
 ---
 
 <Base nastaveni={site}
   titulek={`${site.nazev} — ${obsah.heroNadpis} ${obsah.heroNadpisTip}`}
   popis={obsah.heroLead}
+  seo={obsah}
 >
   <Navigace nastaveni={site} aktivni="/" />
 
@@ -86,19 +58,6 @@ const firmaLd = {
         </div>
 
         {
-          obsah.pribehy && obsah.pribehy.length > 0 && (
-            <div class="story">
-              {obsah.pribehy.map((p) => (
-                <article class="reveal">
-                  <h3>{p.nadpis}</h3>
-                  <p>{p.text}</p>
-                </article>
-              ))}
-            </div>
-          )
-        }
-
-        {
           obsah.vize && (
             <div class="vision reveal">
               <h3>{obsah.vize.nadpis}</h3>
@@ -132,5 +91,5 @@ const firmaLd = {
 
   <Paticka nastaveni={site} />
 
-  <script type="application/ld+json" set:html={JSON.stringify(firmaLd)} is:inline />
+  <StrukturovanaData nastaveni={site} />
 </Base>

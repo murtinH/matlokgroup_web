@@ -1,0 +1,19 @@
+# Matlok Group s.r.o. — https://matlok.cz
+#
+# Tenhle soubor přebíjí robots.txt, který dosud generoval Cloudflare.
+# Proto v něm zůstávají i obsahové signály pro AI crawlery — bez nich by
+# se přechodem na vlastní soubor mlčky ztratily.
+
+User-agent: *
+Allow: /
+
+# Serverové funkce nejsou obsah pro vyhledávače.
+Disallow: /api/
+
+Sitemap: https://matlok.cz/sitemap-index.xml
+
+# Obsahové signály (Cloudflare Content Signals Policy).
+# search    = indexace a odkazy ve výsledcích vyhledávání
+# ai-input  = vkládání obsahu do AI modelů při odpovídání
+# ai-train  = trénování a dolaďování AI modelů
+Content-Signal: search=yes, ai-input=yes, ai-train=no

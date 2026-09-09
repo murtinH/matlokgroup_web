@@ -1,5 +1,5 @@
 ---
-import {obrazek, srcset} from '../lib/sanity'
+import {obrazek, rozmery, srcset} from '../lib/sanity'
 import Ikona from './Ikona.astro'
 import type {SiteSettings} from '../lib/queries'
 
@@ -16,8 +16,6 @@ const {
   telefon,
   email,
   ico,
-  spisovaZnacka,
-  neplatceDph,
   patickaSloupce = [],
   socialniSite = [],
 } = nastaveni
@@ -26,11 +24,22 @@ const {
 const telefonOdkaz = telefon.replace(/\s+/g, '')
 const rok = new Date().getFullYear()
 
-// Neplátce DPH nesmí psát "ceny bez DPH" — ceny jsou konečné.
-const radekDph = neplatceDph ? 'Nejsme plátci DPH' : null
-const pravniUdaje = [adresa.replace(/\n/g, ', '), `IČO ${ico}`, spisovaZnacka, radekDph]
-  .filter(Boolean)
-  .join(' · ')
+/** Poměr stran inverzního loga — viz stejný výpočet v Navigace.astro. */
+const VYSKA_LOGA = 52
+const puvodni = logoInverzni ? rozmery(logoInverzni) : null
+const sirkaLoga = puvodni ? Math.round((VYSKA_LOGA * puvodni.sirka) / puvodni.vyska) : undefined
+
+/**
+ * Právní řádek patičky: název, sídlo, IČO.
+ *
+ * Spisová značka se odsud přesunula na /kontakt mezi ostatní údaje
+ * o společnosti. §435 občanského zákoníku ji na webu vyžaduje, ale
+ * neurčuje kde — a v patičce dělala z jednoho řádku dva.
+ *
+ * Věta o tom, že nejsme plátci DPH, patří k cenám, ne pod každou
+ * stránku. Je na /cenik.
+ */
+const pravniUdaje = [adresa.replace(/\n/g, ', '), `IČO ${ico}`].join(' · ')
 ---
 
 <footer class="footer">
@@ -43,8 +52,8 @@ const pravniUdaje = [adresa.replace(/\n/g, ', '), `IČO ${ico}`, spisovaZnacka, 
               src={obrazek(logoInverzni).height(52).url()}
               srcset={srcset(logoInverzni, [104, 156, 208])}
               sizes="104px"
-              width="198"
-              height="52"
+              width={sirkaLoga}
+              height={VYSKA_LOGA}
               alt={nazev}
             />
           )
@@ -74,7 +83,7 @@ const pravniUdaje = [adresa.replace(/\n/g, ', '), `IČO ${ico}`, spisovaZnacka, 
       {
         patickaSloupce.map((sloupec) => (
           <div>
-            <h4>{sloupec.nadpis}</h4>
+            <h3>{sloupec.nadpis}</h3>
             <ul>
               {sloupec.odkazy?.map((o) => (
                 <li>

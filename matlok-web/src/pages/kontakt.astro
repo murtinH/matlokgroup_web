@@ -4,17 +4,23 @@ import Navigace from '../components/Navigace.astro'
 import Paticka from '../components/Paticka.astro'
 import PoptavkovyFormular from '../components/PoptavkovyFormular.astro'
 import CasteDotazy from '../components/CasteDotazy.astro'
+import StrukturovanaData from '../components/StrukturovanaData.astro'
+import {drobecky} from '../lib/drobecky'
 import {nastaveni, strankaKontakt, otazky} from '../lib/queries'
 
 const [site, obsah, dotazy] = await Promise.all([nastaveni(), strankaKontakt(), otazky()])
 
 const telefonOdkaz = site.telefon.replace(/\s+/g, '')
 const p = obsah.popiskyUdaju ?? {}
+
+const zaklad = (Astro.site?.href ?? 'https://matlok.cz/').replace(/\/$/, '')
+const uzly = [drobecky(zaklad, [{nazev: 'Kontakt', cesta: '/kontakt'}])]
 ---
 
 <Base nastaveni={site}
   titulek={`Kontakt — ${site.nazev}`}
   popis={obsah.heroLead}
+  seo={obsah}
 >
   <Navigace nastaveni={site} aktivni="/kontakt" />
 
@@ -40,6 +46,14 @@ const p = obsah.popiskyUdaju ?? {}
                 <div class="dl__k">{p.ico}</div>
                 <div class="dl__v">{site.ico}</div>
               </div>
+              {
+                site.spisovaZnacka && (
+                  <div class="dl__row">
+                    <div class="dl__k">{p.zapis ?? 'Zápis v OR'}</div>
+                    <div class="dl__v">{site.spisovaZnacka}</div>
+                  </div>
+                )
+              }
               <div class="dl__row">
                 <div class="dl__k">{p.telefon}</div>
                 <div class="dl__v"><a href={`tel:${telefonOdkaz}`}>{site.telefon}</a></div>
@@ -69,4 +83,6 @@ const p = obsah.popiskyUdaju ?? {}
   </main>
 
   <Paticka nastaveni={site} />
+
+  <StrukturovanaData nastaveni={site} uzly={uzly} />
 </Base>

@@ -59,14 +59,6 @@ export const siteSettings = defineType({
       validation: (rule) => rule.required().email(),
     }),
     defineField({
-      name: 'neplatceDph',
-      title: 'Není plátcem DPH',
-      type: 'boolean',
-      initialValue: true,
-      description:
-        'Když je zapnuto, web uvádí "Nejsme plátci DPH" a ceny popisuje jako konečné. Nikdy nepsat "ceny bez DPH" — pro neplátce je to zavádějící.',
-    }),
-    defineField({
       name: 'socialniSite',
       title: 'Sociální sítě',
       type: 'array',

@@ -5,14 +5,74 @@ import Paticka from '../components/Paticka.astro'
 import Ikona from '../components/Ikona.astro'
 import NabidkaBoxu from '../components/NabidkaBoxu.astro'
 import IlustraceBoxu from '../components/IlustraceBoxu.astro'
-import {nastaveni, strankaMatlok, produkty} from '../lib/queries'
+import StrukturovanaData from '../components/StrukturovanaData.astro'
+import {drobecky} from '../lib/drobecky'
+import {nastaveni, strankaMatlok, produkty, automat} from '../lib/queries'
 
-const [site, obsah, nabidka] = await Promise.all([nastaveni(), strankaMatlok(), produkty()])
+const [site, obsah, nabidka, box] = await Promise.all([
+  nastaveni(),
+  strankaMatlok(),
+  produkty(),
+  automat(),
+])
+
+const zaklad = (Astro.site?.href ?? 'https://matlok.cz/').replace(/\/$/, '')
+
+const NAZVY_PLATEB: Record<string, string> = {
+  karta: 'Platební karta',
+  telefon: 'Platba telefonem',
+  qr: 'QR kód',
+}
+
+/**
+ * Prodejní box jako Store — podtyp LocalBusiness. Vydá se jen tehdy, když
+ * je v Sanity vyplněná GPS. Obchodní zápis bez ověřitelného místa je podle
+ * pravidel Google zavádějící údaj, ne užitečná informace; souřadnice jsou
+ * zatím otevřený bod v ZADANI.md. Jakmile je někdo doplní, uzel se objeví
+ * sám a v kódu se nic měnit nemusí.
+ *
+ * Jednotlivé produkty se do dat nedávají. Sortiment i zásoby se mění
+ * z cizího API a objednat se online nedají — nabídka na zboží, které si
+ * návštěvník nemůže koupit, je přesně to, co Google trestá.
+ */
+const prodejna = box?.gps
+  ? {
+      '@type': 'Store',
+      '@id': `${zaklad}/matlok#box`,
+      name: box.nazev,
+      url: `${zaklad}/matlok`,
+      parentOrganization: {'@id': `${zaklad}/#organizace`},
+      address: {'@type': 'PostalAddress', addressLocality: box.lokalita, addressCountry: 'CZ'},
+      geo: {'@type': 'GeoCoordinates', latitude: box.gps.lat, longitude: box.gps.lng},
+      // 24/7 se zapisuje jako všech sedm dnů od půlnoci do půlnoci.
+      ...(box.oteviraciDoba === '24/7'
+        ? {
+            openingHoursSpecification: [
+              {
+                '@type': 'OpeningHoursSpecification',
+                dayOfWeek: [
+                  'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
+                ],
+                opens: '00:00',
+                closes: '23:59',
+              },
+            ],
+          }
+        : {}),
+      ...(box.platby?.length
+        ? {paymentAccepted: box.platby.map((p) => NAZVY_PLATEB[p]).filter(Boolean).join(', ')}
+        : {}),
+      currenciesAccepted: 'CZK',
+    }
+  : null
+
+const uzly = [drobecky(zaklad, [{nazev: 'Matlok', cesta: '/matlok'}]), prodejna]
 ---
 
 <Base nastaveni={site}
   titulek={`Matlok — ${obsah.heroNadpis} ${obsah.heroNadpisTip}`}
   popis={obsah.heroLead}
+  seo={obsah}
   pozadi="azure-50"
 >
   <Navigace nastaveni={site} aktivni="/matlok" />
@@ -96,7 +156,6 @@ const [site, obsah, nabidka] = await Promise.all([nastaveni(), strankaMatlok(), 
           </div>
           <div class="vyzva__akce">
             {obsah.ctaTlacitko && <a class="btn btn--primary" href={obsah.ctaTlacitko.odkaz}>{obsah.ctaTlacitko.text}</a>}
-            {obsah.ctaPoznamka && <p class="vyzva__pozn">{obsah.ctaPoznamka}</p>}
           </div>
         </div>
       </div>
@@ -104,4 +163,6 @@ const [site, obsah, nabidka] = await Promise.all([nastaveni(), strankaMatlok(), 
   </main>
 
   <Paticka nastaveni={site} />
+
+  <StrukturovanaData nastaveni={site} uzly={uzly} />
 </Base>

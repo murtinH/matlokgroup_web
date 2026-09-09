@@ -298,6 +298,7 @@ Po zveřejnění textu ve Studiu je změna na webu do zhruba dvou minut.
   zápis do Sanity, notifikační e-mail
 - `src/components/CookieLista.astro` — souhlas, analytika až po něm
 - `public/_headers` — bezpečnostní hlavičky, trvalá cache pro soubory s otiskem
+- `public/robots.txt` — pravidla pro roboty a odkaz na mapu webu
 
 Vyzkoušené lokálně přes `npm run cf:dev` proti skutečnému Sanity:
 stránky se servírují, `/api/poptavka` odmítá GET, past na roboty vrací
@@ -306,10 +307,48 @@ a platná poptávka se v Sanity objeví jen s poli, která k danému záměru pa
 
 ---
 
+## 7 · [ty] Vlastní robots.txt místo cloudflarového
+
+Do `public/robots.txt` přibyl vlastní soubor. **Dokud ho Cloudflare
+nepřestane generovat sám, můžou si ty dva odporovat.**
+
+Cloudflare do té doby servíroval robots.txt vlastní — obsahové signály
+pro AI crawlery (`Content-Signal`). Náš soubor ze statických assetů má
+přednost, takže jsem ty signály převzal beze změny; nastavení se
+přechodem neztratí.
+
+Zkontroluj v Cloudflare → **matlok.cz → AI Crawl Control → Managed
+robots.txt**, jestli je přidávání zapnuté. Když ano, vypni ho — jinak
+budou existovat dvě pravdy a při příští změně nebude jasné, která platí.
+
+Po nasazení ověř, že sedí obojí:
+
+```bash
+curl -s https://matlok.cz/robots.txt && curl -sI https://matlok.cz/sitemap-index.xml | head -1
+```
+
+V robots.txt musí být řádek `Sitemap: https://matlok.cz/sitemap-index.xml`
+a mapa webu musí vrátit `200`.
+
+### Mapa webu do Google Search Console
+
+Jednorázově: Search Console → matlok.cz → Soubory Sitemap → vložit
+`sitemap-index.xml` → Odeslat. Bez toho Google mapu najde taky, ale
+trvá to déle a nevidíš, co s ní udělal.
+
+---
+
 ## Co zbývá po nasazení
 
 - **Token analytiky**: Cloudflare → Web Analytics → přidat `matlok.cz`, token vložit
   do pole *Token Cloudflare Web Analytics* v Nastavení webu v Sanity.
   Dokud je prázdný, lišta se ptá, ale žádné měření se nespouští.
-- **Zásady ochrany osobních údajů**: text zatím neexistuje, stránka to poctivě říká.
+- **Prodané kusy na titulce**: dlaždice bere číslo z Partner API. Než se
+  nasadí nová verze workeru, ukazuje pomlčku. Po nasazení zkontroluj
+  `curl -s https://matlok.cz/api/automat | grep -o '"prodano":[0-9]*'` —
+  když je číslo nepřesvědčivě nízké, dá se v `worker/automat.ts` přepnout
+  na „za posledních 30 dní" změnou jednoho místa v `prodeje()`.
+- **GPS automatu**: dokud není v Sanity vyplněná u dokumentu Automat,
+  nevydává se na `/matlok` structured data typu Store. Vyplněním se
+  objeví sama, v kódu se nic měnit nemusí.
 - **Právní kontrola cookies a GDPR** před spuštěním.

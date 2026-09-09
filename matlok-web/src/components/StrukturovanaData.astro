@@ -1,0 +1,65 @@
+---
+/**
+ * Strukturovaná data (JSON-LD). Jeden @graph na stránku.
+ *
+ * Uzel Organization je na každé stránce, ne jen na domovské. Ostatní uzly
+ * na něj odkazují přes @id a ten odkaz musí být dohledatelný na téže
+ * stránce — jinak z něj Google nic nesestaví.
+ *
+ * Adresa je v Sanity dvouřádkový text, tady se rozebírá na ulici, PSČ
+ * a město. Když se formát změní, poznáme to podle chybějícího PSČ.
+ */
+import {obrazek} from '../lib/sanity'
+import type {SiteSettings} from '../lib/queries'
+
+interface Props {
+  nastaveni: SiteSettings
+  /** Uzly navíc — BreadcrumbList, Service, Store … Prázdné se zahodí. */
+  uzly?: unknown[]
+}
+
+const {nastaveni: site, uzly = []} = Astro.props
+const zaklad = (Astro.site?.href ?? 'https://matlok.cz/').replace(/\/$/, '')
+
+const [ulice = '', mesto = ''] = site.adresa.split('\n')
+const psc = mesto.match(/\d{3}\s?\d{2}/)?.[0]
+const obec = mesto.replace(psc ?? '', '').trim()
+
+const firma = {
+  '@type': 'Organization',
+  '@id': `${zaklad}/#organizace`,
+  name: site.nazev,
+  url: `${zaklad}/`,
+  ...(site.logo ? {logo: obrazek(site.logo).width(600).url()} : {}),
+  email: site.email,
+  telephone: site.telefon.replace(/\s+/g, ''),
+  // IČO. Vlastnost vatID se neuvádí — společnost není plátcem DPH
+  // a prázdné nebo vymyšlené DIČ je horší než žádné.
+  identifier: {'@type': 'PropertyValue', propertyID: 'ICO', value: site.ico},
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: ulice.trim(),
+    ...(psc ? {postalCode: psc} : {}),
+    addressLocality: obec,
+    addressCountry: 'CZ',
+  },
+  ...(site.socialniSite?.length ? {sameAs: site.socialniSite.map((s) => s.url)} : {}),
+}
+
+/**
+ * WebSite bez SearchAction. Web nemá vlastní vyhledávání, takže políčko
+ * pro hledání ve výsledcích by slibovalo něco, co neexistuje.
+ */
+const web = {
+  '@type': 'WebSite',
+  '@id': `${zaklad}/#web`,
+  url: `${zaklad}/`,
+  name: site.nazev,
+  inLanguage: 'cs-CZ',
+  publisher: {'@id': `${zaklad}/#organizace`},
+}
+
+const graf = {'@context': 'https://schema.org', '@graph': [firma, web, ...uzly.filter(Boolean)]}
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(graf)} is:inline />

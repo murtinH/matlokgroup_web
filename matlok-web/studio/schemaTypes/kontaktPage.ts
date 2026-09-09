@@ -1,4 +1,5 @@
 import {defineField, defineType} from 'sanity'
+import {zakazBezDph} from './validace'
 
 /** Dvojice text + strojová hodnota. Hodnota je smlouva se serverovou funkcí, text se smí měnit. */
 const volba = (nazev: string, titulek: string, hodnoty?: {title: string; value: string}[]) => ({
@@ -22,6 +23,7 @@ export const kontaktPage = defineType({
     {name: 'hero', title: 'Úvod'},
     {name: 'formular', title: 'Formulář'},
     {name: 'faq', title: 'FAQ'},
+    {name: 'seo', title: 'Vyhledávače'},
   ],
   fields: [
     // --- Úvod ---
@@ -40,6 +42,7 @@ export const kontaktPage = defineType({
         {name: 'spolecnost', title: 'Společnost', type: 'string'},
         {name: 'sidlo', title: 'Sídlo', type: 'string'},
         {name: 'ico', title: 'IČO', type: 'string'},
+        {name: 'zapis', title: 'Zápis v obchodním rejstříku', type: 'string'},
         {name: 'telefon', title: 'Telefon', type: 'string'},
         {name: 'email', title: 'E-mail', type: 'string'},
       ],
@@ -128,12 +131,19 @@ export const kontaktPage = defineType({
     defineField({
       name: 'poznamkaDph', title: 'Poznámka o DPH', type: 'text', rows: 2, group: 'faq',
       description: 'Nikdy nepsat "ceny bez DPH". Společnost není plátcem DPH, ceny jsou konečné.',
-      validation: (rule) =>
-        rule.custom((hodnota) =>
-          typeof hodnota === 'string' && /bez\s+DPH/i.test(hodnota)
-            ? 'Nepoužívat "bez DPH". Společnost není plátcem DPH, ceny jsou konečné.'
-            : true,
-        ),
+      validation: (rule) => rule.custom(zakazBezDph),
+    }),
+
+    // --- Vyhledávače ---
+    defineField({
+      name: 'seoTitulek', title: 'Titulek pro vyhledávače', type: 'string', group: 'seo',
+      description: 'Prázdné = poskládá se z nadpisu a názvu společnosti. Google zobrazí zhruba 60 znaků.',
+      validation: (rule) => rule.max(60).warning('Delší než 60 znaků Google zkrátí.'),
+    }),
+    defineField({
+      name: 'seoPopis', title: 'Popis pro vyhledávače', type: 'text', rows: 3, group: 'seo',
+      description: 'Prázdné = zkrácený perex. Perexy jsou na popis ve výsledku vyhledávání skoro vždy moc dlouhé. Ideálně 120–155 znaků.',
+      validation: (rule) => rule.max(160).warning('Delší než 160 znaků se ve výsledcích ořízne.'),
     }),
   ],
   preview: {prepare: () => ({title: 'Stránka Kontakt'})},

@@ -35,3 +35,24 @@ export function obrazek(zdroj: Obrazek) {
 export function srcset(zdroj: Obrazek, sirky: number[]): string {
   return sirky.map((w) => `${obrazek(zdroj).width(w).url()} ${w}w`).join(', ')
 }
+
+/**
+ * Rozměry obrázku vyčtené z reference na asset.
+ *
+ * Reference má tvar `image-<id>-<šířka>x<výška>-<přípona>`, takže poměr stran
+ * jde zjistit bez dalšího dotazu do Sanity. Slouží k atributům width/height,
+ * podle kterých si prohlížeč rezervuje místo dřív, než obrázek stáhne.
+ *
+ * Vrací null, když reference chybí nebo má jiný tvar — volající si pak
+ * atributy nedoplní, což je pořád lepší než napsat tam nepravdu.
+ */
+export function rozmery(zdroj: Obrazek): {sirka: number; vyska: number} | null {
+  const zaznam = zdroj as {asset?: {_ref?: string; _id?: string}; _ref?: string; _id?: string}
+  const reference =
+    typeof zdroj === 'string'
+      ? zdroj
+      : (zaznam?.asset?._ref ?? zaznam?.asset?._id ?? zaznam?._ref ?? zaznam?._id)
+
+  const shoda = typeof reference === 'string' ? reference.match(/-(\d+)x(\d+)-/) : null
+  return shoda ? {sirka: Number(shoda[1]), vyska: Number(shoda[2])} : null
+}

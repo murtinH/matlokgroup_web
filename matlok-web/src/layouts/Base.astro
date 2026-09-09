@@ -10,8 +10,14 @@ import {obrazek} from '../lib/sanity'
 import type {SiteSettings} from '../lib/queries'
 
 interface Props {
+  /** Odvozený titulek. Ruční přepis ze Sanity má přednost. */
   titulek: string
+  /** Odvozený popis, obvykle perex. Ruční přepis ze Sanity má přednost. */
   popis?: string
+  /** Ruční přepis pro vyhledávače. Stačí předat celý dokument stránky. */
+  seo?: {seoTitulek?: string; seoPopis?: string}
+  /** Když je false, stránka se do vyhledávačů nedostane. */
+  indexovat?: boolean
   /** Název tokenu podkladu bez uvozovek, například "azure-50".
       Každá stránka má podle zadání vlastní odstín. */
   pozadi?: string
@@ -19,7 +25,40 @@ interface Props {
   nastaveni: SiteSettings
 }
 
-const {titulek, popis, pozadi, nastaveni} = Astro.props
+const {titulek, popis, seo, indexovat = true, pozadi, nastaveni} = Astro.props
+
+/**
+ * Zkrácení popisu pro vyhledávače.
+ *
+ * Google ukazuje ve výsledku zhruba 155 znaků a delší text uřízne uprostřed
+ * slova. Perexy na webu mají 156 až 262 znaků, takže se bez zkrácení
+ * nevejde ani jeden. Řeže se na hranici slova a odsekává koncová
+ * interpunkce, ať za tečkou nestojí ještě tři tečky.
+ *
+ * Je to záchranná síť, ne cíl. Dobrý popis se píše do pole „Popis pro
+ * vyhledávače" v Sanity — perex prodává stránku návštěvníkovi, ne
+ * vyhledávači, a zkrácený je skoro vždy horší než napsaný.
+ */
+function zkrat(text: string, limit = 155): string {
+  const radek = text.replace(/\s+/g, ' ').trim()
+  if (radek.length <= limit) return radek
+  const rez = radek.slice(0, limit + 1)
+  const mezera = rez.lastIndexOf(' ')
+  return `${radek.slice(0, mezera > 0 ? mezera : limit).replace(/[.,;:–—-]+$/, '')}…`
+}
+
+const nadpisStranky = seo?.seoTitulek?.trim() || titulek
+const popisZeSanity = seo?.seoPopis?.trim()
+const popisStranky = popisZeSanity || (popis ? zkrat(popis) : undefined)
+
+// Připomínka při buildu, ne chyba — web se kvůli chybějícímu popisu
+// stavět nepřestane.
+if (import.meta.env.PROD && !popisZeSanity && popis && popis.length > 165) {
+  console.warn(
+    `[SEO] ${Astro.url.pathname}: popis se bere z perexu (${popis.length} znaků) a musel se zkrátit. ` +
+      'Doplňte pole „Popis pro vyhledávače" v Sanity.',
+  )
+}
 
 /** Kanonická adresa — bez lomítka na konci, aby odpovídala odkazům na webu. */
 const kanonicka = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', Astro.site).href
@@ -44,14 +83,25 @@ const sdileni = nastaveni.ogObrazek
          v src/styles/tokens/fonts.css. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Obrázky se stahují ze Sanity CDN. Navázání spojení dopředu ušetří
+         u prvního obrázku jeden DNS a TLS round trip. -->
+    <link rel="preconnect" href="https://cdn.sanity.io" crossorigin />
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap"
     />
 
-    <title>{titulek}</title>
-    {popis && <meta name="description" content={popis} />}
+    <title>{nadpisStranky}</title>
+    {popisStranky && <meta name="description" content={popisStranky} />}
     <link rel="canonical" href={kanonicka} />
+
+    <!-- max-image-preview:large pouští Googlu velký náhled u obrázkových
+         výsledků a v Discoveru; bez toho dostaneme miniaturu. -->
+    <meta
+      name="robots"
+      content={indexovat ? 'index, follow, max-image-preview:large' : 'noindex, follow'}
+    />
 
     <!-- Náhled, který se ukáže při sdílení odkazu na sociální síti
          nebo v chatu. Bez těchhle značek si sítě vyberou samy —
@@ -59,9 +109,9 @@ const sdileni = nastaveni.ogObrazek
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={nastaveni.nazev} />
     <meta property="og:locale" content="cs_CZ" />
-    <meta property="og:title" content={titulek} />
+    <meta property="og:title" content={nadpisStranky} />
     <meta property="og:url" content={kanonicka} />
-    {popis && <meta property="og:description" content={popis} />}
+    {popisStranky && <meta property="og:description" content={popisStranky} />}
     {
       sdileni && (
         <Fragment>
@@ -88,9 +138,9 @@ const sdileni = nastaveni.ogObrazek
     <script>
       /**
        * Živé údaje z automatu. Prvky označené data-zdroj dostanou hodnotu
-       * z /api/automat — počet produktů v nabídce a dostupnost. Ručně
-       * zadaná hodnota v Sanity zůstává jako záloha; když volání selže
-       * nebo na stránce žádný takový prvek není, nic se nestane.
+       * z /api/automat — počet produktů v nabídce a počet prodaných kusů.
+       * Ručně zadaná hodnota v Sanity zůstává jako záloha; když volání
+       * selže nebo na stránce žádný takový prvek není, nic se nestane.
        *
        * Běží před počítadly, aby se odpočítávalo už k živému číslu.
        */
@@ -99,17 +149,22 @@ const sdileni = nastaveni.ogObrazek
       if (zive.length > 0) {
         fetch('/api/automat', {headers: {accept: 'application/json'}})
           .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
-          .then((data: {polozky?: {dostupnost: number; kapacita: number}[]}) => {
+          .then((data: {polozky?: unknown[]; prodano?: number | null}) => {
             const polozky = data.polozky ?? []
             if (polozky.length === 0) return
 
-            const zasoba = polozky.reduce((s, p) => s + p.dostupnost, 0)
-            const kapacita = polozky.reduce((s, p) => s + (p.kapacita || 12), 0)
-
             const hodnoty: Record<string, string> = {
               pocet: String(polozky.length),
-              dostupnost: `${Math.round((zasoba / Math.max(1, kapacita)) * 100)} %`,
             }
+
+            /*
+             * Prodané kusy umí spočítat jen API a ze Sanity se nedopočítají.
+             * Když se číslo nepodaří zjistit, napíše se pomlčka — dlaždice
+             * přizná, že hodnotu nezná. Ručně zadané číslo by tvrdilo něco,
+             * co nikdo neověřil, a nula by lhala, že se neprodalo nic.
+             */
+            hodnoty.prodano =
+              typeof data.prodano === 'number' ? data.prodano.toLocaleString('cs-CZ') : '—'
 
             zive.forEach((prvek) => {
               const klic = prvek.dataset.zdroj
@@ -128,6 +183,10 @@ const sdileni = nastaveni.ogObrazek
        * do zorného pole. Animuje se jen řetězec, který obsahuje právě
        * jedno číslo — "99 %" ano, "24/7" ne, protože obsahuje dvě.
        *
+       * Mezera po tisících se za oddělovač čísel nepočítá: "1 234 kusů"
+       * je jedno číslo. Bez toho by se počítadlo u čtyřciferných hodnot
+       * vůbec nespustilo — a přesně tam patří počet prodaných kusů.
+       *
        * Tři sekundy jsou násobně víc, než CLAUDE.md povoluje u animací.
        * To pravidlo míří na přechody rozhraní, kde delší doba působí
        * jako zadrhnutí; tohle je odkrytí obsahu, ne přechod.
@@ -141,24 +200,38 @@ const sdileni = nastaveni.ogObrazek
 
       const tlumit = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
+      /** Mezery, kterými se v češtině oddělují tisíce. */
+      const MEZERY = /[\s\u00A0\u202F]/
+
       function rozlozCislo(text: string) {
-        const cisla = text.match(/\d+/g)
+        const cisla = text.match(/\d+(?:[\s\u00A0\u202F]\d{3})*/g)
         if (!cisla || cisla.length !== 1) return null
-        const [pred, po] = text.split(cisla[0])
-        return {pred, cil: Number(cisla[0]), po}
+        const cele = cisla[0]
+        const [pred, po] = text.split(cele)
+        return {
+          pred,
+          cil: Number(cele.replace(new RegExp(MEZERY.source, 'g'), '')),
+          po,
+          // Oddělovač se přebírá z původního textu, ať se formát v půlce
+          // animace nezmění.
+          oddelovac: cele.match(MEZERY)?.[0] ?? '',
+        }
       }
 
       function odpocitej(prvek: HTMLElement) {
         const rozklad = rozlozCislo(prvek.textContent ?? '')
         if (!rozklad) return
-        const {pred, cil, po} = rozklad
+        const {pred, cil, po, oddelovac} = rozklad
         const start = performance.now()
 
         const krok = (ted: number) => {
           const podil = Math.min(1, (ted - start) / TRVANI)
           // Zpomalení ke konci, ať čísla nedojedou naráz.
           const hodnota = Math.round(cil * (1 - Math.pow(1 - podil, 3)))
-          prvek.textContent = `${pred}${hodnota}${po}`
+          const zapis = oddelovac
+            ? hodnota.toLocaleString('cs-CZ').replace(new RegExp(MEZERY.source, 'g'), oddelovac)
+            : String(hodnota)
+          prvek.textContent = `${pred}${zapis}${po}`
           if (podil < 1) requestAnimationFrame(krok)
         }
         requestAnimationFrame(krok)

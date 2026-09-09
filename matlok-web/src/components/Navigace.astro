@@ -1,5 +1,5 @@
 ---
-import {obrazek, srcset} from '../lib/sanity'
+import {obrazek, rozmery, srcset} from '../lib/sanity'
 import type {SiteSettings} from '../lib/queries'
 
 interface Props {
@@ -9,6 +9,17 @@ interface Props {
 
 const {nastaveni, aktivni} = Astro.props
 const {logo, navigace = [], navigaceTlacitko, nazev} = nastaveni
+
+/**
+ * Rozměry pro atributy width/height. Prohlížeč si podle nich rezervuje
+ * místo dřív, než logo stáhne, takže obsah pod hlavičkou neposkočí.
+ *
+ * Poměr stran se bere z metadat obrázku v Sanity, ne z pevných čísel —
+ * po nahrání jinak tvarovaného loga by pevná čísla lhala.
+ */
+const VYSKA = 56
+const puvodni = logo ? rozmery(logo) : null
+const sirka = puvodni ? Math.round((VYSKA * puvodni.sirka) / puvodni.vyska) : undefined
 ---
 
 <header class="nav">
@@ -20,8 +31,8 @@ const {logo, navigace = [], navigaceTlacitko, nazev} = nastaveni
             src={obrazek(logo).height(56).url()}
             srcset={srcset(logo, [112, 168, 224])}
             sizes="112px"
-            width="214"
-            height="56"
+            width={sirka}
+            height={VYSKA}
             alt={nazev}
           />
         )
@@ -68,6 +79,13 @@ const {logo, navigace = [], navigaceTlacitko, nazev} = nastaveni
               {polozka.text}
             </a>
           ))
+        }
+        {
+          navigaceTlacitko && (
+            <a class="btn btn--primary btn--sm navmob__cta" href={navigaceTlacitko.odkaz}>
+              {navigaceTlacitko.text}
+            </a>
+          )
         }
       </nav>
     </details>

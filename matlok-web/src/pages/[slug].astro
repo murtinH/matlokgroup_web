@@ -3,6 +3,8 @@ import Base from '../layouts/Base.astro'
 import Navigace from '../components/Navigace.astro'
 import Paticka from '../components/Paticka.astro'
 import Text from '../components/Text.astro'
+import StrukturovanaData from '../components/StrukturovanaData.astro'
+import {drobecky} from '../lib/drobecky'
 import {nastaveni, pravniStranky, type LegalPage} from '../lib/queries'
 
 /**
@@ -50,15 +52,26 @@ const prvniOdstavec = (stranka?.text as {_type?: string; children?: {text?: stri
   ?.children?.map((u) => u.text ?? '')
   .join('')
 
-const popisStranky = prvniOdstavec ? prvniOdstavec.slice(0, 160) : `${titulek} — ${site.nazev}.`
+// Zkracování si řídí Base.astro — řeže na hranici slova a doplní výpustku.
+// Tvrdý slice(0, 160) tady dřív uřízl popis uprostřed slova.
+const popisStranky = prvniOdstavec ?? `${titulek} — ${site.nazev}.`
 
 const meta =
   stranka && datum
     ? `${stranka.popisekUcinnost ?? ''} ${datum} · ${stranka.popisekSpravce ?? ''}: ${spravce}`.trim()
     : null
+
+const zaklad = (Astro.site?.href ?? 'https://matlok.cz/').replace(/\/$/, '')
+const uzly = [drobecky(zaklad, [{nazev: titulek, cesta: `/${Astro.params.slug}`}])]
 ---
 
-<Base nastaveni={site} titulek={`${titulek} — ${site.nazev}`} popis={popisStranky}>
+<Base
+  nastaveni={site}
+  titulek={`${titulek} — ${site.nazev}`}
+  popis={popisStranky}
+  seo={stranka ?? undefined}
+  indexovat={Boolean(stranka)}
+>
   <Navigace nastaveni={site} aktivni={`/${Astro.params.slug}`} />
 
   <main>
@@ -82,4 +95,6 @@ const meta =
   </main>
 
   <Paticka nastaveni={site} />
+
+  <StrukturovanaData nastaveni={site} uzly={uzly} />
 </Base>
