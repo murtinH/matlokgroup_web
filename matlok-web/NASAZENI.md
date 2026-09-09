@@ -265,12 +265,28 @@ Bez tohohle kroku by se změna textu ve Studiu na webu **nikdy neprojevila**.
 | URL | *(adresa z kroku 1)* |
 | Dataset | `production` |
 | Trigger on | Create, Update, Delete |
-| Filter | `_type in ["siteSettings","homePage","matlokPage","sluzbyPage","kontaktPage","division","founder","service","principle","faq","product","machine","legalPage"]` |
+| Filter | `!(_id in path("drafts.**")) && _type != "lead"` |
 | HTTP method | POST |
 
-Filtr je tam schválně: bez něj by každá přijatá poptávka spustila přestavbu webu.
+### Proč zrovna tenhle filtr
 
-Po uložení textu ve Studiu je změna na webu do zhruba dvou minut.
+Dvě podmínky a každá řeší jiný problém.
+
+**`!(_id in path("drafts.**"))`** je ta důležitější. Sanity ukládá rozepsaný
+text průběžně, jak píšeš — každých pár vteřin vzniká nová verze konceptu.
+Bez téhle podmínky by se web přestavoval při každém takovém uložení. Za jedno
+odpoledne psaní by to bylo klidně sto buildů a redaktor by přitom pořád
+koukal na starý web, protože by se nová verze nestihla nasadit dřív, než
+ji přepíše další. Takhle se staví až po zveřejnění.
+
+**`_type != "lead"`** vynechává přijaté poptávky. Ty do webu nevstupují,
+takže není proč kvůli nim stavět.
+
+Zápis „všechno kromě" je schválně obrácený proti výčtu typů. Kdyby se
+do Sanity někdy přidal nový typ obsahu, s výčtem by se tiše nepřestavovalo
+a hledalo by se to těžko.
+
+Po zveřejnění textu ve Studiu je změna na webu do zhruba dvou minut.
 
 ---
 
