@@ -297,8 +297,8 @@ img { max-width: 100%; display: block; }
   color: rgba(255, 255, 255, 0.62);
   padding-block: var(--space-10) var(--space-6);
 }
-.footer__grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: var(--space-7); }
-@media (max-width: 860px) { .footer__grid { grid-template-columns: 1fr 1fr; } }
+.footer__grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-7); }
+@media (max-width: 860px) { .footer__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
 .footer img { height: 26px; width: auto; margin-bottom: var(--space-5); }
 .footer h3 {
   font-size: var(--text-2xs);
@@ -347,11 +347,11 @@ img { max-width: 100%; display: block; }
 .hero h1 { color: #fff; }
 .hero__grid {
   display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
   gap: clamp(2rem, 5vw, 4rem);
   align-items: center;
 }
-@media (max-width: 900px) { .hero__grid { grid-template-columns: 1fr; } }
+@media (max-width: 900px) { .hero__grid { grid-template-columns: minmax(0, 1fr); } }
 .hero__stats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -545,8 +545,8 @@ img { max-width: 100%; display: block; }
 .divcard__link:hover { gap: 0.9em; text-decoration: none; }
 
 /* ------------------------------------------------------------ zakladatelé */
-.founders { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5); }
-@media (max-width: 900px) { .founders { grid-template-columns: 1fr; } }
+.founders { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-5); }
+@media (max-width: 900px) { .founders { grid-template-columns: minmax(0, 1fr); } }
 .fcard {
   background: var(--neutral-0);
   border: 1px solid var(--border-subtle);
@@ -634,17 +634,17 @@ img { max-width: 100%; display: block; }
   border-radius: var(--radius-xl);
   padding: clamp(1.75rem, 4vw, var(--space-9));
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto minmax(0, 1fr);
   gap: clamp(1.5rem, 4vw, var(--space-8));
   align-items: center;
 }
-@media (max-width: 760px) { .vision { grid-template-columns: 1fr; } }
+@media (max-width: 760px) { .vision { grid-template-columns: minmax(0, 1fr); } }
 .vision h3 { color: #fff; font-size: var(--text-xl); font-weight: var(--fw-black); margin: 0; white-space: nowrap; }
 .vision p { color: rgba(255, 255, 255, 0.72); margin: 0; font-size: var(--text-md); line-height: 1.6; }
 
 /* ------------------------------------------------------------ proč Matlok */
-.why { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-7); }
-@media (max-width: 860px) { .why { grid-template-columns: 1fr; } }
+.why { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-7); }
+@media (max-width: 860px) { .why { grid-template-columns: minmax(0, 1fr); } }
 .why__i { width: 36px; height: 4px; background: var(--accent); margin-bottom: var(--space-5); }
 .why h3 { font-size: var(--text-lg); margin-bottom: 0.5em; }
 .why p { font-size: var(--text-sm); color: var(--text-secondary); margin: 0; }
@@ -679,11 +679,11 @@ img { max-width: 100%; display: block; }
 .phero { padding-block: clamp(2.5rem, 6vw, 4.5rem) 0; }
 .phero__grid {
   display: grid;
-  grid-template-columns: 1fr 0.9fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
   gap: clamp(2rem, 5vw, 4rem);
   align-items: center;
 }
-@media (max-width: 900px) { .phero__grid { grid-template-columns: 1fr; } }
+@media (max-width: 900px) { .phero__grid { grid-template-columns: minmax(0, 1fr); } }
 .phero img {
   border-radius: var(--radius-lg);
   width: 100%;
@@ -836,7 +836,7 @@ img { max-width: 100%; display: block; }
 /* ------------------------------------------------------------ výhody */
 .howto { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); margin-top: var(--space-9); }
 @media (max-width: 900px) { .howto { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 600px) { .howto { grid-template-columns: 1fr; } }
+@media (max-width: 600px) { .howto { grid-template-columns: minmax(0, 1fr); } }
 .howto > div {
   background: var(--neutral-0);
   border: 1px solid var(--border-subtle);
@@ -943,7 +943,7 @@ img { max-width: 100%; display: block; }
   color: var(--azure-400);
   margin-bottom: var(--space-5);
 }
-.kgrid { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: clamp(2rem, 5vw, 4rem); align-items: start; }
+.kgrid { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); gap: clamp(2rem, 5vw, 4rem); align-items: start; }
 /* minmax(0, …), ne 1fr. Poptávkový formulář má kvůli widgetu Turnstile
    min-content 342 px a s pouhým 1fr (= minmax(auto, 1fr)) na tuhle šířku
    roztáhl celý sloupec — na 320px displeji pak stránka přetékala. */
@@ -952,13 +952,13 @@ img { max-width: 100%; display: block; }
 .dl { display: grid; gap: var(--space-4); margin-top: var(--space-7); }
 .dl__row {
   display: grid;
-  grid-template-columns: 130px 1fr;
+  grid-template-columns: 130px minmax(0, 1fr);
   gap: var(--space-4);
   padding-bottom: var(--space-4);
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   font-size: var(--text-sm);
 }
-@media (max-width: 520px) { .dl__row { grid-template-columns: 1fr; gap: var(--space-2); } }
+@media (max-width: 520px) { .dl__row { grid-template-columns: minmax(0, 1fr); gap: var(--space-2); } }
 .dl__k {
   font-family: var(--font-display);
   font-weight: 600;
@@ -997,8 +997,8 @@ img { max-width: 100%; display: block; }
    nesmí být položkou mřížky — v prototypu je nad ní jako samostatný řádek. */
 .segset { border: 0; padding: 0; margin: 0; min-inline-size: 0; }
 .segset > legend { padding: 0; }
-.seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-3); margin-bottom: var(--space-6); }
-@media (max-width: 700px) { .seg { grid-template-columns: 1fr; } }
+.seg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); margin-bottom: var(--space-6); }
+@media (max-width: 700px) { .seg { grid-template-columns: minmax(0, 1fr); } }
 .seg__o {
   display: block;
   /* V prototypu je tahle volba <button>, který má od prohlížeče
@@ -1036,8 +1036,8 @@ img { max-width: 100%; display: block; }
 .seg__d { font-size: var(--text-2xs); color: rgba(255, 255, 255, 0.55); line-height: 1.5; display: block; }
 
 .fields { display: grid; gap: var(--space-3); }
-.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
-@media (max-width: 700px) { .row2 { grid-template-columns: 1fr; } }
+.row2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-3); }
+@media (max-width: 700px) { .row2 { grid-template-columns: minmax(0, 1fr); } }
 
 .form input,
 .form textarea,
@@ -1086,9 +1086,9 @@ img { max-width: 100%; display: block; }
 .form:has(#zamer-services:checked) #p-services { display: block; }
 .form:has(#zamer-automat:checked) #p-automat { display: block; }
 
-.checks { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-2); }
-@media (max-width: 700px) { .checks { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 400px) { .checks { grid-template-columns: 1fr; } }
+.checks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); }
+@media (max-width: 700px) { .checks { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+@media (max-width: 400px) { .checks { grid-template-columns: minmax(0, 1fr); } }
 .check {
   display: flex;
   align-items: center;
@@ -1337,13 +1337,13 @@ details.faq p { font-size: var(--text-sm); color: var(--text-secondary); margin:
   padding: clamp(1.75rem, 4vw, var(--space-9));
   margin-top: var(--space-9);
   display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
   gap: clamp(1.5rem, 4vw, var(--space-8));
   align-items: center;
   position: relative;
   overflow: hidden;
 }
-@media (max-width: 820px) { .vyzva { grid-template-columns: 1fr; } }
+@media (max-width: 820px) { .vyzva { grid-template-columns: minmax(0, 1fr); } }
 /* Azurový čtverec u horní hrany — značkový motiv, stejný jako na kartách. */
 .vyzva::before {
   content: "";
@@ -1438,17 +1438,17 @@ details.faq p { font-size: var(--text-sm); color: var(--text-secondary); margin:
 
 .zakladatel {
   display: grid;
-  grid-template-columns: 0.8fr 1.2fr;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
   gap: clamp(1.5rem, 4vw, var(--space-8));
   align-items: center;
 }
 /* Druhý zakladatel má portrét na opačné straně — odtud "prokládaný". */
-.zakladatel:nth-child(even) { grid-template-columns: 1.2fr 0.8fr; }
+.zakladatel:nth-child(even) { grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr); }
 .zakladatel:nth-child(even) .zakladatel__portret { order: 2; }
 
 @media (max-width: 860px) {
   .zakladatel,
-  .zakladatel:nth-child(even) { grid-template-columns: 1fr; }
+  .zakladatel:nth-child(even) { grid-template-columns: minmax(0, 1fr); }
   .zakladatel:nth-child(even) .zakladatel__portret { order: 0; }
 }
 

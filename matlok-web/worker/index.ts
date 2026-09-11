@@ -34,6 +34,13 @@ export interface Env {
    * nevznikne úložiště, formulář funguje dál, jen bez omezení počtu.
    */
   RATE_LIMIT?: KVNamespace
+
+  /**
+   * Poslední úspěšná nabídka z MůjAutomatu, pro chvíle, kdy API neodpovídá.
+   * Stejné úložiště jako RATE_LIMIT, jiný klíč. Nepovinné — bez něj záloha
+   * spadne rovnou na produkty ze Sanity.
+   */
+  ZALOHA_NABIDKY?: KVNamespace
 }
 
 export default {
