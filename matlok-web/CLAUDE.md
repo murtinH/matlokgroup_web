@@ -32,7 +32,8 @@ Přečti si `ZADANI.md` dřív, než začneš cokoli stavět. Je to zadání, ne
   značkové barvy (`bg-azure-500`, `text-ink-800`, …). To je záměr, ne chyba.
 - Komponenta = jeden účel. Obsah nikdy natvrdo v komponentě — vždy ze Sanity.
 - Obrázky přes Sanity CDN s responzivním `srcset`.
-- Serverové funkce v `functions/api/`. **Žádný API klíč se nikdy nedostane do klientského kódu.**
+- Serverové funkce ve `worker/*.ts` (Cloudflare Workers; zadání psalo Pages Functions v `functions/api/`).
+  **Žádný API klíč se nikdy nedostane do klientského kódu.**
 - Mobil je výchozí, ne dodatečná úprava.
 
 ## Bezpečnost
