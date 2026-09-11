@@ -147,7 +147,10 @@ const sdileni = nastaveni.ogObrazek
       const zive = document.querySelectorAll<HTMLElement>('[data-zdroj]')
 
       if (zive.length > 0) {
-        fetch('/api/automat', {headers: {accept: 'application/json'}})
+        // Prohlížeč se musí pokaždé zeptat serveru. Cloudflare u téhle
+        // odpovědi hlásil max-age až čtyři hodiny a vracejícímu se
+        // návštěvníkovi by zásoby i počet prodaných kusů stály.
+        fetch('/api/automat', {cache: 'no-cache', headers: {accept: 'application/json'}})
           .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
           .then((data: {polozky?: unknown[]; prodano?: number | null}) => {
             const polozky = data.polozky ?? []

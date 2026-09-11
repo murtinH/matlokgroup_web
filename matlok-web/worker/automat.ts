@@ -31,6 +31,16 @@ const BASE = 'https://www.mujautomat.cz/api/partner/v1'
  */
 const CACHE_SEKUND = 30 * 60
 
+/**
+ * Verze tvaru odpovědi. Zvýšit při každé změně toho, co endpoint vrací.
+ *
+ * Je součástí klíče do cache, takže po nasazení se záznam od starého
+ * workeru přestane používat okamžitě. Bez ní web 11. 9. 2026 po mergi
+ * kategorií z MůjAutomatu dál ukazoval staré drink/snack — dokud záznam
+ * nevypršel.
+ */
+const CACHE_VERZE = 2
+
 /** Kolik objednávek se natáhne najednou. Stránkuje se přes cursor. */
 const OBJEDNAVEK = 100
 
@@ -237,6 +247,24 @@ function seskup(radky: Record<string, unknown>[], top: Set<string>): Polozka[] {
     .map(({id: _id, ...zbytek}) => zbytek)
 }
 
+/**
+ * Je uložená odpověď ještě čerstvá?
+ *
+ * Rozhoduje čas v těle odpovědi, ne hlavička max-age. Cloudflare držel
+ * záznam déle, než hlavička říkala: odpověď uložená s max-age=720 se
+ * servírovala i po třinácti minutách a navenek hlásila max-age=14400.
+ * Vlastní kontrola na nastavení zóny nezávisí.
+ */
+async function jeCerstva(odpoved: Response): Promise<boolean> {
+  try {
+    const {aktualizovano} = (await odpoved.clone().json()) as {aktualizovano?: string}
+    const stari = Date.now() - Date.parse(aktualizovano ?? '')
+    return Number.isFinite(stari) && stari >= 0 && stari < CACHE_SEKUND * 1000
+  } catch {
+    return false
+  }
+}
+
 /** Poslední známý stav ze Sanity. Použije se, když API neodpoví. */
 async function zaloha(): Promise<Nabidka> {
   const dotaz = encodeURIComponent(
@@ -264,10 +292,12 @@ async function zaloha(): Promise<Nabidka> {
 
 export async function nabidkaAutomatu(request: Request, env: Env): Promise<Response> {
   const cache = caches.default
-  const klic = new Request(new URL('/api/automat', request.url).toString(), {method: 'GET'})
+  const klic = new Request(new URL(`/api/automat?v=${CACHE_VERZE}`, request.url).toString(), {
+    method: 'GET',
+  })
 
   const ulozena = await cache.match(klic)
-  if (ulozena) return ulozena
+  if (ulozena && (await jeCerstva(ulozena))) return ulozena
 
   let nabidka: Nabidka
 
