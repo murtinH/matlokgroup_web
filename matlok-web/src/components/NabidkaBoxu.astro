@@ -104,13 +104,22 @@ const polozky = produkty.map((p) => {
     }
   </div>
 
-  {
-    polozky.length > NAHLED && (
-      <button class="offer__vic" type="button" id="vicebutton" data-nahled={NAHLED}>
-        Zobrazit celou nabídku ({polozky.length} položek)
-      </button>
-    )
-  }
+  {/*
+    Tlačítko se vykresluje vždy, jen skryté. Server staví stránku ze zálohy
+    v Sanity, která mívá méně než dvanáct položek — kdyby se tlačítko
+    vykreslilo jen podle ní, po načtení živých dat by skript zbytek nabídky
+    schoval a nebylo by čím ho rozbalit. O viditelnosti rozhoduje skript
+    podle toho, kolik položek opravdu dorazilo.
+  */}
+  <button
+    class="offer__vic"
+    type="button"
+    id="vicebutton"
+    data-nahled={NAHLED}
+    hidden={polozky.length <= NAHLED}
+  >
+    Zobrazit celou nabídku ({polozky.length} položek)
+  </button>
 
   <p class="offer__pozn">
     <span id="fcount">Zobrazeno {Math.min(NAHLED, polozky.length)} z {polozky.length} položek</span>
@@ -251,7 +260,9 @@ const polozky = produkty.map((p) => {
       p.hidden = !viditelne.has(p)
     })
 
-    if (pocitadlo) pocitadlo.textContent = `Zobrazeno ${videt.length} z ${vse.length} položek`
+    // Jmenovatel je počet ve vybraném filtru, ne v celém automatu —
+    // „12 z 39" u nápojů, kterých je 23, by mátlo.
+    if (pocitadlo) pocitadlo.textContent = `Zobrazeno ${videt.length} z ${sedi.length} položek`
 
     if (viceButton) {
       // Tlačítko dává smysl jen tehdy, když je co rozbalovat.

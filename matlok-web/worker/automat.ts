@@ -240,7 +240,9 @@ function seskup(radky: Record<string, unknown>[], top: Set<string>): Polozka[] {
 /** Poslední známý stav ze Sanity. Použije se, když API neodpoví. */
 async function zaloha(): Promise<Nabidka> {
   const dotaz = encodeURIComponent(
-    '*[_type == "product" && zobrazit == true] | order(_id asc){nazev, cena, kategorie, dostupnost, kapacita, nejprodavanejsi}',
+    // Starší záložní produkty mají kategorii 'drink'/'snack'; převádí se
+    // na české názvy, aby filtr nikdy neukázal holé „drink".
+    '*[_type == "product" && zobrazit == true] | order(_id asc){nazev, cena, "kategorie": select(kategorie == "drink" => "Nápoje", kategorie == "snack" => "Občerstvení", kategorie), dostupnost, kapacita, nejprodavanejsi}',
   )
   const data = (await fetch(
     `https://${SANITY_PROJECT_ID}.apicdn.sanity.io/v${SANITY_API_VERZE}/data/query/${SANITY_DATASET}?query=${dotaz}`,

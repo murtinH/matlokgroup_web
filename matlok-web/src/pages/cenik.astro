@@ -42,7 +42,6 @@ const katalogy = (obsah.skupiny ?? [])
           '@type': 'PriceSpecification',
           price: t.cenaCislo,
           priceCurrency: 'CZK',
-          ...(obsah.platnostOd ? {validFrom: obsah.platnostOd} : {}),
         },
       }))
 
@@ -88,7 +87,6 @@ const uzly = [
           <p class="eyebrow">{obsah.heroEyebrow}</p>
           <h1>{obsah.heroNadpis}<br /><span class="tip">{obsah.heroNadpisTip}</span></h1>
           <p class="lead">{obsah.heroLead}</p>
-          <p class="dphnote">{obsah.poznamkaDph} {obsah.platnost}</p>
         </div>
       </div>
     </section>
@@ -239,7 +237,9 @@ const uzly = [
             }
           </div>
 
-          {obsah.slevyPoznamka && <p class="slevy__pozn">{obsah.slevyPoznamka}</p>}
+          {/* Věta o DPH je až tady, ne pod úvodem. Neplátce ji uvést musí,
+              ale na začátku stránky přebíjela to podstatné — co nabízíme. */}
+          {obsah.poznamkaDph && <p class="slevy__pozn">{obsah.poznamkaDph}</p>}
 
           {
             obsah.slevyTlacitko && (

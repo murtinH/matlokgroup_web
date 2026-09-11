@@ -37,6 +37,34 @@ const cislo = (i: number) => String(i + 1).padStart(2, '0')
           <h1>{obsah.heroNadpis}<br /><span class="tip">{obsah.heroNadpisTip}</span></h1>
           <p class="lead">{obsah.heroLead}</p>
         </div>
+
+        {/*
+          Důkaz místo slibu hned pod úvodem, ne až na konci stránky.
+          Dřív to byl tmavý box a hned pod ním další tmavý box s výzvou —
+          dvě stejné plochy nad sebou. Tady je to světlý pruh se čtyřmi
+          fakty, stejný vzor jako dlaždice na /matlok.
+        */}
+        {
+          (obsah.vzorekNadpis || obsah.vzorekFakta?.length) && (
+            <div class="dukaz reveal">
+              <div class="dukaz__text">
+                <p class="eyebrow">{obsah.vzorekEyebrow}</p>
+                <h2>{obsah.vzorekNadpis}</h2>
+                <p>{obsah.vzorekText}</p>
+              </div>
+              {obsah.vzorekFakta && obsah.vzorekFakta.length > 0 && (
+                <div class="kpirow">
+                  {obsah.vzorekFakta.map((f) => (
+                    <div class="kpitile">
+                      <div class="kpitile__v">{f.hodnota}</div>
+                      <div class="kpitile__l">{f.popisek}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )
+        }
       </div>
     </section>
 
@@ -113,26 +141,6 @@ const cislo = (i: number) => String(i + 1).padStart(2, '0')
 
     <section class="section" style="background: var(--neutral-0)">
       <div class="container">
-        <div class="sample reveal">
-          <div>
-            <p class="eyebrow eyebrow--onink">{obsah.vzorekEyebrow}</p>
-            <h2>{obsah.vzorekNadpis}</h2>
-            <p>{obsah.vzorekText}</p>
-          </div>
-          {
-            obsah.vzorekFakta && obsah.vzorekFakta.length > 0 && (
-              <div class="sample__facts">
-                {obsah.vzorekFakta.map((f) => (
-                  <div class="sfact">
-                    <b>{f.hodnota}</b>
-                    <span>{f.popisek}</span>
-                  </div>
-                ))}
-              </div>
-            )
-          }
-        </div>
-
         <div class="vyzva reveal">
           <div>
             <p class="eyebrow eyebrow--onink">{obsah.ctaEyebrow}</p>

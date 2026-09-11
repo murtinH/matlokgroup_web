@@ -203,9 +203,6 @@ export interface CenikPage extends Seo {
   heroNadpisTip: string
   heroLead: string
   poznamkaDph: string
-  platnost: string
-  /** ISO datum, jen pro strukturovaná data. */
-  platnostOd?: string
   skupiny?: CenovaSkupina[]
   automatyEyebrow?: string
   automatyNadpis?: string
@@ -222,7 +219,6 @@ export interface CenikPage extends Seo {
   slevyNadpis?: string
   slevyLead?: string
   slevy?: {hodnota: string; nazev: string; popis?: string}[]
-  slevyPoznamka?: string
   slevyTlacitko?: Odkaz
 }
 
@@ -300,7 +296,7 @@ export function strankaMatlok(): Promise<MatlokPage> {
 export function produkty(): Promise<Product[]> {
   // Řazení podle _id drží pořadí z prototypu (product-1 až product-6).
   // Je to dočasné — v Session 5 určí pořadí API podle spirál v automatu.
-  return sanity.fetch('*[_type == "product" && zobrazit == true] | order(_id asc)')
+  return sanity.fetch('*[_type == "product" && zobrazit == true] | order(_id asc){..., "kategorie": select(kategorie == "drink" => "Nápoje", kategorie == "snack" => "Občerstvení", kategorie)}')
 }
 
 export function strankaSluzby(): Promise<SluzbyPage> {
