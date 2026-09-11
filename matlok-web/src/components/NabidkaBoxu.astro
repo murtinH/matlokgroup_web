@@ -9,12 +9,37 @@ interface Props {
 const {obsah, produkty} = Astro.props
 const hranice = obsah.hranicePoslednichKusu ?? 3
 
+/**
+ * Kolik položek je vidět, než návštěvník rozbalí zbytek.
+ *
+ * Automat vydává skoro čtyřicet druhů zboží a celý seznam naráz udělal
+ * z nabídky nekonečný sloupec, hlavně na telefonu. Dvanáct je řada
+ * navíc na mobilu i na desktopu, takže je jasné, že to pokračuje.
+ */
+const NAHLED = 12
+
 /** Text o zásobě. Čeština má u jedničky jiný tvar než u dvojky. */
 function stavZasoby(kusu: number, dochazi: boolean): string {
   if (kusu <= 0) return 'Vyprodáno'
   if (!dochazi) return `Skladem · ${kusu} ks`
   return kusu === 1 ? 'Zbývá 1 kus' : `Zbývají ${kusu} ks`
 }
+
+/**
+ * Filtry kategorií se skládají z toho, co je v automatu právě teď —
+ * nevypisují se ze Sanity. Kategorie určuje MůjAutomat a ručně
+ * udržovaný seznam by po každé změně sortimentu lhal.
+ *
+ * V Sanity zůstávají jen filtry, které z dat neplynou: Vše,
+ * Nejprodávanější a Poslední kusy.
+ */
+function odvodFiltry(zbozi: {kategorie: string}[]): string[] {
+  return [...new Set(zbozi.map((p) => p.kategorie).filter(Boolean))].sort((a, b) =>
+    a.localeCompare(b, 'cs'),
+  )
+}
+
+const kategorie = odvodFiltry(produkty)
 
 const polozky = produkty.map((p) => {
   const dochazi = p.dostupnost <= hranice
@@ -43,23 +68,25 @@ const polozky = produkty.map((p) => {
     }
   </div>
 
-  {
-    obsah.kategorie && obsah.kategorie.length > 0 && (
-      <div class="chips" role="group" aria-label="Kategorie">
-        {obsah.kategorie.map((k, i) => (
-          <button class="chip" type="button" data-f={k.hodnota} aria-pressed={i === 0 ? 'true' : 'false'}>
-            {k.text}
-          </button>
-        ))}
-      </div>
-    )
-  }
+  <div class="chips" id="chips" role="group" aria-label="Kategorie">
+    <button class="chip" type="button" data-f="all" aria-pressed="true">Vše</button>
+    {
+      kategorie.map((k) => (
+        <button class="chip" type="button" data-f={k} aria-pressed="false">
+          {k}
+        </button>
+      ))
+    }
+    <button class="chip" type="button" data-f="top" aria-pressed="false">Nejprodávanější</button>
+    <button class="chip" type="button" data-f="low" aria-pressed="false">Poslední kusy</button>
+  </div>
 
   <div class="prodgrid" id="prodgrid" data-hranice={hranice}>
     {
-      polozky.map((p) => (
+      polozky.map((p, i) => (
         <div
           class="prod"
+          hidden={i >= NAHLED}
           data-cat={p.kategorie}
           data-top={p.nejprodavanejsi ? '1' : undefined}
           data-low={p.dochazi ? '1' : undefined}
@@ -77,8 +104,25 @@ const polozky = produkty.map((p) => {
     }
   </div>
 
+  {/*
+    Tlačítko se vykresluje vždy, jen skryté. Server staví stránku ze zálohy
+    v Sanity, která mívá méně než dvanáct položek — kdyby se tlačítko
+    vykreslilo jen podle ní, po načtení živých dat by skript zbytek nabídky
+    schoval a nebylo by čím ho rozbalit. O viditelnosti rozhoduje skript
+    podle toho, kolik položek opravdu dorazilo.
+  */}
+  <button
+    class="offer__vic"
+    type="button"
+    id="vicebutton"
+    data-nahled={NAHLED}
+    hidden={polozky.length <= NAHLED}
+  >
+    Zobrazit celou nabídku ({polozky.length} položek)
+  </button>
+
   <p class="offer__pozn">
-    <span id="fcount">Zobrazeno {polozky.length} z {polozky.length} položek</span>
+    <span id="fcount">Zobrazeno {Math.min(NAHLED, polozky.length)} z {polozky.length} položek</span>
     {obsah.nabidkaPoznamka && ` · ${obsah.nabidkaPoznamka}`}
     <span id="fnote"></span>
   </p>
@@ -96,8 +140,16 @@ const polozky = produkty.map((p) => {
   const mrizka = document.getElementById('prodgrid')
   const pocitadlo = document.getElementById('fcount')
   const poznamka = document.getElementById('fnote')
+  const filtry = document.getElementById('chips')
+  const viceButton = document.getElementById('vicebutton')
 
   const HRANICE = Number(mrizka?.dataset.hranice ?? 3)
+  const NAHLED = Number(viceButton?.dataset.nahled ?? 12)
+
+  /** Rozbaleno zůstává rozbalené i po načtení živých dat. */
+  let rozbaleno = false
+  /** Vybraný filtr přežije překreslení mřížky. */
+  let filtr = 'all'
 
   function stavZasoby(kusu, dochazi) {
     if (kusu <= 0) return 'Vyprodáno'
@@ -152,34 +204,94 @@ const polozky = produkty.map((p) => {
         return karta
       }),
     )
-    aktualizujPocet()
   }
 
-  function aktualizujPocet() {
-    if (!pocitadlo || !mrizka) return
-    const vse = mrizka.querySelectorAll('.prod')
-    const videno = [...vse].filter((p) => !p.hidden).length
-    pocitadlo.textContent = `Zobrazeno ${videno} z ${vse.length} položek`
+  /**
+   * Filtry se skládají z toho, co v automatu právě je. Kategorie určuje
+   * MůjAutomat, takže ruční seznam by po každé změně sortimentu lhal.
+   * Vše, Nejprodávanější a Poslední kusy z dat neplynou a zůstávají vždy.
+   */
+  function vykresliFiltry(polozky) {
+    if (!filtry) return
+    const kategorie = [...new Set(polozky.map((p) => p.kategorie).filter(Boolean))].sort((a, b) =>
+      a.localeCompare(b, 'cs'),
+    )
+
+    const tlacitko = (hodnota, text) => {
+      const b = document.createElement('button')
+      b.className = 'chip'
+      b.type = 'button'
+      b.dataset.f = hodnota
+      b.textContent = text
+      b.setAttribute('aria-pressed', String(hodnota === filtr))
+      return b
+    }
+
+    filtry.replaceChildren(
+      tlacitko('all', 'Vše'),
+      ...kategorie.map((k) => tlacitko(k, k)),
+      tlacitko('top', 'Nejprodávanější'),
+      tlacitko('low', 'Poslední kusy'),
+    )
   }
 
-  // --- filtr kategorií ---
-  const chipy = document.querySelectorAll('.chip')
-  chipy.forEach((chip) => {
-    chip.addEventListener('click', () => {
-      chipy.forEach((x) => x.setAttribute('aria-pressed', String(x === chip)))
-      const filtr = chip.dataset.f
+  /**
+   * Jediné místo, které rozhoduje o viditelnosti karty. Filtr a zkrácený
+   * náhled se nesmí přebíjet — dřív si na atribut hidden sahaly obě
+   * větve zvlášť a po přepnutí filtru se vynořily i skryté položky.
+   */
+  function prekresli() {
+    if (!mrizka) return
+    const vse = [...mrizka.querySelectorAll('.prod')]
 
-      mrizka?.querySelectorAll('.prod').forEach((polozka) => {
-        const sedi =
-          filtr === 'all' ||
-          (filtr === 'top' && polozka.dataset.top) ||
-          (filtr === 'low' && polozka.dataset.low) ||
-          polozka.dataset.cat === filtr
-        polozka.hidden = !sedi
-      })
-      aktualizujPocet()
+    const sedi = vse.filter(
+      (p) =>
+        filtr === 'all' ||
+        (filtr === 'top' && p.dataset.top) ||
+        (filtr === 'low' && p.dataset.low) ||
+        p.dataset.cat === filtr,
+    )
+
+    // Ve zkráceném náhledu se ořezává až vyfiltrovaný seznam, takže
+    // i úzká kategorie ukáže svých dvanáct, ne zbytek z prvních dvanácti.
+    const videt = rozbaleno ? sedi : sedi.slice(0, NAHLED)
+    const viditelne = new Set(videt)
+    vse.forEach((p) => {
+      p.hidden = !viditelne.has(p)
     })
+
+    // Jmenovatel je počet ve vybraném filtru, ne v celém automatu —
+    // „12 z 39" u nápojů, kterých je 23, by mátlo.
+    if (pocitadlo) pocitadlo.textContent = `Zobrazeno ${videt.length} z ${sedi.length} položek`
+
+    if (viceButton) {
+      // Tlačítko dává smysl jen tehdy, když je co rozbalovat.
+      viceButton.hidden = sedi.length <= NAHLED
+      viceButton.textContent = rozbaleno
+        ? 'Zobrazit méně'
+        : `Zobrazit celou nabídku (${sedi.length} položek)`
+    }
+  }
+
+  filtry?.addEventListener('click', (e) => {
+    const chip = e.target.closest('.chip')
+    if (!chip) return
+    filtr = chip.dataset.f
+    filtry.querySelectorAll('.chip').forEach((x) => {
+      x.setAttribute('aria-pressed', String(x === chip))
+    })
+    // Přepnutí filtru vrací náhled na zkrácený — jinak by zůstal
+    // rozbalený z předchozí, širší kategorie.
+    rozbaleno = false
+    prekresli()
   })
+
+  viceButton?.addEventListener('click', () => {
+    rozbaleno = !rozbaleno
+    prekresli()
+  })
+
+  prekresli()
 
   // --- živá data ---
   fetch('/api/automat', {headers: {accept: 'application/json'}})
@@ -187,6 +299,8 @@ const polozky = produkty.map((p) => {
     .then((data) => {
       if (!Array.isArray(data.polozky) || data.polozky.length === 0) return
       vykresli(data.polozky)
+      vykresliFiltry(data.polozky)
+      prekresli()
 
       if (poznamka && data.zdroj === 'zaloha') {
         // Návštěvník má vědět, že čísla nemusí být aktuální.

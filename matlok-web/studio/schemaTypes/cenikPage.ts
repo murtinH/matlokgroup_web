@@ -242,7 +242,7 @@ export const cenikPage = defineType({
     {name: 'skupiny', title: 'Ceny služeb'},
     {name: 'automaty', title: 'Automaty'},
     {name: 'proces', title: 'Jak to probíhá'},
-    {name: 'slevy', title: 'Slevy'},
+    {name: 'slevy', title: 'Zvýhodněná nabídka'},
     {name: 'seo', title: 'Vyhledávače'},
   ],
   // Záchranná síť nad celým dokumentem. Kdyby přibylo pole bez vlastní
@@ -258,19 +258,9 @@ export const cenikPage = defineType({
       validation: (r) => r.required().custom(zakazBezDph),
     }),
     defineField({
-      name: 'poznamkaDph', title: 'Věta o DPH', type: 'string', group: 'hero',
-      description: 'Povinná. Například: Nejsme plátci DPH — uvedené ceny jsou konečné.',
+      name: 'poznamkaDph', title: 'Věta o DPH', type: 'string', group: 'slevy',
+      description: 'Povinná. Zobrazuje se na konci stránky, pod zvýhodněnou nabídkou. Například: Nejsme plátci DPH — uvedené ceny jsou konečné.',
       validation: (r) => r.required().custom(zakazBezDph),
-    }),
-    defineField({
-      name: 'platnost', title: 'Platnost ceníku — text', type: 'string', group: 'hero',
-      description: 'Například: Ceník platí od 1. 10. 2026 do odvolání.',
-      validation: (r) => r.required(),
-    }),
-    defineField({
-      name: 'platnostOd', title: 'Platnost ceníku — datum', type: 'date', group: 'hero',
-      options: {dateFormat: 'D. M. YYYY'},
-      description: 'Nezobrazuje se. Jde do strukturovaných dat pro vyhledávače (validFrom).',
     }),
 
     // --- Ceny služeb ---
@@ -302,7 +292,7 @@ export const cenikPage = defineType({
     defineField({name: 'procesNadpis', title: 'Nadpis', type: 'string', group: 'proces'}),
     defineField({
       name: 'proces', title: 'Kroky', type: 'array', group: 'proces',
-      description: 'Číslují se automaticky podle pořadí, stejně jako principy na /sluzby.',
+      description: 'Nejvýš pět. Číslují se automaticky podle pořadí. Pět karet se v mřížce srovná do řady, šestá by visela sama.',
       of: [defineArrayMember({
         type: 'object', name: 'krok',
         fields: [
@@ -311,19 +301,14 @@ export const cenikPage = defineType({
         ],
         preview: {select: {title: 'nadpis', subtitle: 'popis'}},
       })],
-      validation: (r) => r.max(6),
+      validation: (r) => r.max(5),
     }),
 
     // --- Slevy ---
     defineField({name: 'slevyEyebrow', title: 'Nadřádek', type: 'string', group: 'slevy'}),
     defineField({name: 'slevyNadpis', title: 'Nadpis', type: 'string', group: 'slevy'}),
     defineField({name: 'slevyLead', title: 'Perex', type: 'text', rows: 3, group: 'slevy', validation: (r) => r.custom(zakazBezDph)}),
-    defineField({name: 'slevy', title: 'Slevy', type: 'array', of: [sleva], group: 'slevy', validation: (r) => r.max(3)}),
-    defineField({
-      name: 'slevyPoznamka', title: 'Poznámka pod slevami', type: 'text', rows: 2, group: 'slevy',
-      description: 'Sem patří zopakování věty o DPH a platnosti ceníku.',
-      validation: (r) => r.custom(zakazBezDph),
-    }),
+    defineField({name: 'slevy', title: 'Položky zvýhodněné nabídky', type: 'array', of: [sleva], group: 'slevy', validation: (r) => r.max(3)}),
     tlacitko('slevyTlacitko', 'Tlačítko', 'slevy'),
 
     // --- Vyhledávače ---

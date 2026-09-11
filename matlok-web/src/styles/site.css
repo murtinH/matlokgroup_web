@@ -904,32 +904,25 @@ img { max-width: 100%; display: block; }
 .krok h3 { font-size: var(--text-base); margin-bottom: 0.5em; }
 .krok p { font-size: var(--text-sm); color: var(--text-secondary); margin: 0; line-height: 1.7; }
 
-.sample {
-  background: var(--ink-800);
-  color: #fff;
-  border-radius: var(--radius-xl);
-  padding: clamp(1.75rem, 4vw, var(--space-9));
+/* ------------------------------------------------------------ důkaz místo slibu
+   Světlý pruh pod úvodem /sluzby. Vlevo tvrzení, vpravo čtyři fakta
+   v dlaždicích z /matlok. Dřív to byl tmavý box na konci stránky
+   a hned pod ním tmavá výzva — dvě stejné plochy nad sebou.
+   ------------------------------------------------------------ */
+.dukaz {
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
   gap: clamp(1.5rem, 4vw, var(--space-8));
   align-items: center;
+  margin-top: var(--space-9);
+  padding-top: var(--space-7);
+  border-top: 1px solid var(--border-subtle);
 }
-@media (max-width: 820px) { .sample { grid-template-columns: 1fr; } }
-.sample h2 { color: #fff; margin-bottom: var(--space-3); }
-.sample p { color: rgba(255, 255, 255, 0.72); margin: 0; font-size: var(--text-md); line-height: 1.65; }
-.sample__facts { display: grid; gap: var(--space-3); }
-.sfact {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: var(--space-4);
-  align-items: baseline;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: var(--radius-md);
-  padding: var(--space-4) var(--space-5);
-}
-.sfact b { font-family: var(--font-display); font-weight: var(--fw-black); font-size: var(--text-lg); color: var(--azure-400); line-height: 1; }
-.sfact span { font-size: var(--text-sm); color: rgba(255, 255, 255, 0.75); line-height: 1.5; }
+@media (max-width: 860px) { .dukaz { grid-template-columns: minmax(0, 1fr); } }
+.dukaz h2 { font-size: var(--text-xl); margin-bottom: var(--space-3); }
+.dukaz__text p:last-child { color: var(--text-secondary); margin: 0; line-height: 1.65; }
+/* Dvě a dvě vedle textu. Čtyři v řadě by se do pravého sloupce nevešly. */
+.dukaz .kpirow { margin-top: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
 /* ============================================================
    STRÁNKA /kontakt
@@ -1375,8 +1368,7 @@ details.faq p { font-size: var(--text-sm); color: var(--text-secondary); margin:
 /* Číslice stejné šířky, aby se počítadlo netřáslo. */
 .stat__num,
 .kpi__v,
-.kpitile__v,
-.sfact b { font-variant-numeric: tabular-nums; }
+.kpitile__v { font-variant-numeric: tabular-nums; }
 
 /* ------------------------------------------------------------ nájezd hero
    Úvod stránky se skládá po částech místo toho, aby naskočil naráz.
@@ -1419,8 +1411,7 @@ details.faq p { font-size: var(--text-sm); color: var(--text-secondary); margin:
    Jemné nadzvednutí pod kurzorem. Karty divizí a služeb ho už mají,
    tohle sjednocuje zbytek. */
 .fcard,
-.kpitile,
-.sfact {
+.kpitile {
   transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
 }
 .fcard:hover,
@@ -1634,7 +1625,7 @@ details.faq p { font-size: var(--text-sm); color: var(--text-secondary); margin:
 }
 .tarif h3 { font-size: var(--text-base); margin-bottom: var(--space-3); }
 
-/* Vlastní třída, ne .kpitile__v ani .sfact b. Ty dvě animuje počítadlo
+/* Vlastní třída, ne .kpitile__v. Tu animuje počítadlo
    v Base.astro a cena by tři vteřiny ukazovala číslo, které není pravda —
    „490 Kč" by naskakovalo od nuly. Na ceníku je to nepřijatelné. */
 .tarif__cena {
@@ -1816,3 +1807,23 @@ details.faq p { font-size: var(--text-sm); color: var(--text-secondary); margin:
 .slevy__akce .btn--primary { background: #fff; color: var(--ink-800); }
 .slevy__akce .btn--primary:hover { background: var(--snow); box-shadow: none; }
 @media (max-width: 600px) { .slevy__akce .btn { width: 100%; } }
+
+/* Rozbalení celé nabídky automatu. Automat vydává skoro čtyřicet druhů
+   zboží a celý seznam naráz z nabídky udělal nekonečný sloupec. */
+.offer__vic {
+  line-height: normal;
+  margin-top: var(--space-5);
+  width: 100%;
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+  padding: 0.85em 1.5em;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-out);
+}
+.offer__vic:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.5); }

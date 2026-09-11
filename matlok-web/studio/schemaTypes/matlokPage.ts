@@ -78,31 +78,7 @@ export const matlokPage = defineType({
       validation: (r) => r.required()}),
     defineField({name: 'nabidkaStitek', title: 'Štítek u nadpisu', type: 'string', group: 'nabidka',
       description: 'Například: živě'}),
-    defineField({
-      name: 'kategorie', title: 'Filtry kategorií', type: 'array', group: 'nabidka',
-      description:
-        'Hodnota určuje chování: all = vše, drink = nápoje, snack = občerstvení, top = nejprodávanější, low = poslední kusy.',
-      of: [{
-        type: 'object', name: 'filtr',
-        fields: [
-          {name: 'text', title: 'Text', type: 'string'},
-          {
-            name: 'hodnota', title: 'Hodnota', type: 'string',
-            options: {
-              list: [
-                {title: 'Vše', value: 'all'},
-                {title: 'Nápoje', value: 'drink'},
-                {title: 'Občerstvení', value: 'snack'},
-                {title: 'Nejprodávanější', value: 'top'},
-                {title: 'Poslední kusy', value: 'low'},
-              ],
-            },
-          },
-        ],
-        preview: {select: {title: 'text', subtitle: 'hodnota'}},
-      }],
-    }),
-    defineField({name: 'nabidkaPoznamka', title: 'Poznámka pod nabídkou', type: 'text', rows: 2,
+        defineField({name: 'nabidkaPoznamka', title: 'Poznámka pod nabídkou', type: 'text', rows: 2,
       group: 'nabidka'}),
     defineField({
       name: 'hranicePoslednichKusu', title: 'Hranice "poslední kusy"', type: 'number',

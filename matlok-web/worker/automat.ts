@@ -47,7 +47,12 @@ const TOP = 3
 export interface Polozka {
   nazev: string
   cena: number
-  kategorie: 'drink' | 'snack'
+  /**
+   * Skupina zboží tak, jak ji má nastavenou MůjAutomat — volný řetězec,
+   * ne pevný výčet. Když provozovna v automatu kategorie přejmenuje nebo
+   * přidá, web se přizpůsobí sám a nemusí se nasazovat.
+   */
+  kategorie: string
   dostupnost: number
   kapacita: number
   nejprodavanejsi: boolean
@@ -67,25 +72,32 @@ export interface Nabidka {
 }
 
 /**
- * Kategorie z automatu jsou volný text a web pracuje jen se dvěma skupinami.
+ * Skupina zboží.
  *
- * Rozhoduje jednotka v názvu, ne značka: co se prodává v mililitrech nebo
- * litrech, je nápoj; co v gramech nebo kusech, je občerstvení. Je to
- * spolehlivější než seznam značek, který by za půl roku neseděl — Monster,
- * Red Bull ani Kubík v žádném seznamu klíčových slov nejsou, a přesto
- * je každý pozná podle "0,5l" v názvu.
+ * Bere se přímo z MůjAutomatu — kategorie tam jsou nastavené (Drinks,
+ * Energy & Sport, Snacks, Krkonoše) a web nemá co je přepisovat. Dřív
+ * si je odhadoval sám ze dvou škatulek a v „občerstvení" pak končily
+ * náplasti i kondomy.
+ *
+ * Odhad z názvu zůstává jen pro zboží, které kategorii nastavenou nemá:
+ * rozhoduje jednotka, protože je spolehlivější než seznam značek —
+ * Monster ani Red Bull v žádném seznamu nejsou, a přesto je každý pozná
+ * podle „0,5l" v názvu.
  */
 const OBJEM = /\d+(?:[.,]\d+)?\s*(?:ml|l)\b/i
 const HMOTNOST = /\d+(?:[.,]\d+)?\s*(?:g|kg|ks)\b/i
 const NAPOJE = ['napoj', 'nápoj', 'drink', 'voda', 'water', 'juice', 'džus', 'kava', 'káva', 'coffee', 'caj', 'čaj', 'tea', 'energet', 'limonad', 'limonád', 'cola', 'smoothie']
 
-function urciKategorii(kategorie: string | null | undefined, nazev: string): 'drink' | 'snack' {
-  // Jednotka v názvu je nejsilnější vodítko.
-  if (OBJEM.test(nazev)) return 'drink'
-  if (HMOTNOST.test(nazev)) return 'snack'
+/** Skupina pro zboží, které kategorii v automatu nastavenou nemá. */
+const OSTATNI = 'Ostatní'
 
-  const text = `${kategorie ?? ''} ${nazev}`.toLowerCase()
-  return NAPOJE.some((k) => text.includes(k)) ? 'drink' : 'snack'
+function urciKategorii(kategorie: string | null | undefined, nazev: string): string {
+  const zAutomatu = typeof kategorie === 'string' ? kategorie.trim() : ''
+  if (zAutomatu) return zAutomatu
+
+  if (OBJEM.test(nazev)) return 'Nápoje'
+  if (HMOTNOST.test(nazev)) return 'Občerstvení'
+  return NAPOJE.some((k) => nazev.toLowerCase().includes(k)) ? 'Nápoje' : OSTATNI
 }
 
 function cislo(hodnota: unknown): number | null {
@@ -228,7 +240,9 @@ function seskup(radky: Record<string, unknown>[], top: Set<string>): Polozka[] {
 /** Poslední známý stav ze Sanity. Použije se, když API neodpoví. */
 async function zaloha(): Promise<Nabidka> {
   const dotaz = encodeURIComponent(
-    '*[_type == "product" && zobrazit == true] | order(_id asc){nazev, cena, kategorie, dostupnost, kapacita, nejprodavanejsi}',
+    // Starší záložní produkty mají kategorii 'drink'/'snack'; převádí se
+    // na české názvy, aby filtr nikdy neukázal holé „drink".
+    '*[_type == "product" && zobrazit == true] | order(_id asc){nazev, cena, "kategorie": select(kategorie == "drink" => "Nápoje", kategorie == "snack" => "Občerstvení", kategorie), dostupnost, kapacita, nejprodavanejsi}',
   )
   const data = (await fetch(
     `https://${SANITY_PROJECT_ID}.apicdn.sanity.io/v${SANITY_API_VERZE}/data/query/${SANITY_DATASET}?query=${dotaz}`,
@@ -237,7 +251,7 @@ async function zaloha(): Promise<Nabidka> {
   const polozky = (data.result ?? []).map((p) => ({
     nazev: String(p.nazev),
     cena: Number(p.cena) || 0,
-    kategorie: (p.kategorie === 'drink' ? 'drink' : 'snack') as 'drink' | 'snack',
+    kategorie: String(p.kategorie || 'Ostatní'),
     dostupnost: Number(p.dostupnost) || 0,
     kapacita: Number(p.kapacita) || 12,
     nejprodavanejsi: Boolean(p.nejprodavanejsi),

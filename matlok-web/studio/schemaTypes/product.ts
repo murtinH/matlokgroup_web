@@ -24,13 +24,8 @@ export const product = defineType({
       name: 'kategorie',
       title: 'Kategorie',
       type: 'string',
-      options: {
-        list: [
-          {title: 'Nápoje', value: 'drink'},
-          {title: 'Občerstvení', value: 'snack'},
-        ],
-        layout: 'radio',
-      },
+      description:
+        'Musí se přesně shodovat s názvem kategorie v MůjAutomatu (Drinks, Energy & Sport, Snacks, Krkonoše). Podle ní web skládá filtry, takže jiný zápis vytvoří filtr navíc.',
       validation: (rule) => rule.required(),
     }),
     defineField({
