@@ -7,12 +7,39 @@ import NabidkaBoxu from '../components/NabidkaBoxu.astro'
 import IlustraceBoxu from '../components/IlustraceBoxu.astro'
 import StrukturovanaData from '../components/StrukturovanaData.astro'
 import {drobecky} from '../lib/drobecky'
-import {nastaveni, strankaMatlok, produkty, automat} from '../lib/queries'
+import {nastaveni, strankaMatlok, produkty, automat, type Product} from '../lib/queries'
+
+/**
+ * Nabídka pro první vykreslení stránky.
+ *
+ * Bere se z produkčního /api/automat v okamžiku buildu — skutečné zboží
+ * a kategorie. Skript v NabidkaBoxu ji po načtení přepíše živými daty,
+ * ale do té doby (a návštěvníkům bez JavaScriptu) se dřív ukazovalo šest
+ * ukázkových produktů z prototypu, které v automatu nikdy nebyly.
+ *
+ * Když produkce neodpoví do pěti vteřin, build nečeká a vezme produkty
+ * ze Sanity. Web se kvůli cizí službě stavět nepřestane.
+ */
+async function nabidkaPriBuildu(): Promise<Product[]> {
+  try {
+    const odpoved = await fetch(new URL('/api/automat', Astro.site), {
+      signal: AbortSignal.timeout(5000),
+      headers: {accept: 'application/json'},
+    })
+    if (!odpoved.ok) throw new Error(`HTTP ${odpoved.status}`)
+    const data = (await odpoved.json()) as {polozky?: Product[]}
+    if (data.polozky?.length) return data.polozky
+    throw new Error('prázdná nabídka')
+  } catch (chyba) {
+    console.warn('[matlok] Nabídka z produkce při buildu nedostupná, beru produkty ze Sanity:', chyba)
+    return produkty()
+  }
+}
 
 const [site, obsah, nabidka, box] = await Promise.all([
   nastaveni(),
   strankaMatlok(),
-  produkty(),
+  nabidkaPriBuildu(),
   automat(),
 ])
 

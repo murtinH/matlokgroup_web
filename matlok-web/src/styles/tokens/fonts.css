@@ -5,11 +5,16 @@
      2. Inter      — běžný text, tabulky, drobné písmo
 
    POZOR: písma se NENAČÍTAJÍ odsud.
-   Původní `@import url('https://fonts.googleapis.com/...')` musel pryč —
-   bundler ho při slučování CSS posunul za ostatní pravidla a prohlížeč
-   takový @import zahodí. Písma se proto načítají přes <link> v
-   src/layouts/Base.astro, což je i rychlejší.
+   Soubory jsou u nás, ne u Google Fonts — importuje je
+   src/layouts/Base.astro z balíčků @fontsource/montserrat a
+   @fontsource/inter. Build je přibalí do /_astro s otiskem v názvu,
+   takže je prohlížeč drží v cache natrvalo.
 
-   Až budeme řešit rychlost (Session 6), zvážíme self-hosting:
-   woff2 do /public/fonts a @font-face místo Google Fonts.
+   Proč ne Google Fonts:
+   - každá návštěva posílala IP adresu návštěvníka Googlu, a zásady
+     ochrany osobních údajů Google mezi příjemci neuvádějí,
+   - písma blokovala vykreslení a stála spojení na dvě cizí domény.
+
+   Názvy rodin zůstávají 'Montserrat' a 'Inter', takže tokeny ze
+   styleguidu se kvůli tomu měnit nemusí.
    ============================================================ */

@@ -18,8 +18,9 @@ import {SANITY_API_VERZE, SANITY_DATASET, SANITY_PROJECT_ID} from '../src/lib/ko
  *    odvodit o konkrétním zákazníkovi. Klíč má partner:write, takže čím
  *    míň se z něj dostane ven, tím líp.
  *
- * 3. Když API neodpoví, vrátí se poslední známý stav ze Sanity. Web kvůli
- *    cizí službě nespadne.
+ * 3. Když API neodpoví, vrátí se poslední známý stav: poslední úspěšná
+ *    odpověď, kterou si worker uložil do KV, a teprve bez ní produkty ze
+ *    Sanity. Web kvůli cizí službě nespadne.
  */
 
 const BASE = 'https://www.mujautomat.cz/api/partner/v1'
@@ -248,35 +249,73 @@ function seskup(radky: Record<string, unknown>[], top: Set<string>): Polozka[] {
 }
 
 /**
+ * Klíč, pod kterým si worker v KV pamatuje poslední úspěšnou odpověď
+ * z MůjAutomatu. Nese verzi tvaru odpovědi, stejně jako klíč do cache.
+ */
+const KLIC_POSLEDNI = `nabidka:posledni:v${CACHE_VERZE}`
+
+/**
+ * Jak dlouho platí v cache záloha. Krátce — ať se worker po výpadku brzy
+ * zkusí zeptat MůjAutomatu znovu, ale ne při každém načtení stránky.
+ */
+const ZALOHA_SEKUND = 2 * 60
+
+/**
  * Je uložená odpověď ještě čerstvá?
  *
- * Rozhoduje čas v těle odpovědi, ne hlavička max-age. Cloudflare držel
- * záznam déle, než hlavička říkala: odpověď uložená s max-age=720 se
- * servírovala i po třinácti minutách a navenek hlásila max-age=14400.
- * Vlastní kontrola na nastavení zóny nezávisí.
+ * Rozhoduje vlastní hlavička x-ulozeno s časem uložení, ne max-age.
+ * Cloudflare držel záznam déle, než hlavička říkala: odpověď uložená
+ * s max-age=720 se servírovala i po třinácti minutách a navenek hlásila
+ * max-age=14400. Vlastní hlavičky Cloudflare nepřepisuje.
+ *
+ * Čas v těle (aktualizovano) k tomu sloužit nemůže: u zálohy je to čas
+ * dat, který bývá hodiny starý, a worker by pak při výpadku volal
+ * nedostupný MůjAutomat při každém načtení stránky.
  */
-async function jeCerstva(odpoved: Response): Promise<boolean> {
-  try {
-    const {aktualizovano} = (await odpoved.clone().json()) as {aktualizovano?: string}
-    const stari = Date.now() - Date.parse(aktualizovano ?? '')
-    return Number.isFinite(stari) && stari >= 0 && stari < CACHE_SEKUND * 1000
-  } catch {
-    return false
-  }
+function jeCerstva(odpoved: Response): boolean {
+  const ulozeno = Date.parse(odpoved.headers.get('x-ulozeno') ?? '')
+  const platnost = Number(odpoved.headers.get('x-platnost-sekund'))
+  const stari = Date.now() - ulozeno
+  return Number.isFinite(stari) && stari >= 0 && platnost > 0 && stari < platnost * 1000
 }
 
-/** Poslední známý stav ze Sanity. Použije se, když API neodpoví. */
-async function zaloha(): Promise<Nabidka> {
+/**
+ * Záloha, když MůjAutomat neodpoví.
+ *
+ * 1. Poslední úspěšná odpověď z KV — skutečné zboží, ceny a kategorie.
+ * 2. Až když v KV nic není (třeba hned po prvním nasazení), produkty ze
+ *    Sanity. Tam je jen šest ukázkových položek z prototypu.
+ *
+ * Čas v odpovědi je vždy čas dat, ne čas dotazu. Stránka ho ukazuje jako
+ * „poslední známý stav z …" — dřív tam stál aktuální čas, takže zastaralá
+ * nabídka vypadala jako čerstvá.
+ *
+ * Prodané kusy se nevracejí ani z KV. Na titulce u nich není čas, takže
+ * by zaseknuté číslo vypadalo jako živé — pomlčka je poctivější.
+ */
+async function zaloha(env: Env): Promise<Nabidka> {
+  if (env.ZALOHA_NABIDKY) {
+    try {
+      const posledni = await env.ZALOHA_NABIDKY.get<Nabidka>(KLIC_POSLEDNI, 'json')
+      if (posledni?.polozky?.length) return {...posledni, zdroj: 'zaloha', prodano: null}
+    } catch (chyba) {
+      console.error('Záloha z KV selhala:', chyba)
+    }
+  }
+
   const dotaz = encodeURIComponent(
     // Starší záložní produkty mají kategorii 'drink'/'snack'; převádí se
     // na české názvy, aby filtr nikdy neukázal holé „drink".
-    '*[_type == "product" && zobrazit == true] | order(_id asc){nazev, cena, "kategorie": select(kategorie == "drink" => "Nápoje", kategorie == "snack" => "Občerstvení", kategorie), dostupnost, kapacita, nejprodavanejsi}',
+    `{
+      "polozky": *[_type == "product" && zobrazit == true] | order(_id asc){nazev, cena, "kategorie": select(kategorie == "drink" => "Nápoje", kategorie == "snack" => "Občerstvení", kategorie), dostupnost, kapacita, nejprodavanejsi},
+      "zmeneno": *[_type == "product" && zobrazit == true] | order(_updatedAt desc)[0]._updatedAt
+    }`,
   )
   const data = (await fetch(
     `https://${SANITY_PROJECT_ID}.apicdn.sanity.io/v${SANITY_API_VERZE}/data/query/${SANITY_DATASET}?query=${dotaz}`,
-  ).then((r) => r.json())) as {result?: Record<string, unknown>[]}
+  ).then((r) => r.json())) as {result?: {polozky?: Record<string, unknown>[]; zmeneno?: string}}
 
-  const polozky = (data.result ?? []).map((p) => ({
+  const polozky = (data.result?.polozky ?? []).map((p) => ({
     nazev: String(p.nazev),
     cena: Number(p.cena) || 0,
     kategorie: String(p.kategorie || 'Ostatní'),
@@ -285,9 +324,15 @@ async function zaloha(): Promise<Nabidka> {
     nejprodavanejsi: Boolean(p.nejprodavanejsi),
   }))
 
-  // Prodané kusy jdou jen z API. Ze Sanity se nedopočítávají — číslo, které
-  // by se zaseklo na poslední známé hodnotě, je horší než žádné.
-  return {ok: true, zdroj: 'zaloha', aktualizovano: new Date().toISOString(), polozky, prodano: null}
+  return {
+    ok: true,
+    zdroj: 'zaloha',
+    // Kdy byly produkty v Sanity naposledy změněné. Když žádné nejsou,
+    // stránka nabídku nevykreslí vůbec, takže na čase nesejde.
+    aktualizovano: data.result?.zmeneno ?? new Date(0).toISOString(),
+    polozky,
+    prodano: null,
+  }
 }
 
 export async function nabidkaAutomatu(request: Request, env: Env): Promise<Response> {
@@ -297,7 +342,7 @@ export async function nabidkaAutomatu(request: Request, env: Env): Promise<Respo
   })
 
   const ulozena = await cache.match(klic)
-  if (ulozena && (await jeCerstva(ulozena))) return ulozena
+  if (ulozena && jeCerstva(ulozena)) return ulozena
 
   let nabidka: Nabidka
 
@@ -328,15 +373,32 @@ export async function nabidkaAutomatu(request: Request, env: Env): Promise<Respo
     if (polozky.length === 0) throw new Error('API nevrátilo žádné zboží.')
 
     nabidka = {ok: true, zdroj: 'api', aktualizovano: new Date().toISOString(), polozky, prodano}
+
+    // Poslední úspěšnou odpověď si worker pamatuje pro chvíle, kdy
+    // MůjAutomat neodpoví. Nepodařený zápis nabídku shodit nesmí.
+    if (env.ZALOHA_NABIDKY) {
+      try {
+        await env.ZALOHA_NABIDKY.put(KLIC_POSLEDNI, JSON.stringify(nabidka))
+      } catch (chyba) {
+        console.error('Zápis zálohy do KV selhal:', chyba)
+      }
+    }
   } catch (chyba) {
     console.error('Nabídka z Partner API selhala:', chyba)
-    nabidka = await zaloha()
+    nabidka = await zaloha(env)
   }
+
+  // Záloha platí jen krátce, ať se worker po výpadku brzy zeptá znovu.
+  const platnost = nabidka.zdroj === 'api' ? CACHE_SEKUND : ZALOHA_SEKUND
 
   const odpoved = Response.json(nabidka, {
     headers: {
       // Cizí API se nevolá při každém načtení stránky.
-      'cache-control': `public, max-age=${CACHE_SEKUND}`,
+      'cache-control': `public, max-age=${platnost}`,
+      // Podle těchhle dvou hlaviček worker pozná, jestli je uložená
+      // odpověď ještě čerstvá — viz jeCerstva().
+      'x-ulozeno': new Date().toISOString(),
+      'x-platnost-sekund': String(platnost),
     },
   })
 

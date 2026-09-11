@@ -5,6 +5,22 @@
  */
 import '../styles/global.css'
 import '../styles/site.css'
+
+// Značková písma jsou u nás, ne u Google Fonts — proč, viz
+// src/styles/tokens/fonts.css. Jen řezy, které web opravdu používá:
+// Montserrat 300 nikde není, ostatní ano (nadpisy 800–900, popisky 600–700).
+// Každý řez má zvlášť latinku a latin-ext; prohlížeč stáhne jen to,
+// co na stránce potřebuje.
+import '@fontsource/montserrat/400.css'
+import '@fontsource/montserrat/500.css'
+import '@fontsource/montserrat/600.css'
+import '@fontsource/montserrat/700.css'
+import '@fontsource/montserrat/800.css'
+import '@fontsource/montserrat/900.css'
+import '@fontsource/inter/400.css'
+import '@fontsource/inter/500.css'
+import '@fontsource/inter/600.css'
+import '@fontsource/inter/700.css'
 import CookieLista from '../components/CookieLista.astro'
 import {obrazek} from '../lib/sanity'
 import type {SiteSettings} from '../lib/queries'
@@ -79,18 +95,9 @@ const sdileni = nastaveni.ogObrazek
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="alternate icon" type="image/png" href="/favicon.png" />
 
-    <!-- Značková písma. Načítají se tady, ne v CSS — viz komentář
-         v src/styles/tokens/fonts.css. -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-
     <!-- Obrázky se stahují ze Sanity CDN. Navázání spojení dopředu ušetří
          u prvního obrázku jeden DNS a TLS round trip. -->
     <link rel="preconnect" href="https://cdn.sanity.io" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap"
-    />
 
     <title>{nadpisStranky}</title>
     {popisStranky && <meta name="description" content={popisStranky} />}

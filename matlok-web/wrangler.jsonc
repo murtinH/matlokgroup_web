@@ -22,6 +22,15 @@
     {
       "binding": "RATE_LIMIT",
       "id": "061f52eff4684c98bbcb030d7fb87013"
+    },
+
+    // Poslední úspěšná nabídka z MůjAutomatu — záloha pro výpadek API.
+    // Stejné úložiště jako počítadlo, jen jiný klíč (nabidka:posledni:v…);
+    // počítadlo používá otisky IP, takže se klíče nepletou. Samostatné
+    // úložiště by znamenalo zakládat další v dashboardu kvůli jednomu klíči.
+    {
+      "binding": "ZALOHA_NABIDKY",
+      "id": "061f52eff4684c98bbcb030d7fb87013"
     }
   ]
 
