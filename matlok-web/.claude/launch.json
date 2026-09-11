@@ -4,14 +4,29 @@
     {
       "name": "web",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
       "port": 4321
     },
     {
       "name": "studio",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev:studio"],
+      "runtimeArgs": [
+        "run",
+        "dev:studio"
+      ],
       "port": 3333
+    },
+    {
+      "name": "worker",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "cf:dev"
+      ],
+      "port": 8787
     }
   ]
 }
