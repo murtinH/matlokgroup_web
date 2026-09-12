@@ -87,6 +87,10 @@ export interface HomePage extends Seo {
   procEyebrow: string
   procNadpis: string
   duvody?: {nadpis: string; text: string; ikona?: string}[]
+  ctaEyebrow?: string
+  ctaNadpis?: string
+  ctaLead?: string
+  ctaTlacitko?: Odkaz
 }
 
 export interface Product {
@@ -202,6 +206,7 @@ export interface CenikPage extends Seo {
   heroNadpis: string
   heroNadpisTip: string
   heroLead: string
+  heroTlacitko?: Odkaz
   poznamkaDph: string
   skupiny?: CenovaSkupina[]
   automatyEyebrow?: string

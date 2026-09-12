@@ -257,6 +257,9 @@ export const cenikPage = defineType({
       name: 'heroLead', title: 'Perex', type: 'text', rows: 4, group: 'hero',
       validation: (r) => r.required().custom(zakazBezDph),
     }),
+    // Postup spolupráce žije na /sluzby — tohle je na něj odkaz, ať ho
+    // návštěvník ceníku nemusí hledat.
+    tlacitko('heroTlacitko', 'Tlačítko pod úvodem', 'hero'),
     defineField({
       name: 'poznamkaDph', title: 'Věta o DPH', type: 'string', group: 'slevy',
       description: 'Povinná. Zobrazuje se na konci stránky, pod zvýhodněnou nabídkou. Například: Nejsme plátci DPH — uvedené ceny jsou konečné.',

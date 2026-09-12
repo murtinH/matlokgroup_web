@@ -48,6 +48,7 @@ export const homePage = defineType({
     {name: 'divize', title: 'Divize'},
     {name: 'zakladatele', title: 'Zakladatelé'},
     {name: 'proc', title: 'Proč Matlok'},
+    {name: 'cta', title: 'Výzva na konci'},
     {name: 'seo', title: 'Vyhledávače'},
   ],
   fields: [
@@ -136,6 +137,18 @@ export const homePage = defineType({
         preview: {select: {title: 'nadpis', subtitle: 'text'}},
       }],
       validation: (r) => r.max(3),
+    }),
+
+    // --- Výzva na konci stránky ---
+    defineField({name: 'ctaEyebrow', title: 'Nadřádek', type: 'string', group: 'cta'}),
+    defineField({name: 'ctaNadpis', title: 'Nadpis', type: 'string', group: 'cta'}),
+    defineField({name: 'ctaLead', title: 'Text', type: 'text', rows: 3, group: 'cta'}),
+    defineField({
+      name: 'ctaTlacitko', title: 'Tlačítko', type: 'object', group: 'cta',
+      fields: [
+        {name: 'text', title: 'Text', type: 'string'},
+        {name: 'odkaz', title: 'Odkaz', type: 'string'},
+      ],
     }),
 
     // --- Vyhledávače ---
