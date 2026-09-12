@@ -87,6 +87,13 @@ const uzly = [
           <p class="eyebrow">{obsah.heroEyebrow}</p>
           <h1>{obsah.heroNadpis}<br /><span class="tip">{obsah.heroNadpisTip}</span></h1>
           <p class="lead">{obsah.heroLead}</p>
+          {
+            obsah.heroTlacitko && (
+              <div class="ctas">
+                <a class="btn btn--ghost" href={obsah.heroTlacitko.odkaz}>{obsah.heroTlacitko.text}</a>
+              </div>
+            )
+          }
         </div>
       </div>
     </section>

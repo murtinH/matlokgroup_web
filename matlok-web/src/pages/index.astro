@@ -85,6 +85,23 @@ const [site, obsah, seznamDivizi, seznamZakladatelu] = await Promise.all([
             ))
           }
         </div>
+
+        {/*
+          Stejná výzva jako na konci ostatních stránek. Návštěvník, kterého
+          text přesvědčil, nemá dohledávat kontakt v navigaci.
+        */}
+        <div class="vyzva reveal">
+          <div>
+            <p class="eyebrow eyebrow--onink">{obsah.ctaEyebrow}</p>
+            <h2>{obsah.ctaNadpis}</h2>
+            <p>{obsah.ctaLead}</p>
+          </div>
+          <div class="vyzva__akce">
+            {obsah.ctaTlacitko && (
+              <a class="btn btn--primary" href={obsah.ctaTlacitko.odkaz}>{obsah.ctaTlacitko.text}</a>
+            )}
+          </div>
+        </div>
       </div>
     </section>
   </main>
