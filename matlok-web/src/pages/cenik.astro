@@ -95,6 +95,42 @@ const uzly = [
             )
           }
         </div>
+
+        {/*
+          Zvýhodněná nabídka jako upozornění nad cenami, ne blok na konci
+          stránky. Dole končila hned pod výzvou k automatům a vypadala,
+          že se slevy týkají automatů — ty se přitom cení individuálně.
+          Kotva #slevy zůstává, ať staré odkazy fungují.
+        */}
+        {
+          obsah.slevy && obsah.slevy.length > 0 && (
+            <aside class="upozorneni reveal" id="slevy">
+              <div class="upozorneni__hlava">
+                <p class="upozorneni__stitek">{obsah.slevyEyebrow}</p>
+                <p class="upozorneni__nadpis">{obsah.slevyNadpis}</p>
+              </div>
+
+              <ul class="upozorneni__seznam">
+                {obsah.slevy.map((s) => (
+                  <li>
+                    <b>{nezlomit(s.hodnota)}</b>
+                    {s.nazev}
+                    {s.popis && <span class="upozorneni__detail"> · {s.popis}</span>}
+                  </li>
+                ))}
+              </ul>
+
+              <div class="upozorneni__pata">
+                {obsah.slevyLead && <p class="upozorneni__pozn">{obsah.slevyLead}</p>}
+                {obsah.slevyTlacitko && (
+                  <a class="btn btn--ghost btn--sm" href={obsah.slevyTlacitko.odkaz}>
+                    {obsah.slevyTlacitko.text}
+                  </a>
+                )}
+              </div>
+            </aside>
+          )
+        }
       </div>
     </section>
 
@@ -225,39 +261,13 @@ const uzly = [
       )
     }
 
-    <section class="section" id="slevy" style="padding-top: 0">
+    {/*
+      Věta o DPH uzavírá stránku. Neplátce ji uvést musí, ale pod úvodem
+      přebíjela to podstatné — co nabízíme.
+    */}
+    <section class="section" style="padding-top: 0">
       <div class="container">
-        <div class="slevy reveal">
-          <p class="eyebrow">{obsah.slevyEyebrow}</p>
-          <h2>{obsah.slevyNadpis}</h2>
-          {obsah.slevyLead && <p class="slevy__lead">{obsah.slevyLead}</p>}
-
-          <div class="slevy__grid">
-            {
-              obsah.slevy?.map((s) => (
-                <article class="sleva">
-                  <div class="sleva__v">{nezlomit(s.hodnota)}</div>
-                  <h3>{s.nazev}</h3>
-                  {s.popis && <p>{s.popis}</p>}
-                </article>
-              ))
-            }
-          </div>
-
-          {/* Věta o DPH je až tady, ne pod úvodem. Neplátce ji uvést musí,
-              ale na začátku stránky přebíjela to podstatné — co nabízíme. */}
-          {obsah.poznamkaDph && <p class="slevy__pozn">{obsah.poznamkaDph}</p>}
-
-          {
-            obsah.slevyTlacitko && (
-              <div class="slevy__akce">
-                <a class="btn btn--primary" href={obsah.slevyTlacitko.odkaz}>
-                  {obsah.slevyTlacitko.text}
-                </a>
-              </div>
-            )
-          }
-        </div>
+        {obsah.poznamkaDph && <p class="dphnote">{obsah.poznamkaDph}</p>}
       </div>
     </section>
   </main>

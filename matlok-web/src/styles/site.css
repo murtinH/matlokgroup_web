@@ -1738,75 +1738,61 @@ details.faq p { font-size: var(--text-sm); color: var(--text-secondary); margin:
   .priceline__c { justify-self: start; margin-top: 0.2em; }
 }
 
-/* ------------------------------------------------------------ slevy
-   Jediný blok na webu na Winter Red. Odlišuje poslední sdělení stránky
-   od azurového zbytku, aniž by přibyla barva — --warm je alias pro
-   --red-500 z tokens/colors.css.
+/* ------------------------------------------------------------ upozornění
+   Zvýhodněná nabídka nad cenami služeb. Dřív to byl velký blok na Winter Red
+   na konci stránky — končil hned pod výzvou k automatům a vypadalo to, že
+   slevy platí pro automaty, které se přitom cení individuálně.
 
-   Pozor na kontrast. Na tmavém inkoustu web běžně tlumí sekundární text
-   na rgba(255,255,255,.72), což tam vychází 8,45 : 1. Na Winter Red
-   (#C44536) má ale i .82 jen 3,8 : 1, tedy pod WCAG AA. Text je proto
-   čistě bílý (4,94 : 1) a hierarchii dělá velikost, ne průhlednost.
+   Podklad je nejsvětlejší odstín Winter Red, ne plná barva: upozornění má
+   být vidět, ne překřičet ceník. Kontrast na --red-50 vychází 13 : 1 pro
+   inkoustový text a 5,6 : 1 pro procenta v --red-700.
    ------------------------------------------------------------ */
-.slevy {
-  background: var(--warm);
-  color: #fff;
-  border-radius: var(--radius-xl);
-  padding: clamp(1.75rem, 4vw, var(--space-9));
-  margin-top: var(--space-9);
-  position: relative;
-  overflow: hidden;
-}
-/* Značkový čtverec zůstává, ale v inkoustu. Azurová na Winter Red je
-   jediná dvojice v paletě, která spolu drnčí; ink je z téže palety. */
-.slevy::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: clamp(1.75rem, 4vw, var(--space-9));
-  width: 32px;
-  height: 8px;
-  background: var(--ink-800);
-}
-/* Nadřádek musí být bílý, ne azurový. --azure-400 má na Winter Red
-   kontrast 2,62 : 1 a je to malé verzálkové písmo — WCAG AA chce 4,5 : 1.
-   Bílá dává 4,94 : 1. */
-.slevy .eyebrow { color: #fff; }
-.slevy h2 { color: #fff; margin-bottom: var(--space-3); }
-.slevy__lead {
-  color: #fff;
-  font-size: var(--text-md);
-  line-height: 1.65;
-  max-width: 60ch;
-  margin: 0 0 var(--space-7);
-}
-.slevy__grid {
+.upozorneni {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-5);
+  gap: var(--space-3);
+  background: var(--warm-soft);
+  border-left: 3px solid var(--warm);
+  border-radius: var(--radius-md);
+  padding: var(--space-5) var(--space-6);
+  margin-top: var(--space-8);
 }
-@media (max-width: 760px) { .slevy__grid { grid-template-columns: minmax(0, 1fr); } }
-.sleva { border-top: 2px solid rgba(255, 255, 255, 0.45); padding-top: var(--space-4); }
-.sleva__v {
+.upozorneni__hlava { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2) var(--space-3); }
+.upozorneni__stitek {
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--red-700);
+  margin: 0;
+}
+.upozorneni__nadpis {
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-base);
+  color: var(--ink-800);
+  margin: 0;
+}
+.upozorneni__seznam {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: var(--space-2) var(--space-5);
+}
+.upozorneni__seznam li { font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.5; }
+.upozorneni__seznam b {
   font-family: var(--font-display);
   font-weight: var(--fw-black);
-  font-size: var(--text-2xl);
-  line-height: 1;
-  color: #fff;
-  font-variant-numeric: tabular-nums;
+  color: var(--red-700);
+  margin-right: 0.45em;
+  white-space: nowrap;
 }
-.sleva h3 { color: #fff; font-size: var(--text-base); margin: var(--space-3) 0 0.4em; }
-.sleva p { color: #fff; font-size: var(--text-sm); line-height: 1.6; margin: 0; }
-.slevy__pozn { margin: var(--space-7) 0 0; font-size: var(--text-xs); color: #fff; line-height: 1.6; }
-.slevy__akce { margin-top: var(--space-6); }
-/* Bílé tlačítko, ne azurové.
-   Azurová na Winter Red má proti podkladu kontrast 2,16 : 1 — pod hranicí
-   3 : 1, kterou WCAG 1.4.11 žádá po obrysu ovládacího prvku. A je to
-   navíc jediná dvojice v paletě, která spolu drnčí. Bílá dává 4,94 : 1
-   a inkoustový text na ní 15,9 : 1. */
-.slevy__akce .btn--primary { background: #fff; color: var(--ink-800); }
-.slevy__akce .btn--primary:hover { background: var(--snow); box-shadow: none; }
-@media (max-width: 600px) { .slevy__akce .btn { width: 100%; } }
+.upozorneni__detail { color: var(--text-muted); }
+.upozorneni__pata { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-5); }
+.upozorneni__pozn { font-size: var(--text-xs); color: var(--text-muted); margin: 0; flex: 1 1 24ch; }
+@media (max-width: 600px) { .upozorneni__pata .btn { width: 100%; } }
 
 /* Rozbalení celé nabídky automatu. Automat vydává skoro čtyřicet druhů
    zboží a celý seznam naráz z nabídky udělal nekonečný sloupec. */
