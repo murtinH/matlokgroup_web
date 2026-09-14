@@ -3,7 +3,7 @@
  *
  * Statické stránky servíruje Cloudflare sám z bindingu ASSETS — tenhle
  * skript se spustí až u požadavku, pro který žádný soubor neexistuje.
- * Řeší tedy jen serverová volání pod /api/.
+ * Řeší tedy jen serverová volání pod /api/ a plánované úlohy.
  *
  * Právě proto tady NENÍ přesměrování z www na holou doménu: u běžné
  * stránky se skript vůbec nespustí, protože ji Cloudflare odbaví dřív.
@@ -14,6 +14,7 @@
  */
 import {zpracujPoptavku} from './poptavka'
 import {nabidkaAutomatu} from './automat'
+import {provozAutomatu} from './provoz'
 
 export interface Env {
   /** Statické soubory z buildu Astra. Nastavuje wrangler.jsonc. */
@@ -41,6 +42,14 @@ export interface Env {
    * spadne rovnou na produkty ze Sanity.
    */
   ZALOHA_NABIDKY?: KVNamespace
+
+  /**
+   * Paměť hlídání automatu — co už bylo nahlášené, kolikrát po sobě API
+   * neodpovědělo a za který týden odešel report. Stejné úložiště jako
+   * ostatní, klíče začínají provoz:. Bez bindingu hlídání neběží: nevědělo
+   * by, co už poslalo, a posílalo by totéž každou půlhodinu.
+   */
+  PROVOZ?: KVNamespace
 }
 
 export default {
@@ -60,5 +69,14 @@ export default {
 
     // Cokoli jiného je statická stránka nebo soubor.
     return env.ASSETS.fetch(request)
+  },
+
+  /**
+   * Plánované úlohy. Cloudflare je spouští podle "triggers" ve wrangler.jsonc —
+   * každých 30 minut hlídání automatu a týdenní report, viz worker/provoz.ts.
+   */
+  async scheduled(kontroler: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
+    // Čas, na který byl běh naplánovaný, ne okamžik, kdy se skutečně spustil.
+    ctx.waitUntil(provozAutomatu(env, new Date(kontroler.scheduledTime)))
   },
 } satisfies ExportedHandler<Env>

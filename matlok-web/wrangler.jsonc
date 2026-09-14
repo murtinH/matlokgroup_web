@@ -31,8 +31,22 @@
     {
       "binding": "ZALOHA_NABIDKY",
       "id": "061f52eff4684c98bbcb030d7fb87013"
+    },
+
+    // Paměť hlídání automatu — co už bylo nahlášené a za který týden
+    // odešel report. Opět stejné úložiště, klíče začínají provoz:.
+    {
+      "binding": "PROVOZ",
+      "id": "061f52eff4684c98bbcb030d7fb87013"
     }
-  ]
+  ],
+
+  // Plánované úlohy, čas v UTC. Každých 30 minut hlídání zásob a dostupnosti
+  // automatu; týdenní report odchází ve stejném běhu, jakmile je na řadě.
+  // Noční klid a pondělí řeší worker/provoz.ts podle pražského času.
+  "triggers": {
+    "crons": ["*/30 * * * *"]
+  }
 
   // Veřejné identifikátory Sanity nejsou ani tady, ani v dashboardu —
   // jsou v src/lib/konfigurace.ts, odkud je čte build webu i tenhle skript.
