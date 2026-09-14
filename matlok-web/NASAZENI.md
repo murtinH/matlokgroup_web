@@ -338,6 +338,87 @@ trvá to déle a nevidíš, co s ní udělal.
 
 ---
 
+## 8 · [ty + Claude] Upozornění a týdenní report z automatu
+
+Kód: `worker/provoz.ts` (co a kdy se posílá), `worker/provoz-sablony.ts`
+(texty e-mailů), `worker/cas.ts` (pražský čas), `worker/email.ts` (Resend).
+
+### Jak to běží
+
+- Cloudflare spouští worker **každých 30 minut** (`triggers` ve `wrangler.jsonc`).
+  Mezi 22. a 7. hodinou pražského času nedělá nic — co se stane v noci,
+  přijde ráno v jednom e-mailu.
+- **Upozornění** odejde, jen když se u zboží stav zhorší (v pořádku → dochází →
+  vyprodáno). Doplnění nic neposílá. „Dochází“ = hranice u automatu, jinak
+  hranice „poslední kusy“ ze stránky Matlok.
+- **Výpadek**: když MůjAutomat 4 běhy po sobě (asi 2 hodiny) neodpovídá,
+  odejde jedno upozornění; po obnovení jedno „zase odpovídá“.
+- **Týdenní report** za minulý týden (pondělí až neděle) odejde prvním během
+  po 7:00 v pondělí. Když MůjAutomat zrovna neodpovídá, zkouší se to každou
+  půlhodinu znovu.
+- Nic z toho nejde na web. Report obsahuje tržby.
+
+**Hned po nasazení** odejdou dva e-maily: upozornění na všechno, co teď
+dochází (worker ještě nic nenahlásil), a report za minulý týden.
+
+### Nastavení v Sanity
+
+Dokument **Automat** → sekce *Upozornění a týdenní report*: příjemci,
+zapnutí upozornění, hranice, zapnutí reportu. Bez příjemců chodí e-maily
+na *E-mail pro poptávky* z Nastavení webu.
+
+Nová pole se ve Studiu objeví až po jeho nasazení:
+
+```bash
+cd studio && npx sanity deploy
+```
+
+### Kontrola a ruční zásahy
+
+Průběh běhů (spustí se nejbližší půlhodinu):
+
+```bash
+npx wrangler tail matlokgroup-web --format pretty
+```
+
+Co si worker pamatuje:
+
+```bash
+npx wrangler kv key list --binding PROVOZ --remote --prefix provoz:
+```
+
+- **Poslat report znovu** — smazat `provoz:report:<machineId>`, odejde při dalším běhu.
+- **Poslat znovu všechna aktuální upozornění** — smazat `provoz:zasoby:<machineId>`.
+
+```bash
+npx wrangler kv key delete --binding PROVOZ --remote "provoz:report:<machineId>"
+```
+
+### Lokální test
+
+V jednom terminálu spusť worker:
+
+```bash
+npx wrangler dev
+```
+
+Ve druhém spusť plánovanou úlohu (lokálně se sama nespouští):
+
+```bash
+curl "http://localhost:8787/cdn-cgi/local/scheduled?cron=*/30+*+*+*+*"
+```
+
+Bez `MUJAUTOMAT_API_KEY` v `.dev.vars` úloha skončí hláškou v terminálu.
+Bez `RESEND_API_KEY` se e-maily neodesílají, jen se celé vypíšou do terminálu.
+Lokální KV je oddělené od produkčního, takže lokální běh nic nepokazí.
+
+### Limity free tarifu
+
+- KV: 1 000 zápisů denně. Hlídání zapisuje jen při změně stavu — desítky denně.
+- Cron Triggers: 5 na účet, web používá jeden.
+
+---
+
 ## Co zbývá po nasazení
 
 - **Token analytiky**: Cloudflare → Web Analytics → přidat `matlok.cz`, token vložit

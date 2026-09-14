@@ -111,7 +111,7 @@ function urciKategorii(kategorie: string | null | undefined, nazev: string): str
   return NAPOJE.some((k) => nazev.toLowerCase().includes(k)) ? 'Nápoje' : OSTATNI
 }
 
-function cislo(hodnota: unknown): number | null {
+export function cislo(hodnota: unknown): number | null {
   if (typeof hodnota === 'number') return hodnota
   if (typeof hodnota === 'string') {
     const n = Number(hodnota.replace(',', '.'))
@@ -126,7 +126,7 @@ function pole(zaznam: Record<string, unknown>, nazvy: string[]): unknown {
   return undefined
 }
 
-async function zavolej(env: Env, cesta: string): Promise<unknown> {
+export async function zavolej(env: Env, cesta: string): Promise<unknown> {
   const odpoved = await fetch(`${BASE}${cesta}`, {
     headers: {
       authorization: `Bearer ${env.MUJAUTOMAT_API_KEY}`,
@@ -135,6 +135,38 @@ async function zavolej(env: Env, cesta: string): Promise<unknown> {
   })
   if (!odpoved.ok) throw new Error(`${cesta} → ${odpoved.status}`)
   return odpoved.json()
+}
+
+/**
+ * Zaplacené objednávky automatu, od nejnovějších, stránku po stránce.
+ *
+ * Stránkuje se přes cursor, dokud API hlásí hasMore, se stropem
+ * STRANEK_NEJVYS. Kdo potřebuje jen část historie (týdenní report),
+ * přestane číst dřív a další stránky se už nenačtou.
+ *
+ * Objednávky přicházejí celé, i se jménem a e-mailem zákazníka. Každý,
+ * kdo tuhle funkci volá, si z nich bere jen to, co potřebuje, a zbytek
+ * zahodí hned na místě.
+ */
+export async function* objednavky(env: Env, machineId: string): AsyncGenerator<Record<string, unknown>> {
+  let cursor: string | undefined
+  let stranka = 0
+
+  do {
+    const parametry = new URLSearchParams({limit: String(OBJEDNAVEK), paymentStatus: 'paid'})
+    if (cursor) parametry.set('cursor', cursor)
+
+    const data = (await zavolej(env, `/machines/${machineId}/orders?${parametry}`)) as {
+      orders?: Record<string, unknown>[]
+      nextCursor?: string
+      hasMore?: boolean
+    }
+
+    yield* data.orders ?? []
+
+    cursor = data.hasMore ? data.nextCursor : undefined
+    stranka += 1
+  } while (cursor && stranka < STRANEK_NEJVYS)
 }
 
 /**
@@ -154,32 +186,16 @@ async function prodeje(env: Env, machineId: string): Promise<{top: Set<string>; 
   try {
     const naProdukt = new Map<string, number>()
     let celkem = 0
-    let cursor: string | undefined
-    let stranka = 0
 
-    do {
-      const parametry = new URLSearchParams({limit: String(OBJEDNAVEK), paymentStatus: 'paid'})
-      if (cursor) parametry.set('cursor', cursor)
-
-      const data = (await zavolej(env, `/machines/${machineId}/orders?${parametry}`)) as {
-        orders?: Record<string, unknown>[]
-        nextCursor?: string
-        hasMore?: boolean
+    for await (const objednavka of objednavky(env, machineId)) {
+      const polozky = (objednavka.items ?? []) as Record<string, unknown>[]
+      for (const p of polozky) {
+        const mnozstvi = cislo(p.quantity) ?? 0
+        celkem += mnozstvi
+        const id = typeof p.productId === 'string' ? p.productId : null
+        if (id) naProdukt.set(id, (naProdukt.get(id) ?? 0) + mnozstvi)
       }
-
-      for (const objednavka of data.orders ?? []) {
-        const polozky = (objednavka.items ?? []) as Record<string, unknown>[]
-        for (const p of polozky) {
-          const mnozstvi = cislo(p.quantity) ?? 0
-          celkem += mnozstvi
-          const id = typeof p.productId === 'string' ? p.productId : null
-          if (id) naProdukt.set(id, (naProdukt.get(id) ?? 0) + mnozstvi)
-        }
-      }
-
-      cursor = data.hasMore ? data.nextCursor : undefined
-      stranka += 1
-    } while (cursor && stranka < STRANEK_NEJVYS)
+    }
 
     const top = new Set(
       [...naProdukt.entries()]
@@ -196,9 +212,34 @@ async function prodeje(env: Env, machineId: string): Promise<{top: Set<string>; 
   }
 }
 
-/** Seskupí řádky spirál podle produktu a sečte zásoby. */
-function seskup(radky: Record<string, unknown>[], top: Set<string>): Polozka[] {
-  const podleProduktu = new Map<string, Polozka & {id: string}>()
+/** Zboží v automatu tak, jak ho vidí provoz — i s ID produktu a i vyprodané. */
+export interface Produkt {
+  id: string
+  nazev: string
+  cena: number
+  kategorie: string
+  dostupnost: number
+  kapacita: number
+}
+
+/** Seznam spirál v detailu automatu. Může být pod několika názvy; bere se první pole objektů. */
+export function spiralyZDetailu(detail: Record<string, unknown>): Record<string, unknown>[] {
+  return (
+    (Object.values(detail).find(
+      (h) => Array.isArray(h) && h.length > 0 && typeof h[0] === 'object',
+    ) as Record<string, unknown>[] | undefined) ?? []
+  )
+}
+
+/**
+ * Seskupí řádky spirál podle produktu a sečte zásoby.
+ *
+ * Vrací všechno zboží včetně vyprodaného a s ID produktu — to potřebuje
+ * provoz automatu (upozornění, report). Co z toho smí na web, rozhoduje
+ * až nabidkaAutomatu().
+ */
+export function seskupSpiraly(radky: Record<string, unknown>[]): Produkt[] {
+  const podleProduktu = new Map<string, Produkt>()
 
   for (const radek of radky) {
     const produkt = (pole(radek, ['product', 'produkt']) ?? radek) as Record<string, unknown>
@@ -239,13 +280,10 @@ function seskup(radky: Record<string, unknown>[], top: Set<string>): Polozka[] {
       ),
       dostupnost: zasoba,
       kapacita,
-      nejprodavanejsi: top.has(id),
     })
   }
 
   return [...podleProduktu.values()]
-    .filter((p) => p.dostupnost > 0)
-    .map(({id: _id, ...zbytek}) => zbytek)
 }
 
 /**
@@ -363,13 +401,10 @@ export async function nabidkaAutomatu(request: Request, env: Env): Promise<Respo
       prodeje(env, machineId),
     ])
 
-    // Seznam spirál může být pod několika názvy; bereme první pole objektů.
-    const seznam =
-      (Object.values(detail).find(
-        (h) => Array.isArray(h) && h.length > 0 && typeof h[0] === 'object',
-      ) as Record<string, unknown>[] | undefined) ?? []
-
-    const polozky = seskup(seznam, top)
+    // Na web jde jen zboží, které je skladem, a bez ID produktu.
+    const polozky: Polozka[] = seskupSpiraly(spiralyZDetailu(detail))
+      .filter((p) => p.dostupnost > 0)
+      .map(({id, ...zbytek}) => ({...zbytek, nejprodavanejsi: top.has(id)}))
     if (polozky.length === 0) throw new Error('API nevrátilo žádné zboží.')
 
     nabidka = {ok: true, zdroj: 'api', aktualizovano: new Date().toISOString(), polozky, prodano}
